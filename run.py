@@ -118,7 +118,8 @@ def capture_terminal_continuously(interval=0.05, path='./tmp/screenshots', txtpa
                 img = capture_specific_window(window_id)
                 if img:
                     width, height = img.size
-                    area = (0, 60, width, height) #HACK to cut off the navbar.
+                    
+                    area = (0, 60 if height > 60 else 0, width, height) #HACK to cut off the navbar.
                     cropped_img = img.crop(area)
                     filename = save_image(cropped_img, path)
                     highlight = extract_highlighted_text(filename)
