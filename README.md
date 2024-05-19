@@ -1,5 +1,5 @@
 # shellbuddy
-![IMG_9504](https://github.com/srosro/shellbuddy/assets/95421/697e8c2f-95cd-4379-b02c-fa9d406243ff)
+<img src="https://github.com/srosro/shellbuddy/assets/95421/697e8c2f-95cd-4379-b02c-fa9d406243ff" width="300">
 
 
 ## Installation instructions
