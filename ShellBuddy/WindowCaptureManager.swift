@@ -136,7 +136,9 @@ func deleteTmpFiles() {
 
 
 func sendOCRResultsToChatGPT(ocrResults: [String: String], highlight: String = "", completion: @escaping (String) -> Void) {
-    let apiKey = "" // Replace with your OpenAI API key
+    guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
+        fatalError("API key not found in environment variables")
+    }    
     var prompt = "Analyze the following terminal session (paying attention to "
 
     if highlight.isEmpty {
@@ -226,6 +228,8 @@ class Logger {
     }
 
     private var logs: [String: LogEntry] = [:]
+    private var recentLogs: [LogEntry] = []
+    private let maxRecentLogs = 10  // Change this value to set the desired buffer size
     private let dateFormatter: DateFormatter
     private let logFileURL: URL
 
@@ -274,6 +278,7 @@ class Logger {
             logEntry.recommendedCommands = commands
             logs[identifier] = logEntry
             saveLogEntryToFile(logEntry)
+            addLogEntryToRecent(logEntry)  // Add log entry to recent logs
             print("GPT logged for \(identifier) with duration: \(logEntry.gptDurationSeconds!) seconds, response: \(response) and commands: \(commands)")
         } else {
             print("Error: No OCR log found for \(identifier) to log GPT")
@@ -284,30 +289,22 @@ class Logger {
         return Array(logs.values)
     }
 
-    func printAllLogs() {
-        for log in logs.values {
-            print("Log for \(log.identifier):")
-            print("Started At: \(dateFormatter.string(from: log.startedAt))")
-            if let ocrDuration = log.ocrDurationSeconds {
-                print("OCR Duration: \(ocrDuration) seconds")
-            }
-            if let gptDuration = log.gptDurationSeconds {
-                print("GPT Duration: \(gptDuration) seconds")
-            }
-            if let ocrResult = log.ocrResult {
-                print("OCR Result: \(ocrResult)")
-            }
-            if let gptResponse = log.gptResponse {
-                print("GPT Response: \(gptResponse)")
-            }
-            if let commands = log.recommendedCommands {
-                print("Recommended Commands: \(commands)")
-            }
-        }
-    }
 
     func printLogFilePath() {
         print("Log file path: \(logFileURL.path)")
+    }
+
+    func getRecentLogs() -> [LogEntry] {
+        return recentLogs
+    }
+
+    private func addLogEntryToRecent(_ logEntry: LogEntry) {
+        if recentLogs.count >= maxRecentLogs {
+            recentLogs.removeFirst()
+        }
+        recentLogs.append(logEntry)
+        print("Recent Logs: \(recentLogs)") // Debugging print statement
+
     }
 
     private func saveLogEntryToFile(_ logEntry: LogEntry) {
