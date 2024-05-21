@@ -14,6 +14,7 @@ class AppViewModel: ObservableObject {
     @Published var ocrResults: [String: String] = [:]  // Dictionary to store OCR results for each window
     @Published var chatgptResponses: [String: String] = [:]  // Dictionary to store ChatGPT responses for each window
     @Published var recommendedCommands: [String: [String]] = [:]  // Dictionary to store recommended commands for each window
+    @Published var isPaused: Bool = false  // Indicates if the execution is paused
     private var logger = Logger()  // Instantiate the Logger
 
     
@@ -30,44 +31,51 @@ class AppViewModel: ObservableObject {
     }
     
     func captureAndProcessImages() {
+        guard !isPaused else {
+            print("Capture is paused.")
+            return
+        }
+
         var tempOcrResults: [String: String] = [:]
         var tempChatgptResponses: [String: String] = [:]
         var tempRecommendedCommands: [String: [String]] = [:]
         print("Capturing and processing images...")
-        
+
         captureAllTerminalWindows { windowImages in
             let dispatchGroup = DispatchGroup()
 
-            for (identifier, image) in windowImages {
+            for (windowIdentifier, image) in windowImages {
                 if let image = image {
                     dispatchGroup.enter()
-                    saveImage(image, identifier: identifier)
-                    self.logger.logCapture(identifier: identifier)  // Log capture
+                    let uniqueIdentifier = "\(windowIdentifier)_\(UUID().uuidString)"  // Generate unique identifier with window identifier and UUID
+                    saveImage(image, identifier: uniqueIdentifier)
+                    self.logger.logCapture(identifier: uniqueIdentifier)  // Log capture
                     performOCR(on: image) { text in
                         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                        tempOcrResults[identifier] = trimmedText
-                        self.logger.logOCR(identifier: identifier, result: trimmedText)  // Log OCR
-                        print("\nOCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
-                        
+                        tempOcrResults[uniqueIdentifier] = trimmedText
+                        self.logger.logOCR(identifier: uniqueIdentifier, result: trimmedText)  // Log OCR
+                        print("\nOCR Text Output for Window \(uniqueIdentifier): \n----------\n\(trimmedText)\n----------\n")
+
                         // Send the OCR result to ChatGPT for this identifier
-                        self.processOCRResultWithChatGPT(for: identifier, text: trimmedText) { response in
-                            tempChatgptResponses[identifier] = response
+                        self.processOCRResultWithChatGPT(for: uniqueIdentifier, text: trimmedText) { response in
+                            tempChatgptResponses[uniqueIdentifier] = response
                             let commands = self.extractCommands(from: response)
-                            tempRecommendedCommands[identifier] = commands
-                            self.logger.logGPT(identifier: identifier, response: response, commands: commands)  // Log GPT
+                            tempRecommendedCommands[uniqueIdentifier] = commands
+                            self.logger.logGPT(identifier: uniqueIdentifier, response: response, commands: commands)  // Log GPT
                             dispatchGroup.leave()
                         }
                     }
                 } else {
-                    print("No image was captured for window \(identifier)!")
+                    print("No image was captured for window \(windowIdentifier)!")
                 }
             }
-            
+
             dispatchGroup.notify(queue: .main) {
                 self.updateResults(newOcrResults: tempOcrResults, newChatgptResponses: tempChatgptResponses, newRecommendedCommands: tempRecommendedCommands)
             }
         }
     }
+
 
     func processOCRResultWithChatGPT(for identifier: String, text: String, completion: @escaping (String) -> Void) {
         sendOCRResultsToChatGPT(ocrResults: [identifier: text], highlight: "") { response in
@@ -99,6 +107,10 @@ class AppViewModel: ObservableObject {
         print("Updated Recommended Commands: \(self.recommendedCommands)")
     }
 
+    func getRecentLogs() -> [Logger.LogEntry] {
+        return logger.getRecentLogs()
+    }
+    
     deinit {
         captureTimer?.invalidate()
     }
