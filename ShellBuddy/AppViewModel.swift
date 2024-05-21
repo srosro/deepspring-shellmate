@@ -14,7 +14,9 @@ class AppViewModel: ObservableObject {
     @Published var ocrResults: [String: String] = [:]  // Dictionary to store OCR results for each window
     @Published var chatgptResponses: [String: String] = [:]  // Dictionary to store ChatGPT responses for each window
     @Published var recommendedCommands: [String: [String]] = [:]  // Dictionary to store recommended commands for each window
+    private var logger = Logger()  // Instantiate the Logger
 
+    
     init() {
         deleteTmpFiles()
         startCapturing()
@@ -40,15 +42,19 @@ class AppViewModel: ObservableObject {
                 if let image = image {
                     dispatchGroup.enter()
                     saveImage(image, identifier: identifier)
+                    self.logger.logCapture(identifier: identifier)  // Log capture
                     performOCR(on: image) { text in
                         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
                         tempOcrResults[identifier] = trimmedText
+                        self.logger.logOCR(identifier: identifier, result: trimmedText)  // Log OCR
                         print("\nOCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
                         
                         // Send the OCR result to ChatGPT for this identifier
                         self.processOCRResultWithChatGPT(for: identifier, text: trimmedText) { response in
                             tempChatgptResponses[identifier] = response
-                            tempRecommendedCommands[identifier] = self.extractCommands(from: response)
+                            let commands = self.extractCommands(from: response)
+                            tempRecommendedCommands[identifier] = commands
+                            self.logger.logGPT(identifier: identifier, response: response, commands: commands)  // Log GPT
                             dispatchGroup.leave()
                         }
                     }
