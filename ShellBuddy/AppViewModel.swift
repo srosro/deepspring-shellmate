@@ -12,12 +12,11 @@ class AppViewModel: ObservableObject {
     var captureTimer: Timer?
     @Published var lastRecognizedText: String?  // This will store the last OCR result
     @Published var ocrResults: [String: String] = [:]  // Dictionary to store OCR results for each window
-    @Published var chatgptResponses: [String: String] = [:]  // Dictionary to store ChatGPT responses for each window
+    @Published var chatgptResponses: [String: String] = [:]  // Dictionary to store ChatGPT intentions for each window
     @Published var recommendedCommands: [String: [String]] = [:]  // Dictionary to store recommended commands for each window
     @Published var isPaused: Bool = false  // Indicates if the execution is paused
     private var logger = Logger()  // Instantiate the Logger
 
-    
     init() {
         deleteTmpFiles()
         startCapturing()
@@ -25,7 +24,7 @@ class AppViewModel: ObservableObject {
     
     func startCapturing() {
         print("\nStarting capture...")
-        captureTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { [weak self] _ in
+        captureTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
             self?.captureAndProcessImages()
         }
     }
@@ -57,11 +56,10 @@ class AppViewModel: ObservableObject {
                         print("\nOCR Text Output for Window \(uniqueIdentifier): \n----------\n\(trimmedText)\n----------\n")
 
                         // Send the OCR result to ChatGPT for this identifier
-                        self.processOCRResultWithChatGPT(for: uniqueIdentifier, text: trimmedText) { response in
-                            tempChatgptResponses[uniqueIdentifier] = response
-                            let commands = self.extractCommands(from: response)
-                            tempRecommendedCommands[uniqueIdentifier] = commands
-                            self.logger.logGPT(identifier: uniqueIdentifier, response: response, commands: commands)  // Log GPT
+                        self.processOCRResultWithChatGPT(for: uniqueIdentifier, text: trimmedText) { intention, command in
+                            tempChatgptResponses[uniqueIdentifier] = intention
+                            tempRecommendedCommands[uniqueIdentifier] = [command]
+                            self.logger.logGPT(identifier: uniqueIdentifier, response: intention, commands: [command])  // Log GPT
                             dispatchGroup.leave()
                         }
                     }
@@ -76,27 +74,37 @@ class AppViewModel: ObservableObject {
         }
     }
 
-
-    func processOCRResultWithChatGPT(for identifier: String, text: String, completion: @escaping (String) -> Void) {
-        sendOCRResultsToChatGPT(ocrResults: [identifier: text], highlight: "") { response in
+    func processOCRResultWithChatGPT(for identifier: String, text: String, completion: @escaping (String, String) -> Void) {
+        sendOCRResultsToChatGPT(ocrResults: [identifier: text], highlight: "") { jsonStr in
             DispatchQueue.main.async {
-                completion(response)
+                // First, remove the triple backticks if they exist
+                let cleanedJsonStr = jsonStr.replacingOccurrences(of: "```json", with: "")
+                                      .replacingOccurrences(of: "```", with: "")
+                                      .trimmingCharacters(in: .whitespacesAndNewlines)
+
+                // Convert string to data
+                guard let jsonData = cleanedJsonStr.data(using: .utf8) else {
+                    print("Failed to convert string to data")
+                    return
+                }
+
+                // Parse JSON data
+                do {
+                    if let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
+                       let intention = dictionary["intention"] as? String,
+                       let command = dictionary["command"] as? String {
+                        completion(intention, command)
+                    } else {
+                        print("Failed to parse JSON as dictionary or missing expected keys")
+                    }
+                } catch {
+                    print("JSON parsing error: \(error)")
+                    print("Received string: \(cleanedJsonStr)")
+                }
             }
         }
     }
 
-    func extractCommands(from response: String) -> [String] {
-        // Find all lines starting with $ and extract the commands
-        var commands: [String] = []
-        let lines = response.split(separator: "\n")
-        for line in lines {
-            if let range = line.range(of: "$") {
-                let command = String(line[range.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines)
-                commands.append(command)
-            }
-        }
-        return commands
-    }
 
     func updateResults(newOcrResults: [String: String], newChatgptResponses: [String: String], newRecommendedCommands: [String: [String]]) {
         self.ocrResults = newOcrResults
@@ -115,6 +123,3 @@ class AppViewModel: ObservableObject {
         captureTimer?.invalidate()
     }
 }
-
-
-

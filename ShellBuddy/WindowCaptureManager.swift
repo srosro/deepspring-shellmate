@@ -138,48 +138,43 @@ func deleteTmpFiles() {
 func sendOCRResultsToChatGPT(ocrResults: [String: String], highlight: String = "", completion: @escaping (String) -> Void) {
     guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
         fatalError("API key not found in environment variables")
-    }    
-    var prompt = "Analyze the following terminal session (paying attention to "
-
-    if highlight.isEmpty {
-        prompt += "the last command or line):\n"
-    } else {
-        prompt += "the words \"\(highlight)\"):\n"
     }
+    
+    // Construct the prompt to analyze the terminal text with a nuanced directive
+    var prompt = "You are a helpful sysadmin bot designed to assist users by analyzing the current text from their terminal. "
+    prompt += "When a user submits the text, your task is to infer their intention and suggest the most appropriate command to help them achieve their goal. "
+    prompt += "Focus primarily on the most recent command or the last error encountered. Review the history of commands to determine if they provide context that could inform your response to the current request. "
+    prompt += "If there's no relevant connection between past commands and the current request, concentrate solely on the latest input. "
+    prompt += "Your response must be in a strict JSON format, with keys `intention` and `command` clearly defined. "
+    prompt += "Responses should be concise, ideally under 400 characters, and should provide only one command. Concatenate multiple steps into a single line command if necessary. "
+    prompt += "Ensure your response is structured as follows: `{\"intention\": \"<intended action>\", \"command\": \"<suggested command>\"}`. "
+    prompt += "This strict format is crucial as the system relies on this structured response for further processing.\n\n"
 
+    // Add details from OCR results
     for (identifier, text) in ocrResults {
-        prompt += "Terminal Window \(identifier):\n\(text)\n\n"
+        prompt += "Terminal Window \(identifier): \(text)\n\n"
     }
-    prompt += "What am I trying to do, and what would be a better command if there is an error?"
 
-    let systemMessage = """
-    You are a helpful, knowledgeable, and concise sysadmin assistant. When useful, you return one shell command at a time, bracketed by three backticks (```). Each command should begin with $ with the output formatted as a list of commands:
-    ```bash
-    $command1
-    $command2
-    ```
-    It is mandatory that all commands should be formatted following the guidelines.
-    """
-    
+    // Configure the request to OpenAI API
     let messages: [[String: String]] = [
-        ["role": "system", "content": systemMessage],
-        ["role": "user", "content": "I'm using terminal on MacOS. I'd like to share my output with you and get your advice."],
-        ["role": "assistant", "content": "Sure! Let me see it."],
-        ["role": "user", "content": prompt]
-    ]
-    
-    let json: [String: Any] = [
-        "model": "gpt-3.5-turbo",
-        "messages": messages,
-        "max_tokens": 100
+        ["role": "system", "content": prompt],
+        ["role": "user", "content": "Here is the output from my terminal, please analyze."]
     ]
 
+    let json: [String: Any] = [
+        "model": "gpt-4o",
+        "messages": messages,
+        "max_tokens": 400  // Adjust token limit if necessary
+    ]
+
+    // Create the URL and the request
     guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else { return }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
     request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
+    // Serialize JSON request body
     do {
         request.httpBody = try JSONSerialization.data(withJSONObject: json)
     } catch {
@@ -187,6 +182,7 @@ func sendOCRResultsToChatGPT(ocrResults: [String: String], highlight: String = "
         return
     }
 
+    // Execute the request
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
         if let error = error {
             print("Error during request: \(error)")
@@ -198,6 +194,7 @@ func sendOCRResultsToChatGPT(ocrResults: [String: String], highlight: String = "
             return
         }
 
+        // Process the response
         do {
             if let jsonResponse = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                let choices = jsonResponse["choices"] as? [[String: Any]],
@@ -215,118 +212,3 @@ func sendOCRResultsToChatGPT(ocrResults: [String: String], highlight: String = "
     task.resume()
 }
 
-
-class Logger {
-    struct LogEntry: Codable {
-        let identifier: String
-        let startedAt: Date
-        var ocrDurationSeconds: TimeInterval?
-        var gptDurationSeconds: TimeInterval?
-        var ocrResult: String?
-        var gptResponse: String?
-        var recommendedCommands: [String]?
-    }
-
-    private var logs: [String: LogEntry] = [:]
-    private var recentLogs: [LogEntry] = []
-    private let maxRecentLogs = 10  // Change this value to set the desired buffer size
-    private let dateFormatter: DateFormatter
-    private let logFileURL: URL
-
-    init() {
-        dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-        
-        let directoryPath = NSTemporaryDirectory() + "shellbuddy/tmp"
-        let fileManager = FileManager.default
-        
-        if !fileManager.fileExists(atPath: directoryPath) {
-            do {
-                try fileManager.createDirectory(atPath: directoryPath, withIntermediateDirectories: true, attributes: nil)
-            } catch {
-                print("Failed to create directory: \(error)")
-            }
-        }
-        
-        logFileURL = URL(fileURLWithPath: "\(directoryPath)/logs.json")
-    }
-
-    func logCapture(identifier: String) {
-        let startedAt = Date()
-        let logEntry = LogEntry(identifier: identifier, startedAt: startedAt)
-        logs[identifier] = logEntry
-        print("Capture logged for \(identifier) at \(dateFormatter.string(from: startedAt))")
-    }
-
-    func logOCR(identifier: String, result: String) {
-        if var logEntry = logs[identifier] {
-            let ocrFinishTime = Date()
-            logEntry.ocrDurationSeconds = ocrFinishTime.timeIntervalSince(logEntry.startedAt)
-            logEntry.ocrResult = result
-            logs[identifier] = logEntry
-            print("OCR logged for \(identifier) with duration: \(logEntry.ocrDurationSeconds!) seconds and result: \(result)")
-        } else {
-            print("Error: No capture log found for \(identifier) to log OCR")
-        }
-    }
-
-    func logGPT(identifier: String, response: String, commands: [String]) {
-        if var logEntry = logs[identifier] {
-            let gptFinishTime = Date()
-            logEntry.gptDurationSeconds = gptFinishTime.timeIntervalSince(logEntry.startedAt) - (logEntry.ocrDurationSeconds ?? 0)
-            logEntry.gptResponse = response
-            logEntry.recommendedCommands = commands
-            logs[identifier] = logEntry
-            saveLogEntryToFile(logEntry)
-            addLogEntryToRecent(logEntry)  // Add log entry to recent logs
-            print("GPT logged for \(identifier) with duration: \(logEntry.gptDurationSeconds!) seconds, response: \(response) and commands: \(commands)")
-        } else {
-            print("Error: No OCR log found for \(identifier) to log GPT")
-        }
-    }
-
-    func getLogs() -> [LogEntry] {
-        return Array(logs.values)
-    }
-
-
-    func printLogFilePath() {
-        print("Log file path: \(logFileURL.path)")
-    }
-
-    func getRecentLogs() -> [LogEntry] {
-        return recentLogs
-    }
-
-    private func addLogEntryToRecent(_ logEntry: LogEntry) {
-        if recentLogs.count >= maxRecentLogs {
-            recentLogs.removeFirst()
-        }
-        recentLogs.append(logEntry)
-        print("Recent Logs: \(recentLogs)") // Debugging print statement
-
-    }
-
-    private func saveLogEntryToFile(_ logEntry: LogEntry) {
-        do {
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            let logData = try encoder.encode(logEntry)
-            if let logString = String(data: logData, encoding: .utf8) {
-                let logLine = logString + "\n"
-                if let handle = try? FileHandle(forWritingTo: logFileURL) {
-                    handle.seekToEndOfFile()
-                    if let logData = logLine.data(using: .utf8) {
-                        handle.write(logData)
-                    }
-                    handle.closeFile()
-                } else {
-                    try logLine.write(to: logFileURL, atomically: true, encoding: .utf8)
-                }
-                print("Log saved to file: \(logFileURL.path)")
-            }
-        } catch {
-            print("Failed to save log entry to file: \(error)")
-        }
-    }
-}
