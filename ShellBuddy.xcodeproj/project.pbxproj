@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		DC5D98C92BF5532C000E4D80 /* ShellBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */; };
-		DC5D98CB2BF5532C000E4D80 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98CA2BF5532C000E4D80 /* ContentView.swift */; };
 		DC5D98CD2BF5532D000E4D80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */; };
 		DC5D98D02BF5532D000E4D80 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC5D98CF2BF5532D000E4D80 /* Preview Assets.xcassets */; };
 		DC5D98DB2BF5532E000E4D80 /* ShellBuddyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98DA2BF5532E000E4D80 /* ShellBuddyTests.swift */; };
@@ -16,6 +15,10 @@
 		DC5D98E72BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98E62BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift */; };
 		DC5D98F42BF556F9000E4D80 /* WindowCaptureManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98F32BF556F9000E4D80 /* WindowCaptureManager.swift */; };
 		DC5D98F62BF558D1000E4D80 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */; };
+		DCFEB47D2BFE4BC200BDA3CA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */; };
+		DCFEB47F2BFE4BCD00BDA3CA /* SuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */; };
+		DCFEB4812BFE4BE500BDA3CA /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB4802BFE4BE500BDA3CA /* HistoryView.swift */; };
+		DCFEB4832BFE4D8D00BDA3CA /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB4822BFE4D8D00BDA3CA /* Logger.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,7 +42,6 @@
 		DC46C4D52BF9137800E451D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DC5D98C52BF5532C000E4D80 /* ShellBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyApp.swift; sourceTree = "<group>"; };
-		DC5D98CA2BF5532C000E4D80 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DC5D98CF2BF5532D000E4D80 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		DC5D98D12BF5532D000E4D80 /* ShellBuddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShellBuddy.entitlements; sourceTree = "<group>"; };
@@ -50,6 +52,10 @@
 		DC5D98E62BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		DC5D98F32BF556F9000E4D80 /* WindowCaptureManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowCaptureManager.swift; sourceTree = "<group>"; };
 		DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionsView.swift; sourceTree = "<group>"; };
+		DCFEB4802BFE4BE500BDA3CA /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		DCFEB4822BFE4D8D00BDA3CA /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,11 +106,12 @@
 		DC5D98C72BF5532C000E4D80 /* ShellBuddy */ = {
 			isa = PBXGroup;
 			children = (
+				DCFEB47B2BFE4B9E00BDA3CA /* Views */,
 				DC46C4D52BF9137800E451D2 /* Info.plist */,
 				DC5D98F32BF556F9000E4D80 /* WindowCaptureManager.swift */,
+				DCFEB4822BFE4D8D00BDA3CA /* Logger.swift */,
 				DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */,
 				DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */,
-				DC5D98CA2BF5532C000E4D80 /* ContentView.swift */,
 				DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */,
 				DC5D98D12BF5532D000E4D80 /* ShellBuddy.entitlements */,
 				DC5D98CE2BF5532D000E4D80 /* Preview Content */,
@@ -135,6 +142,16 @@
 				DC5D98E62BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift */,
 			);
 			path = ShellBuddyUITests;
+			sourceTree = "<group>";
+		};
+		DCFEB47B2BFE4B9E00BDA3CA /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */,
+				DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */,
+				DCFEB4802BFE4BE500BDA3CA /* HistoryView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -267,8 +284,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DC5D98CB2BF5532C000E4D80 /* ContentView.swift in Sources */,
+				DCFEB4812BFE4BE500BDA3CA /* HistoryView.swift in Sources */,
+				DCFEB47F2BFE4BCD00BDA3CA /* SuggestionsView.swift in Sources */,
+				DCFEB47D2BFE4BC200BDA3CA /* ContentView.swift in Sources */,
 				DC5D98C92BF5532C000E4D80 /* ShellBuddyApp.swift in Sources */,
+				DCFEB4832BFE4D8D00BDA3CA /* Logger.swift in Sources */,
 				DC5D98F62BF558D1000E4D80 /* AppViewModel.swift in Sources */,
 				DC5D98F42BF556F9000E4D80 /* WindowCaptureManager.swift in Sources */,
 			);
