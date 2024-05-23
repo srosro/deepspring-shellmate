@@ -49,14 +49,15 @@ class AppViewModel: ObservableObject {
                     let uniqueIdentifier = "\(windowIdentifier)_\(UUID().uuidString)"  // Generate unique identifier with window identifier and UUID
                     saveImage(image, identifier: uniqueIdentifier)
                     self.logger.logCapture(identifier: uniqueIdentifier)  // Log capture
-                    performOCR(on: image) { text in
+                    
+                    sendImageToOpenAIVision(image: image, identifier: uniqueIdentifier) { text in
                         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
                         tempOcrResults[uniqueIdentifier] = trimmedText
                         self.logger.logOCR(identifier: uniqueIdentifier, result: trimmedText)  // Log OCR
                         print("\nOCR Text Output for Window \(uniqueIdentifier): \n----------\n\(trimmedText)\n----------\n")
 
-                        // Send the OCR result to ChatGPT for this identifier
-                        self.processOCRResultWithChatGPT(for: uniqueIdentifier, text: trimmedText) { intention, command in
+                        // Process the OCR result directly
+                        self.processOCRResultDirectly(for: uniqueIdentifier, text: trimmedText) { intention, command in
                             tempChatgptResponses[uniqueIdentifier] = intention
                             tempRecommendedCommands[uniqueIdentifier] = [command]
                             self.logger.logGPT(identifier: uniqueIdentifier, response: intention, commands: [command])  // Log GPT
@@ -74,36 +75,36 @@ class AppViewModel: ObservableObject {
         }
     }
 
-    func processOCRResultWithChatGPT(for identifier: String, text: String, completion: @escaping (String, String) -> Void) {
-        sendOCRResultsToChatGPT(ocrResults: [identifier: text], highlight: "") { jsonStr in
-            DispatchQueue.main.async {
-                // First, remove the triple backticks if they exist
-                let cleanedJsonStr = jsonStr.replacingOccurrences(of: "```json", with: "")
+    func processOCRResultDirectly(for identifier: String, text: String, completion: @escaping (String, String) -> Void) {
+        // Directly process the OCR result JSON to extract intention and command
+        DispatchQueue.main.async {
+            // Remove the triple backticks if they exist
+            let cleanedJsonStr = text.replacingOccurrences(of: "```json", with: "")
                                       .replacingOccurrences(of: "```", with: "")
                                       .trimmingCharacters(in: .whitespacesAndNewlines)
 
-                // Convert string to data
-                guard let jsonData = cleanedJsonStr.data(using: .utf8) else {
-                    print("Failed to convert string to data")
-                    return
-                }
+            // Convert string to data
+            guard let jsonData = cleanedJsonStr.data(using: .utf8) else {
+                print("Failed to convert string to data")
+                return
+            }
 
-                // Parse JSON data
-                do {
-                    if let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
-                       let intention = dictionary["intention"] as? String,
-                       let command = dictionary["command"] as? String {
-                        completion(intention, command)
-                    } else {
-                        print("Failed to parse JSON as dictionary or missing expected keys")
-                    }
-                } catch {
-                    print("JSON parsing error: \(error)")
-                    print("Received string: \(cleanedJsonStr)")
+            // Parse JSON data
+            do {
+                if let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
+                   let intention = dictionary["intention"] as? String,
+                   let command = dictionary["command"] as? String {
+                    completion(intention, command)
+                } else {
+                    print("Failed to parse JSON as dictionary or missing expected keys")
                 }
+            } catch {
+                print("JSON parsing error: \(error)")
+                print("Received string: \(cleanedJsonStr)")
             }
         }
     }
+
 
 
     func updateResults(newOcrResults: [String: String], newChatgptResponses: [String: String], newRecommendedCommands: [String: [String]]) {

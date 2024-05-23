@@ -212,3 +212,113 @@ func sendOCRResultsToChatGPT(ocrResults: [String: String], highlight: String = "
     task.resume()
 }
 
+
+
+func sendImageToOpenAIVision(image: CGImage, identifier: String, completion: @escaping (String) -> Void) {
+    guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
+        fatalError("API key not found in environment variables")
+    }
+    
+    let bitmapRep = NSBitmapImageRep(cgImage: image)
+    guard let imageData = bitmapRep.representation(using: .jpeg, properties: [:]) else { return }
+    let base64Image = imageData.base64EncodedString()
+
+    let prompt = """
+        You are a sysadmin bot tasked with analyzing a macOS terminal screenshot. Extract all text from the image and format it in the following JSON structure:
+
+        {
+          "extractedText": ["commands and outputs from terminal"],
+          "highlighted": "highlighted text",
+          "shellbuddyMessages": "shellbuddy messages",
+          "intention": "intended action",
+          "command": "suggested command"
+        }
+
+        Requirements:
+        1. `extractedText`: String with commands and outputs from the terminal, excluding the user and PC name.
+        2. `highlighted`: All highlighted text on the screen.
+        3. `shellbuddyMessages`: All text that starts with 'sg' or 'SG'.
+        4. `intention`: Inferred intention of the user based on the terminal text.
+        5. `command`: Suggested command to help the user achieve their goal.
+
+        Extraction Directive:
+        1. If highlighted text is present, focus solely on solving the highlighted text.
+        2. Infer the user's intention and suggest the most appropriate command.
+        3. Consider 'sg' or 'SG' as direct user instructions.
+        4. Review command history to provide context for your suggestion.
+        5. When there is no highlighted text, concentrate on the most recent command or the last error if no relevant past context exists.
+
+        Response Format:
+        - Adhere strictly to the JSON format.
+        - Keep `intention` concise (under 100 characters).
+        - Provide only one suggested command, combining multiple steps into a single command if necessary.
+
+        This strict format is crucial for further processing.
+    """
+
+    let messages: [[String: Any]] = [
+        [
+            "role": "user",
+            "content": [
+                [
+                    "type": "text",
+                    "text": prompt
+                    
+                    
+                ],
+                [
+                    "type": "image_url",
+                    "image_url": [
+                        "url": "data:image/jpeg;base64,\(base64Image)"
+                    ]
+                ]
+            ]
+        ]
+    ]
+
+    let json: [String: Any] = [
+        "model": "gpt-4o",
+        "messages": messages,
+        "max_tokens": 1000
+    ]
+
+    guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else { return }
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    do {
+        request.httpBody = try JSONSerialization.data(withJSONObject: json)
+    } catch {
+        print("Failed to serialize JSON: \(error)")
+        return
+    }
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Error during request: \(error)")
+            return
+        }
+
+        guard let data = data else {
+            print("No data received")
+            return
+        }
+
+        do {
+            if let jsonResponse = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let choices = jsonResponse["choices"] as? [[String: Any]],
+               let message = choices.first?["message"] as? [String: Any],
+               let content = message["content"] as? String {
+                completion(content)
+            } else {
+                print("Failed to parse JSON response")
+            }
+        } catch {
+            print("Error parsing response: \(error)")
+        }
+    }
+
+    task.resume()
+}
