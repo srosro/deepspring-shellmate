@@ -1,10 +1,3 @@
-//
-//  SuggestionsView.swift
-//  ShellBuddy
-//
-//  Created by Daniel Delattre on 22/05/24.
-//
-
 import SwiftUI
 
 struct SuggestionsView: View {
@@ -22,58 +15,70 @@ struct SuggestionsView: View {
                 .foregroundStyle(.tint)
                 .padding(.bottom, 10)
 
-            ScrollView {
-                if viewModel.chatgptResponses.isEmpty {
-                    Text("No text recognized yet")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                } else {
-                    ForEach(viewModel.chatgptResponses.keys.sorted(), id: \.self) { key in
-                        VStack(alignment: .leading) {
-                            Text("Window [\(key)]:")
-                                .font(.headline)
+            ScrollViewReader { scrollView in
+                ScrollView {
+                    VStack {
+                        if viewModel.results.isEmpty {
+                            Text("No text recognized yet")
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(viewModel.chatgptResponses[key] ?? "No text")
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.bottom, 10)
-                                .background(Color.gray.opacity(0.2))
-                                .cornerRadius(8)
-                                .padding(.bottom, 5)
-                                .textSelection(.enabled) // Enable text selection
+                                .padding()
+                        } else {
+                            ForEach(Array(viewModel.results.keys.sorted()), id: \.self) { key in
+                                VStack(alignment: .leading) {
+                                    Text("Window [\(key)]:")
+                                        .font(.headline)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                            if let commands = viewModel.recommendedCommands[key] {
-                                ForEach(commands.indices, id: \.self) { index in
-                                    let command = commands[index]
-                                    let shortcutCharacter = Character("\(index + 1)")
-                                    let shortcut = KeyboardShortcut(KeyEquivalent(shortcutCharacter), modifiers: .command)
-                                    
-                                    Button(action: {
-                                        copyToClipboard(command: command)
-                                    }) {
-                                        HStack {
-                                            Text("Cmd+\(index + 1)") // Display the shortcut key
-                                                .font(.headline)
-                                                .foregroundColor(.yellow)
-                                                .padding(.trailing, 10)
-                                            Text(command)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                    ForEach(viewModel.results[key] ?? [], id: \.self) { resultDict in
+                                        Text(resultDict["gpt response"] ?? "No response")
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(.bottom, 10)
+                                            .background(Color.gray.opacity(0.2))
+                                            .cornerRadius(8)
+                                            .padding(.bottom, 5)
+                                            .textSelection(.enabled)
+
+                                        if let command = resultDict["suggested command"] {
+                                            Button(action: {
+                                                copyToClipboard(command: command)
+                                            }) {
+                                                HStack {
+                                                    Text("Copy")
+                                                        .font(.headline)
+                                                        .foregroundColor(.yellow)
+                                                        .padding(.trailing, 10)
+                                                    Text(command)
+                                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                                }
+                                                .padding()
+                                                .background(Color.blue)
+                                                .foregroundColor(.white)
+                                                .cornerRadius(8)
+                                            }
+                                            .padding(.bottom, 5)
                                         }
-                                        .padding()
-                                        .background(Color.blue)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(8)
                                     }
-                                    .keyboardShortcut(shortcut) // Assign the shortcut
-                                    .padding(.bottom, 5)
                                 }
+                                .padding(.horizontal)
+                                .id(key) // Assign ID for each section
                             }
                         }
-                        .padding(.horizontal)
+                    }
+                    .onChange(of: viewModel.results) {
+                        scrollToBottom(scrollView: scrollView, keys: Array(viewModel.results.keys))
                     }
                 }
             }
         }
         .padding()
+    }
+
+    private func scrollToBottom(scrollView: ScrollViewProxy, keys: [String]) {
+        if let lastKey = keys.sorted().last {
+            withAnimation {
+                scrollView.scrollTo(lastKey, anchor: .bottom)
+            }
+        }
     }
 
     private func copyToClipboard(command: String) {
@@ -83,4 +88,3 @@ struct SuggestionsView: View {
         print("Copied to clipboard: \(command)")
     }
 }
-

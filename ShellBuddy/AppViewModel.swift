@@ -10,10 +10,7 @@ import Combine
 
 class AppViewModel: ObservableObject {
     var captureTimer: Timer?
-    @Published var lastRecognizedText: String?
-    @Published var ocrResults: [String: String] = [:]
-    @Published var chatgptResponses: [String: String] = [:]
-    @Published var recommendedCommands: [String: [String]] = [:]
+    @Published var results: [String: [Dictionary<String, String>]] = [:]
     @Published var isPaused: Bool = false
     private var captureManager = CaptureManager()
     private var gptManager = GPTManager()
@@ -44,10 +41,6 @@ class AppViewModel: ObservableObject {
     }
     
     func processImages(_ capturedImages: [(identifier: String, image: CGImage?)]) {
-        var tempOcrResults: [String: String] = [:]
-        var tempChatgptResponses: [String: String] = [:]
-        var tempRecommendedCommands: [String: [String]] = [:]
-
         let dispatchGroup = DispatchGroup()
 
         for (identifier, image) in capturedImages {
@@ -55,73 +48,78 @@ class AppViewModel: ObservableObject {
                 print("No image was captured for window \(identifier)!")
                 continue
             }
+            
+            // Enter dispatch group twice for two async tasks
+            dispatchGroup.enter()
             dispatchGroup.enter()
             
             saveImage(image, identifier: identifier)
+            
+            
+            // GPT Vision OCR processing
             gptManager.sendImageToOpenAIVision(image: image, identifier: identifier) { text in
                 let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
                 print("\nOCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
                 
                 self.processOCRResultWithChatGPT(for: identifier, text: trimmedText) { intention, command in
-                    tempOcrResults[identifier] = trimmedText
-                    tempChatgptResponses[identifier] = intention
-                    tempRecommendedCommands[identifier] = [command]
+                    self.appendResult(identifier: identifier, response: intention, command: command)
                     dispatchGroup.leave()
                 }
             }
+
+            // Local OCR processing
+            performOCR(on: image) { extractedText in
+                DispatchQueue.main.async {
+                    self.processOCRResultWithChatGPT(for: identifier, text: extractedText) { intention, command in
+                        self.appendResult(identifier: identifier, response: intention, command: command)
+                        dispatchGroup.leave()
+                    }
+                }
+            }
+            
+            
         }
 
-        dispatchGroup.notify(queue: .main) { [weak self] in
-            // Atomically update all results at once
-            self?.updateResults(newOcrResults: tempOcrResults, newChatgptResponses: tempChatgptResponses, newRecommendedCommands: tempRecommendedCommands)
+        dispatchGroup.notify(queue: .main) {
+            print("All processing complete.")
         }
+
     }
 
     func processOCRResultWithChatGPT(for identifier: String, text: String, completion: @escaping (String, String) -> Void) {
         gptManager.sendOCRResultsToChatGPT(ocrResults: [identifier: text], highlight: "") { jsonStr in
             DispatchQueue.main.async {
-                // First, remove the triple backticks if they exist
-                let cleanedJsonStr = jsonStr.replacingOccurrences(of: "```json", with: "")
-                                      .replacingOccurrences(of: "```", with: "")
-                                      .trimmingCharacters(in: .whitespacesAndNewlines)
-
-                // Convert string to data
-                guard let jsonData = cleanedJsonStr.data(using: .utf8) else {
-                    print("Failed to convert string to data")
-                    return
-                }
-
-                // Parse JSON data
-                do {
-                    if let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
-                       let intention = dictionary["intention"] as? String,
-                       let command = dictionary["command"] as? String {
-                        completion(intention, command)
-                    } else {
-                        print("Failed to parse JSON as dictionary or missing expected keys")
-                    }
-                } catch {
-                    print("JSON parsing error: \(error)")
-                    print("Received string: \(cleanedJsonStr)")
-                }
+                self.handleJSONResponse(jsonStr, completion: completion)
             }
         }
     }
 
-    func updateResults(newOcrResults: [String: String], newChatgptResponses: [String: String], newRecommendedCommands: [String: [String]]) {
-        self.ocrResults = newOcrResults
-        self.chatgptResponses = newChatgptResponses
-        self.recommendedCommands = newRecommendedCommands
-        print("Updated OCR Results: \(self.ocrResults)")
-        print("Updated ChatGPT Responses: \(self.chatgptResponses)")
-        print("Updated Recommended Commands: \(self.recommendedCommands)")
+    private func handleJSONResponse(_ jsonStr: String, completion: (String, String) -> Void) {
+        let cleanedJsonStr = jsonStr.replacingOccurrences(of: "```json", with: "").replacingOccurrences(of: "```", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let jsonData = cleanedJsonStr.data(using: .utf8),
+              let dictionary = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+              let intention = dictionary["intention"] as? String,
+              let command = dictionary["command"] as? String else {
+            print("Failed to parse JSON or missing keys")
+            return
+        }
+        completion(intention, command)
+    }
+
+    func appendResult(identifier: String, response: String, command: String) {
+        let newEntry = ["gpt response": response, "suggested command": command]
+        if var existingEntries = results[identifier] {
+            existingEntries.append(newEntry)
+            results[identifier] = existingEntries
+        } else {
+            results[identifier] = [newEntry]
+        }
     }
 
     func getRecentLogs() -> [Logger.LogEntry] {
         return [Logger.LogEntry(identifier: "dummy", startedAt: Date(), gptResponse: "To implement again", recommendedCommands: [])]
-        //return logger.getRecentLogs()
     }
-    
+
     deinit {
         captureTimer?.invalidate()
     }
