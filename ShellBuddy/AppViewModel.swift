@@ -10,102 +10,103 @@ import Combine
 
 class AppViewModel: ObservableObject {
     var captureTimer: Timer?
-    @Published var lastRecognizedText: String?  // This will store the last OCR result
-    @Published var ocrResults: [String: String] = [:]  // Dictionary to store OCR results for each window
-    @Published var chatgptResponses: [String: String] = [:]  // Dictionary to store ChatGPT intentions for each window
-    @Published var recommendedCommands: [String: [String]] = [:]  // Dictionary to store recommended commands for each window
-    @Published var isPaused: Bool = false  // Indicates if the execution is paused
-    private var logger = Logger()  // Instantiate the Logger
+    @Published var lastRecognizedText: String?
+    @Published var ocrResults: [String: String] = [:]
+    @Published var chatgptResponses: [String: String] = [:]
+    @Published var recommendedCommands: [String: [String]] = [:]
+    @Published var isPaused: Bool = false
+    private var captureManager = CaptureManager()
+    private var gptManager = GPTManager()
+    private var logger = Logger()
 
     init() {
         deleteTmpFiles()
         startCapturing()
     }
-    
+
     func startCapturing() {
         print("\nStarting capture...")
         captureTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
             self?.captureAndProcessImages()
         }
     }
-    
+
     func captureAndProcessImages() {
         guard !isPaused else {
             print("Capture is paused.")
             return
         }
 
+        print("Requesting capture of images...")
+        captureManager.captureWindows { [weak self] capturedImages in
+            self?.processImages(capturedImages)
+        }
+    }
+    
+    func processImages(_ capturedImages: [(identifier: String, image: CGImage?)]) {
         var tempOcrResults: [String: String] = [:]
         var tempChatgptResponses: [String: String] = [:]
         var tempRecommendedCommands: [String: [String]] = [:]
-        print("Capturing and processing images...")
 
-        captureAllTerminalWindows { windowImages in
-            let dispatchGroup = DispatchGroup()
+        let dispatchGroup = DispatchGroup()
 
-            for (windowIdentifier, image) in windowImages {
-                if let image = image {
-                    dispatchGroup.enter()
-                    let uniqueIdentifier = "\(windowIdentifier)_\(UUID().uuidString)"  // Generate unique identifier with window identifier and UUID
-                    saveImage(image, identifier: uniqueIdentifier)
-                    self.logger.logCapture(identifier: uniqueIdentifier)  // Log capture
-                    
-                    sendImageToOpenAIVision(image: image, identifier: uniqueIdentifier) { text in
-                        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                        tempOcrResults[uniqueIdentifier] = trimmedText
-                        self.logger.logOCR(identifier: uniqueIdentifier, result: trimmedText)  // Log OCR
-                        print("\nOCR Text Output for Window \(uniqueIdentifier): \n----------\n\(trimmedText)\n----------\n")
-
-                        // Process the OCR result directly
-                        self.processOCRResultDirectly(for: uniqueIdentifier, text: trimmedText) { intention, command in
-                            tempChatgptResponses[uniqueIdentifier] = intention
-                            tempRecommendedCommands[uniqueIdentifier] = [command]
-                            self.logger.logGPT(identifier: uniqueIdentifier, response: intention, commands: [command])  // Log GPT
-                            dispatchGroup.leave()
-                        }
-                    }
-                } else {
-                    print("No image was captured for window \(windowIdentifier)!")
+        for (identifier, image) in capturedImages {
+            guard let image = image else {
+                print("No image was captured for window \(identifier)!")
+                continue
+            }
+            dispatchGroup.enter()
+            
+            saveImage(image, identifier: identifier)
+            gptManager.sendImageToOpenAIVision(image: image, identifier: identifier) { text in
+                let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                print("\nOCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
+                
+                self.processOCRResultWithChatGPT(for: identifier, text: trimmedText) { intention, command in
+                    tempOcrResults[identifier] = trimmedText
+                    tempChatgptResponses[identifier] = intention
+                    tempRecommendedCommands[identifier] = [command]
+                    dispatchGroup.leave()
                 }
             }
+        }
 
-            dispatchGroup.notify(queue: .main) {
-                self.updateResults(newOcrResults: tempOcrResults, newChatgptResponses: tempChatgptResponses, newRecommendedCommands: tempRecommendedCommands)
-            }
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            // Atomically update all results at once
+            self?.updateResults(newOcrResults: tempOcrResults, newChatgptResponses: tempChatgptResponses, newRecommendedCommands: tempRecommendedCommands)
         }
     }
 
-    func processOCRResultDirectly(for identifier: String, text: String, completion: @escaping (String, String) -> Void) {
-        // Directly process the OCR result JSON to extract intention and command
-        DispatchQueue.main.async {
-            // Remove the triple backticks if they exist
-            let cleanedJsonStr = text.replacingOccurrences(of: "```json", with: "")
+    func processOCRResultWithChatGPT(for identifier: String, text: String, completion: @escaping (String, String) -> Void) {
+        gptManager.sendOCRResultsToChatGPT(ocrResults: [identifier: text], highlight: "") { jsonStr in
+            DispatchQueue.main.async {
+                // First, remove the triple backticks if they exist
+                let cleanedJsonStr = jsonStr.replacingOccurrences(of: "```json", with: "")
                                       .replacingOccurrences(of: "```", with: "")
                                       .trimmingCharacters(in: .whitespacesAndNewlines)
 
-            // Convert string to data
-            guard let jsonData = cleanedJsonStr.data(using: .utf8) else {
-                print("Failed to convert string to data")
-                return
-            }
-
-            // Parse JSON data
-            do {
-                if let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
-                   let intention = dictionary["intention"] as? String,
-                   let command = dictionary["command"] as? String {
-                    completion(intention, command)
-                } else {
-                    print("Failed to parse JSON as dictionary or missing expected keys")
+                // Convert string to data
+                guard let jsonData = cleanedJsonStr.data(using: .utf8) else {
+                    print("Failed to convert string to data")
+                    return
                 }
-            } catch {
-                print("JSON parsing error: \(error)")
-                print("Received string: \(cleanedJsonStr)")
+
+                // Parse JSON data
+                do {
+                    if let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
+                       let intention = dictionary["intention"] as? String,
+                       let command = dictionary["command"] as? String {
+                        completion(intention, command)
+                    } else {
+                        print("Failed to parse JSON as dictionary or missing expected keys")
+                    }
+                } catch {
+                    print("JSON parsing error: \(error)")
+                    print("Received string: \(cleanedJsonStr)")
+                }
             }
         }
     }
-
-
 
     func updateResults(newOcrResults: [String: String], newChatgptResponses: [String: String], newRecommendedCommands: [String: [String]]) {
         self.ocrResults = newOcrResults
@@ -117,7 +118,8 @@ class AppViewModel: ObservableObject {
     }
 
     func getRecentLogs() -> [Logger.LogEntry] {
-        return logger.getRecentLogs()
+        return [Logger.LogEntry(identifier: "dummy", startedAt: Date(), gptResponse: "To implement again", recommendedCommands: [])]
+        //return logger.getRecentLogs()
     }
     
     deinit {
