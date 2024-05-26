@@ -23,39 +23,41 @@ struct SuggestionsView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding()
                         } else {
-                            ForEach(Array(viewModel.results.keys.sorted()), id: \.self) { key in
+                            ForEach(viewModel.sortedResults, id: \.self) { key in  // Use sorted results
                                 VStack(alignment: .leading) {
                                     Text("Window [\(key)]:")
                                         .font(.headline)
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                                    ForEach(viewModel.results[key] ?? [], id: \.self) { resultDict in
-                                        Text(resultDict["gpt response"] ?? "No response")
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .padding(.bottom, 10)
-                                            .background(Color.gray.opacity(0.2))
-                                            .cornerRadius(8)
-                                            .padding(.bottom, 5)
-                                            .textSelection(.enabled)
-
-                                        if let command = resultDict["suggested command"] {
-                                            Button(action: {
-                                                copyToClipboard(command: command)
-                                            }) {
-                                                HStack {
-                                                    Text("Copy")
-                                                        .font(.headline)
-                                                        .foregroundColor(.yellow)
-                                                        .padding(.trailing, 10)
-                                                    Text(command)
-                                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                                }
-                                                .padding()
-                                                .background(Color.blue)
-                                                .foregroundColor(.white)
+                                    if let windowData = viewModel.results[key] {
+                                        ForEach(windowData.gptResponses, id: \.self) { resultDict in
+                                            Text(resultDict["gptResponse"] ?? "No response")
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .padding(.bottom, 10)
+                                                .background(Color.gray.opacity(0.2))
                                                 .cornerRadius(8)
+                                                .padding(.bottom, 5)
+                                                .textSelection(.enabled)
+
+                                            if let command = resultDict["suggestedCommand"] {
+                                                Button(action: {
+                                                    copyToClipboard(command: command)
+                                                }) {
+                                                    HStack {
+                                                        Text("Copy")
+                                                            .font(.headline)
+                                                            .foregroundColor(.yellow)
+                                                            .padding(.trailing, 10)
+                                                        Text(command)
+                                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                                    }
+                                                    .padding()
+                                                    .background(Color.blue)
+                                                    .foregroundColor(.white)
+                                                    .cornerRadius(8)
+                                                }
+                                                .padding(.bottom, 5)
                                             }
-                                            .padding(.bottom, 5)
                                         }
                                     }
                                 }
@@ -64,8 +66,8 @@ struct SuggestionsView: View {
                             }
                         }
                     }
-                    .onChange(of: viewModel.results) {
-                        scrollToBottom(scrollView: scrollView, keys: Array(viewModel.results.keys))
+                    .onChange(of: viewModel.updateCounter, initial: false) {
+                        scrollToBottom(scrollView: scrollView, keys: viewModel.sortedResults)
                     }
                 }
             }
@@ -74,7 +76,7 @@ struct SuggestionsView: View {
     }
 
     private func scrollToBottom(scrollView: ScrollViewProxy, keys: [String]) {
-        if let lastKey = keys.sorted().last {
+        if let lastKey = keys.last {
             withAnimation {
                 scrollView.scrollTo(lastKey, anchor: .bottom)
             }

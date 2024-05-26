@@ -47,6 +47,7 @@ class CaptureManager {
             let config = SCStreamConfiguration()
             config.width = Int(window.frame.width)
             config.height = Int(window.frame.height)
+            config.showsCursor = false
 
             let filter = SCContentFilter(desktopIndependentWindow: window)
             SCScreenshotManager.captureImage(contentFilter: filter, configuration: config) { image, error in
