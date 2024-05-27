@@ -5,7 +5,8 @@
 //  Created by Daniel Delattre on 15/05/24.
 //
 
-import SwiftUI
+import Foundation
+import AppKit
 import Combine
 import CoreGraphics
 
@@ -74,8 +75,9 @@ class AppViewModel: ObservableObject {
 
     
     func captureAndProcessImages() {
-        guard !isPaused else {
-            print("Capture is paused.")
+        guard !isPaused, !ApplicationMonitor.shared.isMinimized else {
+            
+            print("Capture is paused or terminal is minimized.")
             return
         }
 
@@ -226,6 +228,7 @@ class AppViewModel: ObservableObject {
         captureTimer?.invalidate()
     }
 }
+
 
 extension AppViewModel {
     var sortedResults: [String] {

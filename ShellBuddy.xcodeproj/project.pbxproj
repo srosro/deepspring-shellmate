@@ -17,6 +17,7 @@
 		DC5D98E72BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98E62BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift */; };
 		DC5D98F42BF556F9000E4D80 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98F32BF556F9000E4D80 /* Utils.swift */; };
 		DC5D98F62BF558D1000E4D80 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */; };
+		DCC6A49F2C04CA9500D5562A /* ApplicationMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC6A49E2C04CA9500D5562A /* ApplicationMonitor.swift */; };
 		DCFEB47D2BFE4BC200BDA3CA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */; };
 		DCFEB47F2BFE4BCD00BDA3CA /* SuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */; };
 		DCFEB4812BFE4BE500BDA3CA /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB4802BFE4BE500BDA3CA /* HistoryView.swift */; };
@@ -56,6 +57,7 @@
 		DC5D98E62BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		DC5D98F32BF556F9000E4D80 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		DCC6A49E2C04CA9500D5562A /* ApplicationMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationMonitor.swift; sourceTree = "<group>"; };
 		DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionsView.swift; sourceTree = "<group>"; };
 		DCFEB4802BFE4BE500BDA3CA /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 				DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */,
 				DC5D98D12BF5532D000E4D80 /* ShellBuddy.entitlements */,
 				DC5D98CE2BF5532D000E4D80 /* Preview Content */,
+				DCC6A49E2C04CA9500D5562A /* ApplicationMonitor.swift */,
 			);
 			path = ShellBuddy;
 			sourceTree = "<group>";
@@ -297,6 +300,7 @@
 				DCFEB4832BFE4D8D00BDA3CA /* Logger.swift in Sources */,
 				DC5D98F62BF558D1000E4D80 /* AppViewModel.swift in Sources */,
 				DC42A33D2C00C06400B12B28 /* CaptureManager.swift in Sources */,
+				DCC6A49F2C04CA9500D5562A /* ApplicationMonitor.swift in Sources */,
 				DC42A33F2C00CB7700B12B28 /* GPTManager.swift in Sources */,
 				DC5D98F42BF556F9000E4D80 /* Utils.swift in Sources */,
 			);
