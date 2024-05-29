@@ -10,18 +10,20 @@ import AppKit
 import Combine
 import CoreGraphics
 
-class AppViewModel: ObservableObject {
+class AppViewModel1: ObservableObject {
     var captureTimer: Timer?
     @Published var results: [String: (suggestionsCount: Int, gptResponses: [Dictionary<String, String>], updatedAt: Date)] = [:]
-    @Published var isPaused: Bool = false
-    @Published var updateCounter: Int = 0  // This counter will be incremented on every update
-
     private var captureManager = CaptureManager()
     private var gptManager = GPTManager()
+    
+    
+    @Published var isPaused: Bool = false
+    @Published var updateCounter: Int = 0  // This counter will be incremented on every update
+    @Published var processingStatus: [String: Bool] = [:]  // Track processing status for each window identifier
     private var logger = Logger()
     private let suggestionsLimit: Int = 3  // Universal limit for suggestions across all windows
-    private var currentImages: [String: CGImage] = [:]
-
+    private var currentOCRTexts: [String: String] = [:]
+    
     init() {
         deleteTmpFiles()
         startCapturing()
@@ -29,48 +31,9 @@ class AppViewModel: ObservableObject {
 
     func startCapturing() {
         print("\nStarting capture...")
-        captureTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+        captureTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in
             self?.captureAndProcessImages()
         }
-    }
-
-    func areImagesIdentical(_ image1: CGImage, _ image2: CGImage) -> Bool {
-        // Check basic image properties
-        guard image1.width == image2.width && image1.height == image2.height else {
-            return false
-        }
-
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-
-        // Set up the bitmap context for image 1
-        guard let context1 = CGContext(data: nil,
-                                       width: image1.width,
-                                       height: image1.height,
-                                       bitsPerComponent: image1.bitsPerComponent,
-                                       bytesPerRow: image1.bytesPerRow,
-                                       space: colorSpace,
-                                       bitmapInfo: image1.bitmapInfo.rawValue),
-              let context2 = CGContext(data: nil,
-                                       width: image2.width,
-                                       height: image2.height,
-                                       bitsPerComponent: image2.bitsPerComponent,
-                                       bytesPerRow: image2.bytesPerRow,
-                                       space: colorSpace,
-                                       bitmapInfo: image2.bitmapInfo.rawValue) else {
-            return false
-        }
-
-        // Draw images onto their respective contexts
-        context1.draw(image1, in: CGRect(x: 0, y: 0, width: image1.width, height: image1.height))
-        context2.draw(image2, in: CGRect(x: 0, y: 0, width: image2.width, height: image2.height))
-
-        // Compare pixel data
-        guard let data1 = context1.data, let data2 = context2.data else {
-            return false
-        }
-        
-        let size = image1.height * image1.bytesPerRow
-        return memcmp(data1, data2, size) == 0
     }
 
     
@@ -82,104 +45,165 @@ class AppViewModel: ObservableObject {
         }
 
         print("Requesting capture of images...")
-        captureManager.captureWindows { [weak self] capturedImages in
+        captureManager.captureWindows(processingStatus: processingStatus) { [weak self] capturedImages in
             guard let self = self else { return }
             
             // Collect identifiers of all captured images
             let currentWindowIDs = Set(capturedImages.map { $0.identifier })
 
-            // Update or initialize images in the dictionary
+            // Update or initialize OCR texts in the dictionary
             capturedImages.forEach { capturedImage in
                 if let newImage = capturedImage.image {
-                    if let existingImage = self.currentImages[capturedImage.identifier] {
-                        // Compare the new image with the existing one
-                        if self.areImagesIdentical(existingImage, newImage) {
-                            print("Image for identifier \(capturedImage.identifier) has not changed.")
-                        } else {
-                            print("Image for identifier \(capturedImage.identifier) has changed.")
-                            // Update the image in the dictionary as it has changed
-                            self.currentImages[capturedImage.identifier] = newImage
-                            // Delete the current window identifier from the results dict as the image has changed
-                            self.results.removeValue(forKey: capturedImage.identifier)
-                            print("Removed results for identifier \(capturedImage.identifier) due to image change.")
-                        }
-                    } else {
-                        // No existing image, so initialize
-                        print("Initializing image for identifier \(capturedImage.identifier).")
-                        self.currentImages[capturedImage.identifier] = newImage
-                    }
+                    // Proceed to process images
+                    self.processImage(capturedImage.identifier, newImage)
                 }
             }
 
             // Cleanup results before processing images
             self.cleanupResults(currentWindowIDs: currentWindowIDs)
-
-            // Proceed to process images
-            self.processImages(capturedImages)
         }
     }
 
-
-    
-    private func cleanupResults(currentWindowIDs: Set<String>) {
-        for key in results.keys {
-            if !currentWindowIDs.contains(key) {
-                print("Removing results and images for window \(key) as it's no longer active.")
-                results.removeValue(forKey: key)
-                currentImages.removeValue(forKey: key)
-            }
+    func processImage(_ identifier: String, _ image: CGImage) {
+        if processingStatus[identifier] == true {
+            print("Processing for window \(identifier) is already running. Skipping this cycle.")
+            return
         }
-        updateCounter += 1  // Update to trigger any observers of results changes
-    }
 
+        // Mark processing as started
+        processingStatus[identifier] = true
 
-    func processImages(_ capturedImages: [(identifier: String, image: CGImage?)]) {
         let dispatchGroup = DispatchGroup()
         
-        for (identifier, image) in capturedImages {
-            guard let image = image else {
-                print("No image was captured for window \(identifier)!")
-                continue
-            }
-            
-            // Check if the current amount of suggestions for this identifier has reached the limit
-            if let windowData = results[identifier], windowData.suggestionsCount >= suggestionsLimit {
-                print("Suggestions limit reached for window \(identifier). Skipping processing.")
-                continue
-            }
-            
-            // Enter dispatch group twice for two async tasks
-            dispatchGroup.enter()
-            dispatchGroup.enter()
-            
-            saveImage(image, identifier: identifier)
-            
-            // GPT Vision OCR processing
-            gptManager.sendImageToOpenAIVision(image: image, identifier: identifier) { text in
-                let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                print("\nOCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
-                
-                self.processOCRResultWithChatGPT(for: identifier, text: trimmedText) { intention, command in
-                    self.appendResult(identifier: identifier, response: intention, command: command)
-                    dispatchGroup.leave()
-                }
-            }
+        // Check if the current amount of suggestions for this identifier has reached the limit
+        if let windowData = results[identifier], windowData.suggestionsCount >= suggestionsLimit {
+            print("Suggestions limit reached for window \(identifier). Skipping processing.")
+            processingStatus[identifier] = false  // Mark processing as finished
+            return
+        }
 
-            // Local OCR processing
+        // Measure start time
+        let startTime = Date()
+        
+        // Enter dispatch group for async tasks
+        dispatchGroup.enter()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            guard let self = self else { return }
             performOCR(on: image) { extractedText in
                 DispatchQueue.main.async {
-                    self.processOCRResultWithChatGPT(for: identifier, text: extractedText) { intention, command in
-                        self.appendResult(identifier: identifier, response: intention, command: command)
-                        dispatchGroup.leave()
-                    }
+                    //let trimmedText = extractedText.trimmingCharacters(in: .whitespacesAndNewlines)
+                    //print("\nOCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
+                    //self.compareAndProcessOCRResult(for: identifier, newText: trimmedText)
+                    // Measure end time and calculate duration
+                    let endTime = Date()
+                    let duration = endTime.timeIntervalSince(startTime)
+                    print(String(format: "Levenshtein processing for window \(identifier) took %.2f seconds.", duration))
+                    dispatchGroup.leave()
                 }
             }
         }
 
         dispatchGroup.notify(queue: .main) {
-            print("All processing complete.")
+            print("All processing complete for window \(identifier).")
+            self.processingStatus[identifier] = false  // Mark processing as finished
         }
     }
+    
+    private func cleanupResults(currentWindowIDs: Set<String>) {
+        for key in results.keys {
+            if !currentWindowIDs.contains(key) {
+                print("Removing results and OCR texts for window \(key) as it's no longer active.")
+                results.removeValue(forKey: key)
+                currentOCRTexts.removeValue(forKey: key)
+            }
+        }
+        updateCounter += 1  // Update to trigger any observers of results changes
+    }
+
+    func saveOCRResult(_ text: String, for identifier: String) {
+        let tmpDir = FileManager.default.temporaryDirectory
+        let timestamp = Date().timeIntervalSince1970
+        let filePath = tmpDir.appendingPathComponent("\(identifier)_\(timestamp).txt")
+
+        do {
+            try text.write(to: filePath, atomically: true, encoding: .utf8)
+            print("Saved OCR result for \(identifier) to \(filePath.path)")
+        } catch {
+            print("Failed to save OCR result for \(identifier): \(error)")
+        }
+    }
+    
+    func appendResult(identifier: String, response: String, command: String) {
+        var windowData = results[identifier] ?? (suggestionsCount: 0, gptResponses: [], updatedAt: Date())
+        windowData.suggestionsCount += 1
+        windowData.gptResponses.append(["response": response, "command": command])
+        windowData.updatedAt = Date()
+        results[identifier] = windowData
+    }
+
+    func deleteTmpFiles() {
+        let tmpDir = FileManager.default.temporaryDirectory
+        do {
+            let tmpFiles = try FileManager.default.contentsOfDirectory(atPath: tmpDir.path)
+            for file in tmpFiles {
+                try FileManager.default.removeItem(at: tmpDir.appendingPathComponent(file))
+            }
+            print("Temporary files deleted.")
+        } catch {
+            print("Failed to delete temporary files: \(error)")
+        }
+    }
+    
+    
+    func compareAndProcessOCRResult(for identifier: String, newText: String) {
+        let startTime = Date()  // Start time
+
+        func alphanumericString(from text: String) -> String {
+            // Replace all non-alphanumeric characters with an empty string
+            let pattern = "[^a-zA-Z0-9]+"
+            let regex = try? NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(location: 0, length: text.utf16.count)
+            let alphanumericText = regex?.stringByReplacingMatches(in: text, options: [], range: range, withTemplate: "") ?? ""
+            return alphanumericText
+        }
+
+        let newAlphanumericText = alphanumericString(from: newText)
+        
+        if let previousText = currentOCRTexts[identifier] {
+            let previousAlphanumericText = alphanumericString(from: previousText)
+            
+            let previousLength = previousAlphanumericText.count
+            let newLength = newAlphanumericText.count
+            
+            let lengthDifference = abs(previousLength - newLength)
+            let threshold = 10  // Set your threshold here
+
+            // Print the calculated length difference
+            print("Length difference for img1 vs img2 \(identifier) is: \(lengthDifference)")
+
+            if lengthDifference <= threshold {
+                print("OCR text for identifier \(identifier) has not changed.")
+            } else {
+                print("OCR text for identifier \(identifier) has changed.")
+                // Update the OCR text in the dictionary as it has changed
+                currentOCRTexts[identifier] = newText
+                // Delete the current window identifier from the results dict as the OCR text has changed
+                results.removeValue(forKey: identifier)
+                print("Removed results for identifier \(identifier) due to OCR text change.")
+                self.saveOCRResult(previousAlphanumericText, for: "img1")
+                self.saveOCRResult(newAlphanumericText, for: "img2")
+            }
+        } else {
+            // No existing OCR text, so initialize
+            print("Initializing OCR text for identifier \(identifier).")
+            currentOCRTexts[identifier] = newText
+        }
+
+        let endTime = Date()  // End time
+        let timeInterval = endTime.timeIntervalSince(startTime)  // Calculate the duration
+        print("Time taken for compare and process OCR result: \(timeInterval) seconds")
+    }
+
 
     func processOCRResultWithChatGPT(for identifier: String, text: String, completion: @escaping (String, String) -> Void) {
         gptManager.sendOCRResultsToChatGPT(ocrResults: [identifier: text], highlight: "") { jsonStr in
@@ -201,25 +225,6 @@ class AppViewModel: ObservableObject {
         completion(intention, command)
     }
 
-    func appendResult(identifier: String, response: String, command: String) {
-        let newEntry = ["gptResponse": response, "suggestedCommand": command]
-        let currentTime = Date() // Get the current time
-
-        if var windowInfo = results[identifier] {
-            // Append new response to the existing array of responses
-            windowInfo.gptResponses.append(newEntry)
-            // Increment the suggestions count
-            windowInfo.suggestionsCount += 1
-            // Update the timestamp
-            windowInfo.updatedAt = currentTime
-            results[identifier] = windowInfo
-        } else {
-            // Initialize if this is the first entry for this identifier
-            results[identifier] = (suggestionsCount: 1, gptResponses: [newEntry], updatedAt: currentTime)
-        }
-        updateCounter += 1  // Increment the counter to notify a change
-    }
-
     func getRecentLogs() -> [Logger.LogEntry] {
         return [Logger.LogEntry(identifier: "dummy", startedAt: Date(), gptResponse: "To implement again", recommendedCommands: [])]
     }
@@ -229,8 +234,15 @@ class AppViewModel: ObservableObject {
     }
 }
 
+class AppViewModel: ObservableObject {
+    @Published var results: [String: (suggestionsCount: Int, gptResponses: [Dictionary<String, String>], updatedAt: Date)] = [:]
+
+}
+
+
 
 extension AppViewModel {
+    
     var sortedResults: [String] {
         results.keys.sorted {
             results[$0]!.updatedAt < results[$1]!.updatedAt

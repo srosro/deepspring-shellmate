@@ -12,6 +12,8 @@ import CoreGraphics
 
 
 func performOCR(on image: CGImage, completion: @escaping (String) -> Void) {
+    let startTime = Date()  // Start time
+
     let requestHandler = VNImageRequestHandler(cgImage: image, options: [:])
     let request = VNRecognizeTextRequest { (request, error) in
         guard error == nil else { return }
@@ -22,38 +24,16 @@ func performOCR(on image: CGImage, completion: @escaping (String) -> Void) {
                     extractedText += topCandidate.string + "\n"
                 }
             }
+            let endTime = Date()  // End time
+            let timeInterval = endTime.timeIntervalSince(startTime)  // Calculate the duration
+            print("Time taken for OCR: \(timeInterval) seconds")
             completion(extractedText)
         }
     }
+    request.recognitionLevel = .accurate
     try? requestHandler.perform([request])
 }
 
-func saveImage(_ image: CGImage, identifier: String) {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyyMMddHHmmss"
-    let timestamp = dateFormatter.string(from: Date())
-    let directoryPath = NSTemporaryDirectory() + "shellbuddy/tmp"
-    let filePath = "\(directoryPath)/screenshot_\(identifier)_\(timestamp).png"
-    
-    let fileManager = FileManager.default
-    if (!fileManager.fileExists(atPath: directoryPath)) {
-        do {
-            try fileManager.createDirectory(atPath: directoryPath, withIntermediateDirectories: true, attributes: nil)
-        } catch {
-            print("Failed to create directory: \(error)")
-            return
-        }
-    }
-    
-    let bitmapRep = NSBitmapImageRep(cgImage: image)
-    guard let data = bitmapRep.representation(using: .png, properties: [:]) else { return }
-    do {
-        try data.write(to: URL(fileURLWithPath: filePath))
-        print("Saved image to \(filePath)")
-    } catch {
-        print("Failed to save image: \(error)")
-    }
-}
 
 func deleteTmpFiles() {
     let fileManager = FileManager.default
