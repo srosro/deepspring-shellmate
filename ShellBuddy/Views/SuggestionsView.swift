@@ -14,6 +14,11 @@ struct SuggestionsView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
                 .padding(.bottom, 10)
+            
+            Text(viewModel.currentStateText)  // Display the current state text
+                .font(.headline)
+                .foregroundColor(viewModel.currentStateText == "Detecting Changes" ? .red : .green)
+                .padding(.bottom, 10)
 
             ScrollViewReader { scrollView in
                 ScrollView {
@@ -30,7 +35,8 @@ struct SuggestionsView: View {
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
                                     if let windowData = viewModel.results[key] {
-                                        ForEach(windowData.gptResponses, id: \.self) { resultDict in
+                                        ForEach(windowData.gptResponses.indices, id: \.self) { index in
+                                            let resultDict = windowData.gptResponses[index]
                                             Text(resultDict["gptResponse"] ?? "No response")
                                                 .frame(maxWidth: .infinity, alignment: .leading)
                                                 .padding(.bottom, 10)
@@ -66,9 +72,9 @@ struct SuggestionsView: View {
                             }
                         }
                     }
-                    .onChange(of: viewModel.updateCounter, initial: false) {
+                    .onChange(of: viewModel.updateCounter, perform: { _ in
                         scrollToBottom(scrollView: scrollView, keys: viewModel.sortedResults)
-                    }
+                    })
                 }
             }
         }

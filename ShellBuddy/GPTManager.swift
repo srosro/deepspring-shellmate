@@ -156,3 +156,91 @@ class GPTManager {
 
 }
 
+
+import Foundation
+import AppKit
+import os
+class OCRProcessingHandler {
+    private let gptManager = GPTManager()
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "App", category: "OCRProcessingHandler")
+    private let viewModel: AppViewModel
+
+    init(viewModel: AppViewModel) {
+        self.viewModel = viewModel
+    }
+
+    func processImage(identifier: String, image: CGImage, localText: String, completion: @escaping () -> Void) {
+        let dispatchGroup = DispatchGroup()
+
+        // GPT Vision OCR processing
+        dispatchGroup.enter()
+        gptManager.sendImageToOpenAIVision(image: image, identifier: identifier) { [weak self] text in
+            guard let self = self else { return }
+            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.logger.log("OCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
+
+            self.processOCRResultWithChatGPT(for: identifier, text: trimmedText) { intention, command in
+                DispatchQueue.main.async {
+                    self.appendResult(identifier: identifier, response: intention, command: command)
+                    dispatchGroup.leave()
+                }
+            }
+        }
+
+        // Local OCR processing
+        dispatchGroup.enter()
+        self.processOCRResultWithChatGPT(for: identifier, text: localText) { [weak self] intention, command in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                self.appendResult(identifier: identifier, response: intention, command: command)
+                dispatchGroup.leave()
+            }
+        }
+
+        dispatchGroup.notify(queue: .main) {
+            completion()
+        }
+    }
+
+    private func processOCRResultWithChatGPT(for identifier: String, text: String, completion: @escaping (String, String) -> Void) {
+        gptManager.sendOCRResultsToChatGPT(ocrResults: [identifier: text], highlight: "") { jsonStr in
+            DispatchQueue.main.async {
+                self.handleJSONResponse(jsonStr, completion: completion)
+            }
+        }
+    }
+
+    private func handleJSONResponse(_ jsonStr: String, completion: (String, String) -> Void) {
+        let cleanedJsonStr = jsonStr.replacingOccurrences(of: "```json", with: "").replacingOccurrences(of: "```", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let jsonData = cleanedJsonStr.data(using: .utf8),
+              let dictionary = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+              let intention = dictionary["intention"] as? String,
+              let command = dictionary["command"] as? String else {
+            self.logger.log("Failed to parse JSON or missing keys")
+            return
+        }
+        completion(intention, command)
+    }
+
+    private func appendResult(identifier: String, response: String, command: String) {
+        let newEntry = ["gptResponse": response, "suggestedCommand": command]
+        let currentTime = Date() // Get the current time
+
+        DispatchQueue.main.async {
+            self.logger.debug("Appending result for identifier \(identifier). Response: \(response), Command: \(command)")
+            if var windowInfo = self.viewModel.results[identifier] {
+                // Append new response to the existing array of responses
+                windowInfo.gptResponses.append(newEntry)
+                // Increment the suggestions count
+                windowInfo.suggestionsCount += 1
+                // Update the timestamp
+                windowInfo.updatedAt = currentTime
+                self.viewModel.results[identifier] = windowInfo
+            } else {
+                // Initialize if this is the first entry for this identifier
+                self.viewModel.results[identifier] = (suggestionsCount: 1, gptResponses: [newEntry], updatedAt: currentTime)
+            }
+            self.viewModel.updateCounter += 1  // Increment the counter to notify a change
+        }
+    }
+}

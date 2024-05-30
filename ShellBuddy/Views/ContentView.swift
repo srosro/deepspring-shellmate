@@ -1,18 +1,10 @@
-//
-//  ContentView.swift
-//  ShellBuddy
-//
-//  Created by Daniel Delattre on 22/05/24.
-//
-
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel: AppViewModel
-    @State private var selectedTab: Tab = .suggestions
+    @ObservedObject var viewModel: AppViewModel
 
-    init(viewModel: AppViewModel = AppViewModel()) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+    init(viewModel: AppViewModel) {
+        _viewModel = ObservedObject(wrappedValue: viewModel)
     }
 
     enum Tab {
@@ -20,7 +12,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView {
             SuggestionsView(viewModel: viewModel)
                 .tabItem {
                     Label("Suggestions", systemImage: "lightbulb")

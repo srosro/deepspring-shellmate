@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Logger {
+class Logger1 {
     struct LogEntry: Codable {
         let identifier: String
         let startedAt: Date
