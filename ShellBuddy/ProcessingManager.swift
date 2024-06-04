@@ -1,3 +1,10 @@
+//
+//  ProcessingManager.swift
+//  ShellBuddy
+//
+//  Created by Daniel Delattre on 03/06/24.
+//
+
 import Foundation
 import AppKit
 import Vision
@@ -201,9 +208,10 @@ class ProcessingManager {
                 self.globalHasChanged[identifier] = false
                 self.viewModel.currentStateText = "No Changes on Terminal"
                 self.logger.log("Global state updated to unchanged for identifier \(identifier).")
-
+                
                 // Start new processing for the identifier
                 if let image = self.capturedImages[identifier], let localText = self.currentOCRTexts[identifier] {
+                    self.saveImage(image, for: identifier) // Save image to local file for debug purpose
                     self.ocrProcessingHandler.processImage(identifier: identifier, image: image, localText: localText) {
                         self.logger.log("Processing completed for identifier \(identifier).")
                     }
@@ -215,7 +223,27 @@ class ProcessingManager {
     private func dummyProcess() {
         logger.log("Dummy process triggered.")
     }
+    
+    private func saveImage(_ cgImage: CGImage, for identifier: String) {
+        let tmpDir = FileManager.default.temporaryDirectory
+        let timestamp = Date().timeIntervalSince1970
+        let filePath = tmpDir.appendingPathComponent("\(identifier)_\(timestamp).png")
 
+        let bitmapRep = NSBitmapImageRep(cgImage: cgImage)
+        guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else {
+            logger.error("Failed to convert image to PNG for \(identifier)")
+            return
+        }
+
+        do {
+            try pngData.write(to: filePath)
+            logger.log("Saved image for \(identifier) to \(filePath.path)")
+        } catch {
+            logger.error("Failed to save image for \(identifier): \(error.localizedDescription)")
+        }
+    }
+
+    
     func deleteTmpFiles() {
         let tmpDir = FileManager.default.temporaryDirectory
         do {
