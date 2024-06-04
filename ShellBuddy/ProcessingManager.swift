@@ -164,7 +164,7 @@ class ProcessingManager {
                 logger.log("OCR text for identifier \(identifier) has changed.")
                 hasChanged = true
                 currentOCRTexts[identifier] = newText
-                viewModel.results.removeValue(forKey: identifier)
+                viewModel.results.removeValue(forKey: identifier) //Clear the screen when there is a change detected
                 logger.log("Removed results for identifier \(identifier) due to OCR text change.")
                 self.saveOCRResult(previousAlphanumericText, for: "img1")
                 self.saveOCRResult(newAlphanumericText, for: "img2")

@@ -23,57 +23,55 @@ struct SuggestionsView: View {
             ScrollViewReader { scrollView in
                 ScrollView {
                     VStack {
-                        if viewModel.results.isEmpty {
+                        if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.results[currentTerminalID] {
+                            VStack(alignment: .leading) {
+                                Text("Window [\(currentTerminalID)]:")
+                                    .font(.headline)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                                ForEach(windowData.gptResponses.indices, id: \.self) { index in
+                                    let resultDict = windowData.gptResponses[index]
+                                    Text(resultDict["gptResponse"] ?? "No response")
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.bottom, 10)
+                                        .background(Color.gray.opacity(0.2))
+                                        .cornerRadius(8)
+                                        .padding(.bottom, 5)
+                                        .textSelection(.enabled)
+
+                                    if let command = resultDict["suggestedCommand"] {
+                                        Button(action: {
+                                            copyToClipboard(command: command)
+                                        }) {
+                                            HStack {
+                                                Text("Copy")
+                                                    .font(.headline)
+                                                    .foregroundColor(.yellow)
+                                                    .padding(.trailing, 10)
+                                                Text(command)
+                                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                            }
+                                            .padding()
+                                            .background(Color.blue)
+                                            .foregroundColor(.white)
+                                            .cornerRadius(8)
+                                        }
+                                        .padding(.bottom, 5)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                            .id(currentTerminalID) // Assign ID for the current window
+                        } else {
                             Text("No text recognized yet")
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding()
-                        } else {
-                            ForEach(viewModel.sortedResults, id: \.self) { key in  // Use sorted results
-                                VStack(alignment: .leading) {
-                                    Text("Window [\(key)]:")
-                                        .font(.headline)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                                    if let windowData = viewModel.results[key] {
-                                        ForEach(windowData.gptResponses.indices, id: \.self) { index in
-                                            let resultDict = windowData.gptResponses[index]
-                                            Text(resultDict["gptResponse"] ?? "No response")
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                .padding(.bottom, 10)
-                                                .background(Color.gray.opacity(0.2))
-                                                .cornerRadius(8)
-                                                .padding(.bottom, 5)
-                                                .textSelection(.enabled)
-
-                                            if let command = resultDict["suggestedCommand"] {
-                                                Button(action: {
-                                                    copyToClipboard(command: command)
-                                                }) {
-                                                    HStack {
-                                                        Text("Copy")
-                                                            .font(.headline)
-                                                            .foregroundColor(.yellow)
-                                                            .padding(.trailing, 10)
-                                                        Text(command)
-                                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                                    }
-                                                    .padding()
-                                                    .background(Color.blue)
-                                                    .foregroundColor(.white)
-                                                    .cornerRadius(8)
-                                                }
-                                                .padding(.bottom, 5)
-                                            }
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal)
-                                .id(key) // Assign ID for each section
-                            }
                         }
                     }
                     .onChange(of: viewModel.updateCounter, perform: { _ in
-                        scrollToBottom(scrollView: scrollView, keys: viewModel.sortedResults)
+                        if let currentTerminalID = viewModel.currentTerminalID {
+                            scrollToBottom(scrollView: scrollView, key: currentTerminalID)
+                        }
                     })
                 }
             }
@@ -81,11 +79,9 @@ struct SuggestionsView: View {
         .padding()
     }
 
-    private func scrollToBottom(scrollView: ScrollViewProxy, keys: [String]) {
-        if let lastKey = keys.last {
-            withAnimation {
-                scrollView.scrollTo(lastKey, anchor: .bottom)
-            }
+    private func scrollToBottom(scrollView: ScrollViewProxy, key: String) {
+        withAnimation {
+            scrollView.scrollTo(key, anchor: .bottom)
         }
     }
 

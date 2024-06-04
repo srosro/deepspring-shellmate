@@ -94,9 +94,7 @@ class OCRProcessingHandler {
     }
 
     private func appendResult(identifier: String, response: String, command: String) {
-        let newEntry = ["gptResponse": response, "suggestedCommand":
-                            
-                            command]
+        let newEntry = ["gptResponse": response, "suggestedCommand": command]
         let currentTime = Date() // Get the current time
 
         DispatchQueue.main.async {
