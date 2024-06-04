@@ -12,8 +12,8 @@ class GPTAssistantManager {
     let assistantId: String
     let headers: [String: String]
     
-    init(apiKey: String, assistantId: String) {
-        self.apiKey = apiKey
+    init(assistantId: String) {
+        self.apiKey = retrieveOpenaiAPIKey()
         self.assistantId = assistantId
         self.headers = [
             "Content-Type": "application/json",

@@ -12,7 +12,7 @@ import os
 
 class OCRProcessingHandler {
     private let gptManager = GPTManager()
-    private let gptAssistantManager = GPTAssistantManager(apiKey: "sk-proj-0x8qT7zv8ner54aooRIKT3BlbkFJreCYuUfAoE5xtxUjaqGM", assistantId: "asst_IQyOH1i0Qjs0agZsBE23nQrS")
+    private let gptAssistantManager = GPTAssistantManager(assistantId: "asst_IQyOH1i0Qjs0agZsBE23nQrS")
     private var threadId: String?
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "App", category: "OCRProcessingHandler")
     private let viewModel: AppViewModel

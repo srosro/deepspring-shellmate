@@ -18,6 +18,7 @@
 		DC5D98F62BF558D1000E4D80 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */; };
 		DC6F10A92C0E97AD0078DD36 /* OCRProcessingHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6F10A82C0E97AD0078DD36 /* OCRProcessingHandler.swift */; };
 		DC6F10AB2C0E98250078DD36 /* ProcessingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6F10AA2C0E98250078DD36 /* ProcessingManager.swift */; };
+		DCB553232C0F5FF50079A9B3 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB553222C0F5FF50079A9B3 /* Utils.swift */; };
 		DCC6A49F2C04CA9500D5562A /* ApplicationMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC6A49E2C04CA9500D5562A /* ApplicationMonitor.swift */; };
 		DCF05D552C0D222F0018C568 /* GPTAssistantManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF05D542C0D222F0018C568 /* GPTAssistantManager.swift */; };
 		DCFEB47D2BFE4BC200BDA3CA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */; };
@@ -59,6 +60,7 @@
 		DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		DC6F10A82C0E97AD0078DD36 /* OCRProcessingHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRProcessingHandler.swift; sourceTree = "<group>"; };
 		DC6F10AA2C0E98250078DD36 /* ProcessingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingManager.swift; sourceTree = "<group>"; };
+		DCB553222C0F5FF50079A9B3 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		DCC6A49E2C04CA9500D5562A /* ApplicationMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationMonitor.swift; sourceTree = "<group>"; };
 		DCF05D542C0D222F0018C568 /* GPTAssistantManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantManager.swift; sourceTree = "<group>"; };
 		DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 		DC5D98C72BF5532C000E4D80 /* ShellBuddy */ = {
 			isa = PBXGroup;
 			children = (
+				DCB553222C0F5FF50079A9B3 /* Utils.swift */,
 				DCFEB47B2BFE4B9E00BDA3CA /* Views */,
 				DC46C4D52BF9137800E451D2 /* Info.plist */,
 				DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */,
@@ -307,6 +310,7 @@
 				DCC6A49F2C04CA9500D5562A /* ApplicationMonitor.swift in Sources */,
 				DC42A33F2C00CB7700B12B28 /* GPTManager.swift in Sources */,
 				DC6F10AB2C0E98250078DD36 /* ProcessingManager.swift in Sources */,
+				DCB553232C0F5FF50079A9B3 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

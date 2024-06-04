@@ -8,15 +8,7 @@ class GPTManager {
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "App", category: "GPTManager")
 
     init() {
-        self.apiKey = GPTManager.retrieveAPIKey()
-    }
-
-    /// Retrieve the API key from environment variables
-    private static func retrieveAPIKey() -> String {
-        guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
-            fatalError("API key not found in environment variables")
-        }
-        return apiKey
+        self.apiKey = retrieveOpenaiAPIKey()
     }
 
     /// Encode CGImage to Base64 string
