@@ -150,7 +150,7 @@ class ProcessingManager {
 
         let newAlphanumericText = alphanumericString(from: newText)
         var hasChanged = false
-        let threshold = (stateChange[identifier] ?? false) ? 2 : 15
+        let threshold = (stateChange[identifier] ?? false) ? 2 : 22
 
         if let previousText = currentOCRTexts[identifier] {
             let previousAlphanumericText = alphanumericString(from: previousText)
@@ -170,6 +170,12 @@ class ProcessingManager {
                 self.saveOCRResult(newAlphanumericText, for: "img2")
             } else {
                 logger.log("OCR text for identifier \(identifier) has not changed.")
+                triggerAdditionalCommandSuggestionIfNeeded(identifier: identifier)
+                // RUN VERIFICATIONS TO TRIGGER THE GENERATION OF A NEW SUGGESTION UNTIL THE LIMIT
+                // 1. Check if two initial prompts have executed. 
+                //2. Check if the given identifier has a len(gptResponses) >= 1. AND len <= 6 (hardLimit of suggestions) viewModel @Published var results: [String: (suggestionsCount: Int, gptResponses: [Dictionary<String, String>], updatedAt: Date)] = [:]
+                // Check if the processing for source 'additionalSuggestion' is being processed or not.
+                // If all those conditions pass then trigger the execution of dummyProcess for now. Else do nothing
             }
         } else {
             logger.log("Initializing OCR text for identifier \(identifier).")
@@ -196,6 +202,54 @@ class ProcessingManager {
         let timeInterval = endTime.timeIntervalSince(startTime)
         logger.log("Time taken for compare and process OCR result: \(timeInterval) seconds")
     }
+    
+    private func triggerAdditionalCommandSuggestionIfNeeded(identifier: String) {
+        // Check if two initial prompts have executed.
+        guard self.ocrProcessingHandler.didFirstTwoPromptsRun(forIdentifier: identifier) else {
+            self.logger.debug("Two initial prompts have not executed for identifier \(identifier).")
+            return
+        }
+        
+        // Check if the given identifier has at least one response and at most six responses.
+        guard let resultInfo = viewModel.results[identifier], resultInfo.gptResponses.count > 0 && resultInfo.gptResponses.count <= 5 else {
+            self.logger.debug("Identifier \(identifier) does not have at least one response or has more than six responses.")
+            return
+        }
+        
+        // Check if the processing for source 'additionalSuggestion' is being processed or not.
+        guard !self.ocrProcessingHandler.isSourceExecuting(forIdentifier: identifier, source: "additionalSuggestion") else {
+            self.logger.debug("Processing for 'additionalSuggestion' is already in progress for identifier \(identifier).")
+            return
+        }
+
+        // All conditions passed, trigger the execution of dummyProcess
+        self.logger.debug("All conditions passed for identifier \(identifier). Triggering dummy process.")
+        dummyProcess()
+        
+        // Get the OCR results for this identifier
+        guard let ocrResult = self.ocrProcessingHandler.ocrResults[identifier],
+              let visionText = ocrResult["vision"],
+              let localText = ocrResult["local"] else {
+            self.logger.error("OCR results not found for identifier \(identifier).")
+            return
+        }
+
+        // Extract suggested commands
+        let suggestions = resultInfo.gptResponses.compactMap { $0["suggestedCommand"] }.joined(separator: ", ")
+
+        // Prepare the message for additional suggestion
+        let message = "This is the user terminal raw content: \(localText) and this is the structured terminal content: \(visionText). Based on that I already have these suggestions: \(suggestions). Can you provide a better alternative that will help the user better? Do not generate duplicated suggestion commands."
+
+        // Trigger the execution of additional suggestion process
+        self.ocrProcessingHandler.processOCRResults(threadId: self.ocrProcessingHandler.threadId, text: message, source: "additionalSuggestion", identifier: identifier) {
+            self.logger.debug("Additional suggestion process completed for identifier \(identifier).")
+        }
+    }
+
+    
+    private func dummyProcess() {
+        logger.log("Dummy process triggered.")
+    }
 
     private func triggerDelayedStateUpdate(for identifier: String) {
         let eventID = UUID()
@@ -209,6 +263,9 @@ class ProcessingManager {
                 self.viewModel.currentStateText = "No Changes on Terminal"
                 self.logger.log("Global state updated to unchanged for identifier \(identifier).")
                 
+                self.ocrProcessingHandler.removeIdentifierFromOCRResults(identifier)
+                self.ocrProcessingHandler.removeIdentifierFromSourceExecutionStatus(identifier)
+
                 // Start new processing for the identifier
                 if let image = self.capturedImages[identifier], let localText = self.currentOCRTexts[identifier] {
                     self.saveImage(image, for: identifier) // Save image to local file for debug purpose
@@ -218,10 +275,6 @@ class ProcessingManager {
                 }
             }
         }
-    }
-
-    private func dummyProcess() {
-        logger.log("Dummy process triggered.")
     }
     
     private func saveImage(_ cgImage: CGImage, for identifier: String) {

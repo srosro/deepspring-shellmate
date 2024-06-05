@@ -13,13 +13,39 @@ import os
 class OCRProcessingHandler {
     private let gptManager = GPTManager()
     private let gptAssistantManager = GPTAssistantManager(assistantId: "asst_IQyOH1i0Qjs0agZsBE23nQrS")
-    private var threadId: String?
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "App", category: "OCRProcessingHandler")
     private let viewModel: AppViewModel
+    public var threadId: String?
+    public var ocrResults: [String: [String: String]] = [:]
+    public var sourceExecutionStatus: [String: [String: String]] = [:]
 
     init(viewModel: AppViewModel) {
         self.viewModel = viewModel
         createAssistantThread()
+    }
+    
+    func removeIdentifierFromOCRResults(_ identifier: String) {
+        ocrResults.removeValue(forKey: identifier)
+    }
+    
+    func removeIdentifierFromSourceExecutionStatus(_ identifier: String) {
+        sourceExecutionStatus.removeValue(forKey: identifier)
+    }
+    
+    func isSourceExecuting(forIdentifier identifier: String, source: String) -> Bool {
+        let lowercaseSource = source.lowercased()
+        guard let executionStatus = sourceExecutionStatus[identifier], let status = executionStatus[lowercaseSource] else {
+            // Source not present in the dictionary, indicating it's not executing
+            return false
+        }
+        return status == "executing"
+    }
+    
+    func didFirstTwoPromptsRun(forIdentifier identifier: String) -> Bool {
+        guard let resultDict = ocrResults[identifier] else {
+            return false
+        }
+        return resultDict.keys.contains("vision") && resultDict.keys.contains("local")
     }
 
     private func createAssistantThread() {
@@ -40,7 +66,7 @@ class OCRProcessingHandler {
         runLocalOCR(on: image) { [weak self] extractedText in
             guard let self = self else { return }
             self.logger.debug("Local OCR Text Output for Window \(identifier): \n----------\n\(extractedText)\n----------\n")
-            self.processOCRResults(threadId: self.threadId, text: extractedText, source: "Local", identifier: identifier, completion: completion)
+            self.processOCRResults(threadId: self.threadId, text: extractedText, source: "local", identifier: identifier, completion: completion)
         }
 
         // GPT Vision OCR processing
@@ -49,18 +75,33 @@ class OCRProcessingHandler {
             guard let self = self else { return }
             let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
             self.logger.debug("GPT Vision OCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
-            self.processOCRResults(threadId: self.threadId, text: trimmedText, source: "Vision", identifier: identifier, completion: completion)
+            self.processOCRResults(threadId: self.threadId, text: trimmedText, source: "vision", identifier: identifier, completion: completion)
         }
     }
 
-    private func processOCRResults(threadId: String?, text: String, source: String, identifier: String, completion: @escaping () -> Void) {
+    func processOCRResults(threadId: String?, text: String, source: String, identifier: String, completion: @escaping () -> Void) {
         guard let threadId = threadId else {
             self.logger.error("No GPT Assistant thread available to process OCR results.")
             completion()
             return
         }
 
+        // Update source execution status
+        var executionStatusDict = sourceExecutionStatus[identifier] ?? [:]
+        executionStatusDict[source.lowercased()] = "executing"
+        sourceExecutionStatus[identifier] = executionStatusDict
+        
+        // Store OCR result
+        var resultDict = ocrResults[identifier] ?? [:]
+        resultDict[source.lowercased()] = text
+        ocrResults[identifier] = resultDict
+        
         gptAssistantManager.processMessageInThread(threadId: threadId, messageContent: text) { result in
+            // Update source execution status
+            var executionStatusDict = self.sourceExecutionStatus[identifier] ?? [:]
+            executionStatusDict[source.lowercased()] = "not executing"
+            self.sourceExecutionStatus[identifier] = executionStatusDict
+            
             switch result {
             case .success(let response):
                 self.appendResult(identifier: identifier, response: response["intention"] as? String ?? "", command: response["command"] as? String ?? "")
