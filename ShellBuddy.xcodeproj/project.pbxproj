@@ -25,7 +25,6 @@
 		DCF902F22C1108BC00B0B957 /* paste.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF902DF2C11076E00B0B957 /* paste.swift */; };
 		DCFEB47D2BFE4BC200BDA3CA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */; };
 		DCFEB47F2BFE4BCD00BDA3CA /* SuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */; };
-		DCFEB4812BFE4BE500BDA3CA /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB4802BFE4BE500BDA3CA /* HistoryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,7 +83,6 @@
 		DCF902ED2C11088F00B0B957 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionsView.swift; sourceTree = "<group>"; };
-		DCFEB4802BFE4BE500BDA3CA /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,7 +201,6 @@
 			children = (
 				DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */,
 				DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */,
-				DCFEB4802BFE4BE500BDA3CA /* HistoryView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -381,7 +378,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DCFEB4812BFE4BE500BDA3CA /* HistoryView.swift in Sources */,
 				DCFEB47F2BFE4BCD00BDA3CA /* SuggestionsView.swift in Sources */,
 				DCFEB47D2BFE4BC200BDA3CA /* ContentView.swift in Sources */,
 				DCF05D552C0D222F0018C568 /* GPTAssistantManager.swift in Sources */,

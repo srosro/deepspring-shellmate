@@ -18,10 +18,25 @@ class AppViewModel: ObservableObject {
     private var processingManager: ProcessingManager?
 
     
+    // Original initializer (commented out for preview purpose)
+    // init(appWindow: NSWindow?) {
+    //     self.appWindow = appWindow
+    //     startWindowPoller()
+    //     processingManager = ProcessingManager(viewModel: self)
+    // }
+
+    // Initializer for previews
     init(appWindow: NSWindow?) {
-        self.appWindow = appWindow
-        startWindowPoller()
-        processingManager = ProcessingManager(viewModel: self)
+        self.results = ["dummyID": (suggestionsCount: 1, 
+                                    gptResponses: [
+                                        ["gptResponse": "Hello, World! [1]", "suggestedCommand": "echo 'Hello, World!' [1]"],
+                                        ["gptResponse": "Hello, World! [2]", "suggestedCommand": "echo 'Hello, World!' [2]"]
+                                    ],
+                                    updatedAt: Date())
+        ]
+        self.currentTerminalID = "dummyID"
+        self.currentStateText = "Preview Mode"
+        self.appWindow = nil
     }
 
     private func startWindowPoller() {
