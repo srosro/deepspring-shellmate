@@ -134,6 +134,46 @@ class OCRProcessingHandler {
         try? requestHandler.perform([request])
     }
 
+    private func getDownloadsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)
+        return paths[0]
+    }
+    
+    // Helper function to write JSON data to a file
+    private func writeResultsToFile() {
+        // Use a shared directory accessible by both applications
+        let downloadsDirectory = getDownloadsDirectory()
+        let filePath = downloadsDirectory.appendingPathComponent("shellBuddyCommandSuggestions.json")
+
+        // Get the currentTerminalID
+        guard let currentTerminalID = self.viewModel.currentTerminalID else {
+            self.logger.debug("No current terminal ID found.")
+            return
+        }
+        
+        // Prepare the JSON output
+        var jsonOutput: [String: String] = [:]
+        
+        if let terminalResults = self.viewModel.results[currentTerminalID] {
+            for (index, gptResponse) in terminalResults.gptResponses.enumerated() {
+                if let suggestedCommand = gptResponse["suggestedCommand"] {
+                    jsonOutput[String(index + 1)] = suggestedCommand
+                }
+            }
+        }
+        
+        // Encode the JSON output
+        do {
+            let jsonData = try JSONEncoder().encode(jsonOutput)
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                try jsonString.write(to: filePath, atomically: true, encoding: .utf8)
+                self.logger.debug("Successfully wrote results to file at \(filePath).")
+            }
+        } catch {
+            self.logger.error("Failed to write JSON data to file: \(error.localizedDescription)")
+        }
+    }
+    
     private func appendResult(identifier: String, response: String, command: String) {
         let newEntry = ["gptResponse": response, "suggestedCommand": command]
         let currentTime = Date() // Get the current time
@@ -153,6 +193,8 @@ class OCRProcessingHandler {
                 self.viewModel.results[identifier] = (suggestionsCount: 1, gptResponses: [newEntry], updatedAt: currentTime)
             }
             self.viewModel.updateCounter += 1  // Increment the counter to notify a change
+            // Write results to file
+            self.writeResultsToFile()
         }
     }
 }

@@ -44,7 +44,7 @@ struct SuggestionsView: View {
                                             copyToClipboard(command: command)
                                         }) {
                                             HStack {
-                                                Text("Copy")
+                                                Text("Copy | sb \(index + 1)")
                                                     .font(.headline)
                                                     .foregroundColor(.yellow)
                                                     .padding(.trailing, 10)
