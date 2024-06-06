@@ -41,6 +41,18 @@ func startPasteProcess() {
     task.launch()
 }
 
+// Function to process command ID
+func processCommandID(_ key: String, filePath: URL) {
+    // Load the command from JSON using the key
+    if let command = loadCommandFromJSON(filePath: filePath, key: key) {
+        copyToClipboard(command)
+        // Start the paste process
+        startPasteProcess()
+    } else {
+        print("Failed to load command for key \(key)")
+    }
+}
+
 // Main function
 func sbCLIMain() {
     // Get the path to the Downloads directory
@@ -58,21 +70,27 @@ func sbCLIMain() {
     
     // Check if the correct number of arguments is provided
     guard arguments.count == 2 else {
-        print("Usage: ./sb <key>")
+        print("""
+        Wrong Usage:
+        For command suggestions:
+            sb <number> (e.g., sb 2; sb 1.5)
+
+        For message requests:
+            sb "insert your message with quotations" (e.g., sb "How can I find my external IP address?")\n
+        """)
         return
     }
     
-    // Get the key from the argument (e.g., "1")
-    let key = arguments[1]
+    // Get the argument
+    let argument = arguments[1]
     
-    // Load the command from JSON using the key
-    if let command = loadCommandFromJSON(filePath: filePath, key: key) {
-        copyToClipboard(command)
-        
-        // Start the paste process
-        startPasteProcess()
+    // Check if the argument can be cast to a float
+    if let _ = Float(argument) {
+        // Process as command ID
+        processCommandID(argument, filePath: filePath)
     } else {
-        print("Failed to load command for key \(key)")
+        // Process as user message (return without printing anything)
+        return
     }
 }
 
