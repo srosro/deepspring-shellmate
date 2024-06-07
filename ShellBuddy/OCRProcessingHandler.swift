@@ -155,9 +155,12 @@ class OCRProcessingHandler {
         var jsonOutput: [String: String] = [:]
         
         if let terminalResults = self.viewModel.results[currentTerminalID] {
-            for (index, gptResponse) in terminalResults.gptResponses.enumerated() {
-                if let suggestedCommand = gptResponse["suggestedCommand"] {
-                    jsonOutput[String(index + 1)] = suggestedCommand
+            for (batchIndex, batch) in terminalResults.suggestionsHistory.enumerated() {
+                for (suggestionIndex, gptResponse) in batch.enumerated() {
+                    if let suggestedCommand = gptResponse["suggestedCommand"] {
+                        let jsonId = "\(batchIndex + 1).\(suggestionIndex + 1)"
+                        jsonOutput[jsonId] = suggestedCommand
+                    }
                 }
             }
         }
@@ -181,8 +184,16 @@ class OCRProcessingHandler {
         DispatchQueue.main.async {
             self.logger.debug("Appending result for identifier \(identifier). Response: \(response), Command: \(command)")
             if var windowInfo = self.viewModel.results[identifier] {
-                // Append new response to the existing array of responses
-                windowInfo.gptResponses.append(newEntry)
+                // Check if there are existing batches
+                if var lastBatch = windowInfo.suggestionsHistory.last {
+                    // Append the new entry to the latest batch
+                    lastBatch.append(newEntry)
+                    // Replace the last batch with the updated one
+                    windowInfo.suggestionsHistory[windowInfo.suggestionsHistory.count - 1] = lastBatch
+                } else {
+                    // Create a new batch if no batches exist
+                    windowInfo.suggestionsHistory.append([newEntry])
+                }
                 // Increment the suggestions count
                 windowInfo.suggestionsCount += 1
                 // Update the timestamp
@@ -190,11 +201,12 @@ class OCRProcessingHandler {
                 self.viewModel.results[identifier] = windowInfo
             } else {
                 // Initialize if this is the first entry for this identifier
-                self.viewModel.results[identifier] = (suggestionsCount: 1, gptResponses: [newEntry], updatedAt: currentTime)
+                self.viewModel.results[identifier] = (suggestionsCount: 1, suggestionsHistory: [[newEntry]], updatedAt: currentTime)
             }
             self.viewModel.updateCounter += 1  // Increment the counter to notify a change
             // Write results to file
             self.writeResultsToFile()
         }
     }
+
 }

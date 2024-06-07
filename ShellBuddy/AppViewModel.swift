@@ -6,7 +6,7 @@ import os
 
 
 class AppViewModel: ObservableObject {
-    @Published var results: [String: (suggestionsCount: Int, gptResponses: [Dictionary<String, String>], updatedAt: Date)] = [:]
+    @Published var results: [String: (suggestionsCount: Int, suggestionsHistory: [[Dictionary<String, String>]], updatedAt: Date)] = [:]
     @Published var isPaused: Bool = true
     @Published var updateCounter: Int = 0  // This counter will be incremented on every update
     @Published private(set) var currentTerminalID: String?  // Make currentTerminalID publicly readable
@@ -28,14 +28,39 @@ class AppViewModel: ObservableObject {
     // Initializer for previews
     init(appWindow: NSWindow?) {
         self.results = ["dummyID": (suggestionsCount: 1, 
-                                    gptResponses: [
-                                        ["gptResponse": "Hello, World! [1]", "suggestedCommand": "echo 'Hello, World!' [1]"],
-                                        ["gptResponse": "Hello, World! [2]", "suggestedCommand": "echo 'Hello, World!' [2]"]
+                                    suggestionsHistory: [
+                                        [
+                                            ["gptResponse": "Showing the user's intention", "suggestedCommand": "echo 'Hello, World!' [1]", "commandExplanation": "prints 'Hello, World!' [1]"],
+                                            ["gptResponse": "Hello, World! [2]", "suggestedCommand": "echo 'Hello, World!' [2]", "commandExplanation": "prints 'Hello, World!' [2]"],
+                                            ["gptResponse": "Hello, World! [3]", "suggestedCommand": "echo 'Hello, World!' [3]", "commandExplanation": "prints 'Hello, World!' [3]"]
+                                        ],
+                                        [
+                                            ["gptResponse": "Instead of the actual command (as we don't really have the command)", "suggestedCommand": "echo 'Hello, World!' [1]", "commandExplanation": "prints 'Hello, World!' [1]"],
+                                            ["gptResponse": "Hello, World! [2]", "suggestedCommand": "echo 'Hello, World!' [2]", "commandExplanation": "prints 'Hello, World!' [2]"],
+                                            ["gptResponse": "Hello, World! [3]", "suggestedCommand": "echo 'Hello, World!' [3]", "commandExplanation": "prints 'Hello, World!' [3]"]
+                                        ],
+                                        [
+                                            ["gptResponse": "Showing the user's intention", "suggestedCommand": "echo 'Hello, World!' [4]", "commandExplanation": "prints 'Hello, World!' [4]"],
+                                            ["gptResponse": "Hello, World! [5]", "suggestedCommand": "echo 'This will be a really long long long long long long long long long long command to see what happens, World!' [5]", "commandExplanation": "prints 'Hello, World!' [5]"],
+                                            ["gptResponse": "Hello, World! [6]", "suggestedCommand": "echo 'Hello, World!' [6]", "commandExplanation": "prints 'Hello, World!' [6]"]
+                                        ],
                                     ],
-                                    updatedAt: Date())
+                                    updatedAt: Date()),
+                        
+                        "dummyID2": (suggestionsCount: 1,
+                                    suggestionsHistory: [
+                                        [
+                                            ["gptResponse": "Hello, World! [1]", "suggestedCommand": "echo 'Hello, World!' [1]"],
+                                            ["gptResponse": "Hello, World! [2]", "suggestedCommand": "echo 'Hello, World!' [2]"],
+                                            ["gptResponse": "Hello, World! [3]", "suggestedCommand": "echo 'Hello, World!' [3]"]
+                                        ],
+                                    ],
+                                    updatedAt: Date()),
+
         ]
         self.currentTerminalID = "dummyID"
-        self.currentStateText = "Preview Mode"
+        self.currentStateText = "Detecting changes..."
+        //self.currentStateText = "No changes on Terminal"
         self.appWindow = nil
     }
 

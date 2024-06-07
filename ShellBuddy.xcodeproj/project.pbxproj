@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DC086F742C133D6A007A994F /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC086F732C133D6A007A994F /* AppColors.swift */; };
 		DC42A33D2C00C06400B12B28 /* CaptureManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC42A33C2C00C06400B12B28 /* CaptureManager.swift */; };
 		DC42A33F2C00CB7700B12B28 /* GPTManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC42A33E2C00CB7700B12B28 /* GPTManager.swift */; };
 		DC5D98C92BF5532C000E4D80 /* ShellBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */; };
@@ -57,6 +58,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DC086F732C133D6A007A994F /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		DC42A33C2C00C06400B12B28 /* CaptureManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureManager.swift; sourceTree = "<group>"; };
 		DC42A33E2C00CB7700B12B28 /* GPTManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTManager.swift; sourceTree = "<group>"; };
 		DC46C4D52BF9137800E451D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -201,6 +203,7 @@
 			children = (
 				DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */,
 				DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */,
+				DC086F732C133D6A007A994F /* AppColors.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -387,6 +390,7 @@
 				DC42A33D2C00C06400B12B28 /* CaptureManager.swift in Sources */,
 				DCC6A49F2C04CA9500D5562A /* ApplicationMonitor.swift in Sources */,
 				DC42A33F2C00CB7700B12B28 /* GPTManager.swift in Sources */,
+				DC086F742C133D6A007A994F /* AppColors.swift in Sources */,
 				DC6F10AB2C0E98250078DD36 /* ProcessingManager.swift in Sources */,
 				DCB553232C0F5FF50079A9B3 /* Utils.swift in Sources */,
 			);

@@ -211,8 +211,10 @@ class ProcessingManager {
         }
         
         // Check if the given identifier has at least one response and at most six responses.
-        guard let resultInfo = viewModel.results[identifier], resultInfo.gptResponses.count > 0 && resultInfo.gptResponses.count <= 5 else {
-            self.logger.debug("Identifier \(identifier) does not have at least one response or has more than six responses.")
+        guard let resultInfo = viewModel.results[identifier],
+              let lastBatch = resultInfo.suggestionsHistory.last,
+              lastBatch.count > 0 && lastBatch.count <= 5 else {
+            self.logger.debug("Identifier \(identifier) does not have at least one response or has more than six responses in the last batch.")
             return
         }
         
@@ -234,8 +236,12 @@ class ProcessingManager {
             return
         }
 
-        // Extract suggested commands
-        let suggestions = resultInfo.gptResponses.compactMap { $0["suggestedCommand"] }.joined(separator: ", ")
+        // Declare suggestions variable outside the scope
+        var suggestions = ""
+        // Extract suggested commands from the last batch
+        if let lastBatch = resultInfo.suggestionsHistory.last {
+            suggestions = lastBatch.compactMap { $0["suggestedCommand"] }.joined(separator: ", ")
+        }
 
         // Prepare the message for additional suggestion
         let message = "This is the user terminal raw content: \(localText) and this is the structured terminal content: \(visionText). Based on that I already have these suggestions: \(suggestions). Can you provide a better alternative that will help the user better? Do not generate duplicated suggestion commands."
