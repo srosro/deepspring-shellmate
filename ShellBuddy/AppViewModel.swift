@@ -6,7 +6,7 @@ import os
 
 
 class AppViewModel: ObservableObject {
-    @Published var results: [String: (suggestionsCount: Int, gptResponses: [Dictionary<String, String>], updatedAt: Date)] = [:]
+    @Published var results: [String: (suggestionsCount: Int, suggestionsHistory: [[Dictionary<String, String>]], updatedAt: Date)] = [:]
     @Published var isPaused: Bool = true
     @Published var updateCounter: Int = 0  // This counter will be incremented on every update
     @Published private(set) var currentTerminalID: String?  // Make currentTerminalID publicly readable
@@ -17,13 +17,12 @@ class AppViewModel: ObservableObject {
     private weak var appWindow: NSWindow?
     private var processingManager: ProcessingManager?
 
-    
     init(appWindow: NSWindow?) {
         self.appWindow = appWindow
         startWindowPoller()
         processingManager = ProcessingManager(viewModel: self)
     }
-
+    
     private func startWindowPoller() {
         queue.async {
             self.windowPoller()
@@ -112,9 +111,38 @@ class AppViewModel: ObservableObject {
 }
 
 extension AppViewModel {
-    var sortedResults: [String] {
-        results.keys.sorted {
-            results[$0]!.updatedAt < results[$1]!.updatedAt
+    var filteredResults: [String: (suggestionsCount: Int, suggestionsHistory: [[Dictionary<String, String>]], updatedAt: Date)] {
+        var filteredResults = [String: (suggestionsCount: Int, suggestionsHistory: [[Dictionary<String, String>]], updatedAt: Date)]()
+        
+        for (identifier, result) in results {
+            // Filter out empty dictionaries within each history batch
+            let nonEmptyHistory = result.suggestionsHistory.map { history in
+                history.filter { !$0.isEmpty }
+            }.filter { !$0.isEmpty }
+            
+            if !nonEmptyHistory.isEmpty {
+                filteredResults[identifier] = (suggestionsCount: result.suggestionsCount, suggestionsHistory: nonEmptyHistory, updatedAt: result.updatedAt)
+            }
+        }
+        
+        // Log the filtered results in a pretty manner
+        logFilteredResults(filteredResults)
+        return filteredResults
+    }
+    
+    private func logFilteredResults(_ results: [String: (suggestionsCount: Int, suggestionsHistory: [[Dictionary<String, String>]], updatedAt: Date)]) {
+        print("#1234debug Filtered Results:")
+        for (identifier, result) in results {
+            print("#1234debug Identifier: \(identifier)")
+            print("#1234debug Suggestions Count: \(result.suggestionsCount)")
+            print("#1234debug Updated At: \(result.updatedAt)")
+            print("#1234debug Suggestions History:")
+            for history in result.suggestionsHistory {
+                print("#1234debug   - History Batch:")
+                for suggestion in history {
+                    print("#1234debug     - \(suggestion)")
+                }
+            }
         }
     }
 }

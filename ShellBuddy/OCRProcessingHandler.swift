@@ -12,7 +12,7 @@ import os
 
 class OCRProcessingHandler {
     private let gptManager = GPTManager()
-    private let gptAssistantManager = GPTAssistantManager(assistantId: "asst_IQyOH1i0Qjs0agZsBE23nQrS")
+    private let gptAssistantManager = GPTAssistantManager(assistantId: "asst_RXhzai0LCDr2O8rNpm5tKWXU")
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "App", category: "OCRProcessingHandler")
     private let viewModel: AppViewModel
     public var threadId: String?
@@ -104,14 +104,18 @@ class OCRProcessingHandler {
             
             switch result {
             case .success(let response):
-                self.appendResult(identifier: identifier, response: response["intention"] as? String ?? "", command: response["command"] as? String ?? "")
+                self.appendResult(identifier: identifier,
+                                  response: response["intention"] as? String ?? "",
+                                  command: response["command"] as? String ?? "",
+                                  explanation: response["commandExplanation"] as? String ?? "")
                 completion()
             case .failure(let error):
-                self.logger.error("\(source) OCR result processing failed with GPT Assistant: \(error.localizedDescription)")
+                self.logger.error("\(source) OCR result processing failed with GPT Assistant: \(error.localizedDescription). Original response: \(String(describing: result))")
                 completion()
             }
         }
     }
+
 
     private func runLocalOCR(on image: CGImage, completion: @escaping (String) -> Void) {
         let requestHandler = VNImageRequestHandler(cgImage: image, options: [:])
@@ -154,10 +158,13 @@ class OCRProcessingHandler {
         // Prepare the JSON output
         var jsonOutput: [String: String] = [:]
         
-        if let terminalResults = self.viewModel.results[currentTerminalID] {
-            for (index, gptResponse) in terminalResults.gptResponses.enumerated() {
-                if let suggestedCommand = gptResponse["suggestedCommand"] {
-                    jsonOutput[String(index + 1)] = suggestedCommand
+        if let terminalResults = self.viewModel.filteredResults[currentTerminalID] {
+            for (batchIndex, batch) in terminalResults.suggestionsHistory.enumerated() {
+                for (suggestionIndex, gptResponse) in batch.enumerated() {
+                    if let suggestedCommand = gptResponse["suggestedCommand"] {
+                        let jsonId = "\(batchIndex + 1).\(suggestionIndex + 1)"
+                        jsonOutput[jsonId] = suggestedCommand
+                    }
                 }
             }
         }
@@ -174,15 +181,31 @@ class OCRProcessingHandler {
         }
     }
     
-    private func appendResult(identifier: String, response: String, command: String) {
-        let newEntry = ["gptResponse": response, "suggestedCommand": command]
+    private func appendResult(identifier: String, response: String?, command: String?, explanation: String?) {
+        // Ensure all parameters are provided and not empty
+        guard let response = response, !response.isEmpty,
+              let command = command, !command.isEmpty,
+              let explanation = explanation, !explanation.isEmpty else {
+            self.logger.error("Missing or empty parameter(s) for identifier \(identifier). Response: \(String(describing: response)), Command: \(String(describing: command)), Explanation: \(String(describing: explanation))")
+            return
+        }
+        
+        let newEntry = ["gptResponse": response, "suggestedCommand": command, "commandExplanation": explanation]
         let currentTime = Date() // Get the current time
 
         DispatchQueue.main.async {
-            self.logger.debug("Appending result for identifier \(identifier). Response: \(response), Command: \(command)")
+            self.logger.debug("Appending result for identifier \(identifier). Response: \(response), Command: \(command), Explanation: \(explanation)")
             if var windowInfo = self.viewModel.results[identifier] {
-                // Append new response to the existing array of responses
-                windowInfo.gptResponses.append(newEntry)
+                // Check if there are existing batches
+                if var lastBatch = windowInfo.suggestionsHistory.last {
+                    // Append the new entry to the latest batch
+                    lastBatch.append(newEntry)
+                    // Replace the last batch with the updated one
+                    windowInfo.suggestionsHistory[windowInfo.suggestionsHistory.count - 1] = lastBatch
+                } else {
+                    // Create a new batch if no batches exist
+                    windowInfo.suggestionsHistory.append([newEntry])
+                }
                 // Increment the suggestions count
                 windowInfo.suggestionsCount += 1
                 // Update the timestamp
@@ -190,7 +213,7 @@ class OCRProcessingHandler {
                 self.viewModel.results[identifier] = windowInfo
             } else {
                 // Initialize if this is the first entry for this identifier
-                self.viewModel.results[identifier] = (suggestionsCount: 1, gptResponses: [newEntry], updatedAt: currentTime)
+                self.viewModel.results[identifier] = (suggestionsCount: 1, suggestionsHistory: [[newEntry]], updatedAt: currentTime)
             }
             self.viewModel.updateCounter += 1  // Increment the counter to notify a change
             // Write results to file

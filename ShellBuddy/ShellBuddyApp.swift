@@ -29,12 +29,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered, defer: false)
         window.center()
         window.setFrameAutosaveName("Main Window")
+        window.title = "ShellBuddy" 
 
         viewModel = AppViewModel(appWindow: window)
         window.contentView = NSHostingView(rootView: ContentView(viewModel: viewModel))
         window.makeKeyAndOrderFront(nil)
 
-        // Minimize the window immediately after launching
+        //Minimize the window immediately after launching
         DispatchQueue.main.async {
             self.window.miniaturize(nil)
         }
