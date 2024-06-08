@@ -32,6 +32,7 @@ class GPTManager {
             As a sysadmin bot, your task is to analyze a macOS terminal screenshot and extract relevant text, organizing it into a structured JSON format. Focus on the following components:
 
             {
+                "isTerminalEmpty": false,
                 "highlighted": "All highlighted text in the terminal",
                 "history": [
                     {
@@ -54,7 +55,9 @@ class GPTManager {
             - Identify and log only the single most recent item (command, error, or 'sb' message) under 'mostRecent'.
 
             Ensure strict adherence to the JSON structure for compatibility with further processing.
+            Only return the JSON output. Do not return any other text as this will break the rest of the code.
         """
+
 
 
         let messages: [[String: Any]] = [
@@ -70,7 +73,7 @@ class GPTManager {
         let json: [String: Any] = [
             "model": "gpt-4o",
             "messages": messages,
-            "max_tokens": 1000
+            "max_tokens": 1500
         ]
 
         logger.debug("Sending image to OpenAI Vision for OCR.")

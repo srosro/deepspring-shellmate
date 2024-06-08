@@ -17,53 +17,12 @@ class AppViewModel: ObservableObject {
     private weak var appWindow: NSWindow?
     private var processingManager: ProcessingManager?
 
-    
-    // Original initializer (commented out for preview purpose)
-    // init(appWindow: NSWindow?) {
-    //     self.appWindow = appWindow
-    //     startWindowPoller()
-    //     processingManager = ProcessingManager(viewModel: self)
-    // }
-
-    // Initializer for previews
     init(appWindow: NSWindow?) {
-        self.results = ["dummyID": (suggestionsCount: 1, 
-                                    suggestionsHistory: [
-                                        [
-                                            ["gptResponse": "Showing the user's intention", "suggestedCommand": "echo 'Hello, World!' [1]", "commandExplanation": "prints 'Hello, World!' [1]"],
-                                            ["gptResponse": "Hello, World! [2]", "suggestedCommand": "echo 'Hello, World!' [2]", "commandExplanation": "prints 'Hello, World!' [2]"],
-                                            ["gptResponse": "Hello, World! [3]", "suggestedCommand": "echo 'Hello, World!' [3]", "commandExplanation": "prints 'Hello, World!' [3]"]
-                                        ],
-                                        [
-                                            ["gptResponse": "Instead of the actual command (as we don't really have the command)", "suggestedCommand": "echo 'Hello, World!' [1]", "commandExplanation": "prints 'Hello, World!' [1]"],
-                                            ["gptResponse": "Hello, World! [2]", "suggestedCommand": "echo 'Hello, World!' [2]", "commandExplanation": "prints 'Hello, World!' [2]"],
-                                            ["gptResponse": "Hello, World! [3]", "suggestedCommand": "echo 'Hello, World!' [3]", "commandExplanation": "prints 'Hello, World!' [3]"]
-                                        ],
-                                        [
-                                            ["gptResponse": "Showing the user's intention", "suggestedCommand": "echo 'Hello, World!' [4]", "commandExplanation": "prints 'Hello, World!' [4]"],
-                                            ["gptResponse": "Hello, World! [5]", "suggestedCommand": "echo 'This will be a really long long long long long long long long long long command to see what happens, World!' [5]", "commandExplanation": "prints 'Hello, World!' [5]"],
-                                            ["gptResponse": "Hello, World! [6]", "suggestedCommand": "echo 'Hello, World!' [6]", "commandExplanation": "prints 'Hello, World!' [6]"]
-                                        ],
-                                    ],
-                                    updatedAt: Date()),
-                        
-                        "dummyID2": (suggestionsCount: 1,
-                                    suggestionsHistory: [
-                                        [
-                                            ["gptResponse": "Hello, World! [1]", "suggestedCommand": "echo 'Hello, World!' [1]"],
-                                            ["gptResponse": "Hello, World! [2]", "suggestedCommand": "echo 'Hello, World!' [2]"],
-                                            ["gptResponse": "Hello, World! [3]", "suggestedCommand": "echo 'Hello, World!' [3]"]
-                                        ],
-                                    ],
-                                    updatedAt: Date()),
-
-        ]
-        self.currentTerminalID = "dummyID"
-        self.currentStateText = "Detecting changes..."
-        //self.currentStateText = "No changes on Terminal"
-        self.appWindow = nil
+        self.appWindow = appWindow
+        startWindowPoller()
+        processingManager = ProcessingManager(viewModel: self)
     }
-
+    
     private func startWindowPoller() {
         queue.async {
             self.windowPoller()
@@ -152,9 +111,38 @@ class AppViewModel: ObservableObject {
 }
 
 extension AppViewModel {
-    var sortedResults: [String] {
-        results.keys.sorted {
-            results[$0]!.updatedAt < results[$1]!.updatedAt
+    var filteredResults: [String: (suggestionsCount: Int, suggestionsHistory: [[Dictionary<String, String>]], updatedAt: Date)] {
+        var filteredResults = [String: (suggestionsCount: Int, suggestionsHistory: [[Dictionary<String, String>]], updatedAt: Date)]()
+        
+        for (identifier, result) in results {
+            // Filter out empty dictionaries within each history batch
+            let nonEmptyHistory = result.suggestionsHistory.map { history in
+                history.filter { !$0.isEmpty }
+            }.filter { !$0.isEmpty }
+            
+            if !nonEmptyHistory.isEmpty {
+                filteredResults[identifier] = (suggestionsCount: result.suggestionsCount, suggestionsHistory: nonEmptyHistory, updatedAt: result.updatedAt)
+            }
+        }
+        
+        // Log the filtered results in a pretty manner
+        logFilteredResults(filteredResults)
+        return filteredResults
+    }
+    
+    private func logFilteredResults(_ results: [String: (suggestionsCount: Int, suggestionsHistory: [[Dictionary<String, String>]], updatedAt: Date)]) {
+        print("#1234debug Filtered Results:")
+        for (identifier, result) in results {
+            print("#1234debug Identifier: \(identifier)")
+            print("#1234debug Suggestions Count: \(result.suggestionsCount)")
+            print("#1234debug Updated At: \(result.updatedAt)")
+            print("#1234debug Suggestions History:")
+            for history in result.suggestionsHistory {
+                print("#1234debug   - History Batch:")
+                for suggestion in history {
+                    print("#1234debug     - \(suggestion)")
+                }
+            }
         }
     }
 }

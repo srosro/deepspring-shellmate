@@ -164,18 +164,19 @@ class ProcessingManager {
                 logger.log("OCR text for identifier \(identifier) has changed.")
                 hasChanged = true
                 currentOCRTexts[identifier] = newText
-                viewModel.results.removeValue(forKey: identifier) //Clear the screen when there is a change detected
-                logger.log("Removed results for identifier \(identifier) due to OCR text change.")
+                
+                
+                // Initialize another empty batch of items in suggestionsHistory
+                if var result = viewModel.results[identifier] {
+                    result.suggestionsHistory.append([])  
+                    viewModel.results[identifier] = result
+                }
+                logger.log("Initialized a new batch of items in suggestionsHistory for identifier \(identifier) due to OCR text change.")
                 self.saveOCRResult(previousAlphanumericText, for: "img1")
                 self.saveOCRResult(newAlphanumericText, for: "img2")
             } else {
                 logger.log("OCR text for identifier \(identifier) has not changed.")
                 triggerAdditionalCommandSuggestionIfNeeded(identifier: identifier)
-                // RUN VERIFICATIONS TO TRIGGER THE GENERATION OF A NEW SUGGESTION UNTIL THE LIMIT
-                // 1. Check if two initial prompts have executed. 
-                //2. Check if the given identifier has a len(gptResponses) >= 1. AND len <= 6 (hardLimit of suggestions) viewModel @Published var results: [String: (suggestionsCount: Int, gptResponses: [Dictionary<String, String>], updatedAt: Date)] = [:]
-                // Check if the processing for source 'additionalSuggestion' is being processed or not.
-                // If all those conditions pass then trigger the execution of dummyProcess for now. Else do nothing
             }
         } else {
             logger.log("Initializing OCR text for identifier \(identifier).")
@@ -188,7 +189,7 @@ class ProcessingManager {
         if hasChanged {
             // Reflect the change immediately for changed to changed
             globalHasChanged[identifier] = hasChanged
-            viewModel.currentStateText = "Detecting Changes"
+            viewModel.currentStateText = "Detecting changes..."
             stateChangeEventID[identifier] = UUID()
             stateChangeTimestamps[identifier] = Date()
         } else if previousState && !hasChanged {
@@ -213,8 +214,8 @@ class ProcessingManager {
         // Check if the given identifier has at least one response and at most six responses.
         guard let resultInfo = viewModel.results[identifier],
               let lastBatch = resultInfo.suggestionsHistory.last,
-              lastBatch.count > 0 && lastBatch.count <= 5 else {
-            self.logger.debug("Identifier \(identifier) does not have at least one response or has more than six responses in the last batch.")
+              lastBatch.count > 0 && lastBatch.count < 4 else {
+            self.logger.debug("Identifier \(identifier) does not have at least one response or has more than 4 responses in the last batch.")
             return
         }
         
@@ -262,7 +263,7 @@ class ProcessingManager {
         stateChangeEventID[identifier] = eventID
         stateChangeTimestamps[identifier] = Date()
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
             if let lastEventID = self.stateChangeEventID[identifier], lastEventID == eventID {
                 self.globalHasChanged[identifier] = false

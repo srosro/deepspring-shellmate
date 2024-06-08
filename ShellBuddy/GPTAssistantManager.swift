@@ -113,7 +113,7 @@ class GPTAssistantManager {
             }
 
             // Print the entire raw JSON response for debugging
-            //print("Raw JSON response: \(jsonData)")
+            print("Raw JSON response: \(jsonData)")
 
             if let messages = jsonData["data"] as? [[String: Any]],
             let firstResponse = messages.first,

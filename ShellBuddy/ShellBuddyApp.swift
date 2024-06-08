@@ -35,10 +35,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.contentView = NSHostingView(rootView: ContentView(viewModel: viewModel))
         window.makeKeyAndOrderFront(nil)
 
-        // Minimize the window immediately after launching
-        //DispatchQueue.main.async {
-        //    self.window.miniaturize(nil)
-        //}
+        //Minimize the window immediately after launching
+        DispatchQueue.main.async {
+            self.window.miniaturize(nil)
+        }
     }
 }
 

@@ -8,22 +8,22 @@ struct SuggestionsView: View {
             ScrollViewReader { scrollView in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.results[currentTerminalID] {
+                        if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.filteredResults[currentTerminalID] {
                             ForEach(windowData.suggestionsHistory.indices, id: \.self) { batchIndex in
                                 SuggestionBatchView(batch: windowData.suggestionsHistory[batchIndex], batchIndex: batchIndex, isLastBatch: batchIndex == windowData.suggestionsHistory.count - 1)
                             }
-                            .id(currentTerminalID) // Assign ID for the current window
                         }
                     }
                     .padding(.horizontal, 10) // Add padding to the left and right of the content
-                    .onChange(of: viewModel.updateCounter, perform: { _ in
-                        if let currentTerminalID = viewModel.currentTerminalID {
-                            scrollToBottom(scrollView: scrollView, key: currentTerminalID)
-                        }
-                    })
                 }
                 .padding(.horizontal, 0) // Ensure no padding affects the scroll bar
                 .padding(.top, 15) // Ensure no padding affects the scroll bar
+                .onChange(of: viewModel.updateCounter) { _ in
+                    if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.filteredResults[currentTerminalID], let lastBatch = windowData.suggestionsHistory.last, let lastSuggestionIndex = lastBatch.indices.last {
+                        // Scroll to the last suggestion in the last batch
+                        scrollToBottom(scrollView: scrollView, key: "suggestion-\(windowData.suggestionsHistory.count - 1)-\(lastSuggestionIndex)")
+                    }
+                }
             }
             
             // Line separator with no vertical padding
@@ -81,6 +81,7 @@ struct SuggestionBatchView: View {
                 
                 SuggestionView(resultDict: resultDict, batchIndex: batchIndex, index: index)
                     .padding(.bottom, isLastSuggestionInBatch ? 35 : 0) // Decrease the padding between suggestions
+                    .id("suggestion-\(batchIndex)-\(index)") // Assign unique ID for each suggestion
             }
         }
     }
