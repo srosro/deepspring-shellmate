@@ -1,4 +1,3 @@
-//
 //  main.swift
 //  ShellBuddyCLI
 //
@@ -82,7 +81,13 @@ func sbCLIMain() {
     }
     
     // Get the argument
-    let argument = arguments[1]
+    var argument = arguments[1]
+    
+    // Check if the argument can be cast to an integer
+    if let intArg = Int(argument) {
+        // Convert integer argument to float with ".1" suffix
+        argument = "\(intArg).1"
+    }
     
     // Check if the argument can be cast to a float
     if let _ = Float(argument) {
