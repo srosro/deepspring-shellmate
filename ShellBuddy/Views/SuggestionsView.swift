@@ -66,8 +66,8 @@ struct SuggestionBatchView: View {
         if let firstResponse = batch.first {
             VStack(alignment: .leading) {
                 Text(firstResponse["gptResponse"] ?? "No response")
-                    .font(.system(.subheadline, design: .monospaced))  // Set the font to monospaced
-                    .fontWeight(.regular)
+                    .font(.system(.subheadline, design: .default))  // Set the font to the default sans-serif design
+                    .fontWeight(.semibold)                          // Set the font weight to semibold
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(AppColors.black)
