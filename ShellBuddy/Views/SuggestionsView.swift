@@ -65,7 +65,7 @@ struct SuggestionBatchView: View {
     var body: some View {
         if let firstResponse = batch.first {
             VStack(alignment: .leading) {
-                Text("> \(firstResponse["gptResponse"] ?? "No response")")
+                Text(firstResponse["gptResponse"] ?? "No response")
                     .font(.system(.subheadline, design: .monospaced))  // Set the font to monospaced
                     .fontWeight(.regular)
                     .padding()
@@ -125,7 +125,7 @@ struct SuggestionView: View {
                     copyToClipboard(command: command)
                 }) {
                     HStack {
-                        Text(command)
+                        Text("> \(command)")
                             .font(.system(.subheadline, design: .monospaced))  // Set the font to monospaced
                             .fontWeight(.regular)
                             .frame(maxWidth: .infinity, alignment: .leading)
