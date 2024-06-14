@@ -118,28 +118,6 @@ class OCRProcessingHandler {
         }
     }
 
-
-    private func runLocalOCR(on image: CGImage, completion: @escaping (String) -> Void) {
-        let requestHandler = VNImageRequestHandler(cgImage: image, options: [:])
-        let request = VNRecognizeTextRequest { request, error in
-            guard error == nil else {
-                self.logger.error("Failed to perform OCR: \(error?.localizedDescription ?? "Unknown error")")
-                return
-            }
-            if let observations = request.results as? [VNRecognizedTextObservation] {
-                var extractedText = ""
-                for observation in observations {
-                    if let topCandidate = observation.topCandidates(1).first {
-                        extractedText += topCandidate.string + "\n"
-                    }
-                }
-                completion(extractedText)
-            }
-        }
-        request.recognitionLevel = .accurate
-        try? requestHandler.perform([request])
-    }
-
     private func getDownloadsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)
         return paths[0]

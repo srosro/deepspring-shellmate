@@ -131,6 +131,7 @@ class ProcessingManager {
         let request = VNRecognizeTextRequest { request, error in
             guard error == nil else {
                 self.logger.error("Failed to perform OCR: \(error?.localizedDescription ?? "Unknown error")")
+                completion("") // Return an empty string in case of error
                 return
             }
             if let observations = request.results as? [VNRecognizedTextObservation] {
@@ -440,7 +441,8 @@ class ProcessingManager {
             completion(nil, nil)
             return
         }
-        let url = URL(string: "https://3938-2804-d55-4f7c-ff00-2409-df5b-24f2-7786.ngrok-free.app/upload-image/")!
+        
+        let url = URL(string: "http://localhost:8000/upload-image/")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
