@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		DC086F742C133D6A007A994F /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC086F732C133D6A007A994F /* AppColors.swift */; };
-		DC42A33D2C00C06400B12B28 /* CaptureManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC42A33C2C00C06400B12B28 /* CaptureManager.swift */; };
 		DC42A33F2C00CB7700B12B28 /* GPTManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC42A33E2C00CB7700B12B28 /* GPTManager.swift */; };
 		DC5D98C92BF5532C000E4D80 /* ShellBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */; };
 		DC5D98CD2BF5532D000E4D80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */; };
@@ -46,6 +45,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		DC90C90D2C1C7D5800E85115 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		DCF902E92C11088F00B0B957 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -59,7 +67,6 @@
 
 /* Begin PBXFileReference section */
 		DC086F732C133D6A007A994F /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
-		DC42A33C2C00C06400B12B28 /* CaptureManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureManager.swift; sourceTree = "<group>"; };
 		DC42A33E2C00CB7700B12B28 /* GPTManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTManager.swift; sourceTree = "<group>"; };
 		DC46C4D52BF9137800E451D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DC5D98C52BF5532C000E4D80 /* ShellBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,6 +82,11 @@
 		DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		DC6F10A82C0E97AD0078DD36 /* OCRProcessingHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRProcessingHandler.swift; sourceTree = "<group>"; };
 		DC6F10AA2C0E98250078DD36 /* ProcessingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingManager.swift; sourceTree = "<group>"; };
+		DC90C90F2C1C7D5800E85115 /* ShellBuddyHighlightDetector */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ShellBuddyHighlightDetector; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC90C91A2C1C7E6D00E85115 /* requirements.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = requirements.txt; sourceTree = "<group>"; };
+		DC90C91B2C1C7E6D00E85115 /* main.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = main.py; sourceTree = "<group>"; };
+		DC90C91C2C1C804200E85115 /* image_processor.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = image_processor.py; sourceTree = "<group>"; };
+		DC90C91D2C1C81D300E85115 /* install_and_run.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = install_and_run.sh; sourceTree = "<group>"; };
 		DCB553222C0F5FF50079A9B3 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		DCC6A49E2C04CA9500D5562A /* ApplicationMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationMonitor.swift; sourceTree = "<group>"; };
 		DCF05D542C0D222F0018C568 /* GPTAssistantManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantManager.swift; sourceTree = "<group>"; };
@@ -109,6 +121,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DC90C90C2C1C7D5800E85115 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DCF902E82C11088F00B0B957 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -126,6 +145,7 @@
 				DC5D98D92BF5532E000E4D80 /* ShellBuddyTests */,
 				DC5D98E32BF5532E000E4D80 /* ShellBuddyUITests */,
 				DCF902EC2C11088F00B0B957 /* ShellBuddyCLI */,
+				DC90C9102C1C7D5800E85115 /* ShellBuddyHighlightDetector */,
 				DC5D98C62BF5532C000E4D80 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -137,6 +157,7 @@
 				DC5D98D62BF5532E000E4D80 /* ShellBuddyTests.xctest */,
 				DC5D98E02BF5532E000E4D80 /* ShellBuddyUITests.xctest */,
 				DCF902EB2C11088F00B0B957 /* ShellBuddyCLI */,
+				DC90C90F2C1C7D5800E85115 /* ShellBuddyHighlightDetector */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -149,7 +170,6 @@
 				DC46C4D52BF9137800E451D2 /* Info.plist */,
 				DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */,
 				DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */,
-				DC42A33C2C00C06400B12B28 /* CaptureManager.swift */,
 				DC42A33E2C00CB7700B12B28 /* GPTManager.swift */,
 				DCF05D542C0D222F0018C568 /* GPTAssistantManager.swift */,
 				DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */,
@@ -185,6 +205,17 @@
 				DC5D98E62BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift */,
 			);
 			path = ShellBuddyUITests;
+			sourceTree = "<group>";
+		};
+		DC90C9102C1C7D5800E85115 /* ShellBuddyHighlightDetector */ = {
+			isa = PBXGroup;
+			children = (
+				DC90C91B2C1C7E6D00E85115 /* main.py */,
+				DC90C91A2C1C7E6D00E85115 /* requirements.txt */,
+				DC90C91C2C1C804200E85115 /* image_processor.py */,
+				DC90C91D2C1C81D300E85115 /* install_and_run.sh */,
+			);
+			path = ShellBuddyHighlightDetector;
 			sourceTree = "<group>";
 		};
 		DCF902EC2C11088F00B0B957 /* ShellBuddyCLI */ = {
@@ -265,6 +296,24 @@
 			productReference = DC5D98E02BF5532E000E4D80 /* ShellBuddyUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		DC90C90E2C1C7D5800E85115 /* ShellBuddyHighlightDetector */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DC90C9152C1C7D5800E85115 /* Build configuration list for PBXNativeTarget "ShellBuddyHighlightDetector" */;
+			buildPhases = (
+				DC90C90B2C1C7D5800E85115 /* Sources */,
+				DC90C90C2C1C7D5800E85115 /* Frameworks */,
+				DC90C90D2C1C7D5800E85115 /* CopyFiles */,
+				DC90C91E2C1C82D100E85115 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShellBuddyHighlightDetector;
+			productName = ShellBuddyHighlightDetector;
+			productReference = DC90C90F2C1C7D5800E85115 /* ShellBuddyHighlightDetector */;
+			productType = "com.apple.product-type.tool";
+		};
 		DCF902EA2C11088F00B0B957 /* ShellBuddyCLI */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DCF902EF2C11088F00B0B957 /* Build configuration list for PBXNativeTarget "ShellBuddyCLI" */;
@@ -303,6 +352,9 @@
 						CreatedOnToolsVersion = 15.4;
 						TestTargetID = DC5D98C42BF5532C000E4D80;
 					};
+					DC90C90E2C1C7D5800E85115 = {
+						CreatedOnToolsVersion = 15.4;
+					};
 					DCF902EA2C11088F00B0B957 = {
 						CreatedOnToolsVersion = 15.4;
 					};
@@ -325,6 +377,7 @@
 				DC5D98D52BF5532E000E4D80 /* ShellBuddyTests */,
 				DC5D98DF2BF5532E000E4D80 /* ShellBuddyUITests */,
 				DCF902EA2C11088F00B0B957 /* ShellBuddyCLI */,
+				DC90C90E2C1C7D5800E85115 /* ShellBuddyHighlightDetector */,
 			);
 		};
 /* End PBXProject section */
@@ -356,6 +409,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		DC90C91E2C1C82D100E85115 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/Users/delattre/Desktop/ShellBuddy/ShellBuddyHighlightDetector/install.sh\n";
+		};
 		DCF902F52C110D1000B0B957 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -387,7 +457,6 @@
 				DC5D98C92BF5532C000E4D80 /* ShellBuddyApp.swift in Sources */,
 				DC5D98F62BF558D1000E4D80 /* AppViewModel.swift in Sources */,
 				DC6F10A92C0E97AD0078DD36 /* OCRProcessingHandler.swift in Sources */,
-				DC42A33D2C00C06400B12B28 /* CaptureManager.swift in Sources */,
 				DCC6A49F2C04CA9500D5562A /* ApplicationMonitor.swift in Sources */,
 				DC42A33F2C00CB7700B12B28 /* GPTManager.swift in Sources */,
 				DC086F742C133D6A007A994F /* AppColors.swift in Sources */,
@@ -410,6 +479,13 @@
 			files = (
 				DC5D98E72BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift in Sources */,
 				DC5D98E52BF5532E000E4D80 /* ShellBuddyUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DC90C90B2C1C7D5800E85115 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -684,6 +760,28 @@
 			};
 			name = Release;
 		};
+		DC90C9132C1C7D5800E85115 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DC90C9142C1C7D5800E85115 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		DCF902F02C11088F00B0B957 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -741,6 +839,15 @@
 			buildConfigurations = (
 				DC5D98F12BF5532E000E4D80 /* Debug */,
 				DC5D98F22BF5532E000E4D80 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DC90C9152C1C7D5800E85115 /* Build configuration list for PBXNativeTarget "ShellBuddyHighlightDetector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DC90C9132C1C7D5800E85115 /* Debug */,
+				DC90C9142C1C7D5800E85115 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
