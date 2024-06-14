@@ -45,7 +45,8 @@ class OCRProcessingHandler {
         guard let resultDict = ocrResults[identifier] else {
             return false
         }
-        return resultDict.keys.contains("vision") && resultDict.keys.contains("local")
+        //return resultDict.keys.contains("vision") && resultDict.keys.contains("local")
+        return resultDict.keys.contains("local")
     }
 
     private func createAssistantThread() {
@@ -60,26 +61,24 @@ class OCRProcessingHandler {
         }
     }
     
-    func processImage(identifier: String, image: CGImage, localText: String, completion: @escaping () -> Void) {
+    func processImage(identifier: String, image: CGImage, localText: String, highlightedText: String, completion: @escaping () -> Void) {
         // Local OCR processing
         logger.debug("Starting local OCR processing for identifier \(identifier).")
-        runLocalOCR(on: image) { [weak self] extractedText in
-            guard let self = self else { return }
-            self.logger.debug("Local OCR Text Output for Window \(identifier): \n----------\n\(extractedText)\n----------\n")
-            self.processOCRResults(threadId: self.threadId, text: extractedText, source: "local", identifier: identifier, completion: completion)
-        }
+        
+        //self.logger.debug("Local OCR Text Output for Window \(identifier): \n----------\n\(extractedText)\n----------\n")
+        self.processOCRResults(threadId: self.threadId, text: localText, highlightedText: highlightedText, source: "local", identifier: identifier, completion: completion)
 
         // GPT Vision OCR processing
-        logger.debug("Starting GPT Vision OCR processing for identifier \(identifier).")
-        gptManager.sendImageToOpenAIVision(image: image, identifier: identifier) { [weak self] text in
-            guard let self = self else { return }
-            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            self.logger.debug("GPT Vision OCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
-            self.processOCRResults(threadId: self.threadId, text: trimmedText, source: "vision", identifier: identifier, completion: completion)
-        }
+        //logger.debug("Starting GPT Vision OCR processing for identifier \(identifier).")
+        //gptManager.sendImageToOpenAIVision(image: image, identifier: identifier) { [weak self] text in
+        //    guard let self = self else { return }
+        //    let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        //    self.logger.debug("GPT Vision OCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
+        //    self.processOCRResults(threadId: self.threadId, text: trimmedText, source: "vision", identifier: identifier, completion: completion)
+        //}
     }
 
-    func processOCRResults(threadId: String?, text: String, source: String, identifier: String, completion: @escaping () -> Void) {
+    func processOCRResults(threadId: String?, text: String, highlightedText: String, source: String, identifier: String, completion: @escaping () -> Void) {
         guard let threadId = threadId else {
             self.logger.error("No GPT Assistant thread available to process OCR results.")
             completion()
@@ -96,7 +95,10 @@ class OCRProcessingHandler {
         resultDict[source.lowercased()] = text
         ocrResults[identifier] = resultDict
         
-        gptAssistantManager.processMessageInThread(threadId: threadId, messageContent: text) { result in
+        let messageContent: String = highlightedText.isEmpty ? text : "\(text)\nHighlighted text by user: \(highlightedText)"
+
+        // Use the variable in your function call
+        gptAssistantManager.processMessageInThread(threadId: threadId, messageContent: messageContent) { result in
             // Update source execution status
             var executionStatusDict = self.sourceExecutionStatus[identifier] ?? [:]
             executionStatusDict[source.lowercased()] = "not executing"
