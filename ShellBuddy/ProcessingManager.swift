@@ -337,7 +337,7 @@ class ProcessingManager {
         let message = "This is the user terminal raw content: \(messageContent). Based on that I already have these suggestions: \(suggestions). Can you provide a better alternative that will help the user better? Do not generate duplicated suggestion commands."
         
         // Trigger the execution of additional suggestion process
-        self.ocrProcessingHandler.processOCRResults(threadId: self.ocrProcessingHandler.threadId, text: message, highlightedText: highlightedText,source: "additionalSuggestion", identifier: identifier) {
+        self.ocrProcessingHandler.processOCRResults(text: message, highlightedText: highlightedText,source: "additionalSuggestion", identifier: identifier) {
             self.logger.debug("Additional suggestion process completed for identifier \(identifier).")
         }
     }

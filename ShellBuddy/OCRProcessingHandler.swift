@@ -11,17 +11,15 @@ import Vision
 import os
 
 class OCRProcessingHandler {
-    private let gptManager = GPTManager()
     private let gptAssistantManager = GPTAssistantManager(assistantId: "asst_RXhzai0LCDr2O8rNpm5tKWXU")
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "App", category: "OCRProcessingHandler")
     private let viewModel: AppViewModel
-    public var threadId: String?
+    public var threadIdDict: [String: String] = [:]
     public var ocrResults: [String: [String: String]] = [:]
     public var sourceExecutionStatus: [String: [String: String]] = [:]
 
     init(viewModel: AppViewModel) {
         self.viewModel = viewModel
-        createAssistantThread()
     }
     
     func removeIdentifierFromOCRResults(_ identifier: String) {
@@ -49,14 +47,16 @@ class OCRProcessingHandler {
         return resultDict.keys.contains("local")
     }
 
-    private func createAssistantThread() {
+    private func createAssistantThread(for identifier: String, completion: @escaping (String?) -> Void) {
         gptAssistantManager.createThread { [weak self] result in
             switch result {
             case .success(let createdThreadId):
-                self?.threadId = createdThreadId
-                self?.logger.debug("GPT Assistant thread created successfully with ID: \(createdThreadId)")
+                self?.threadIdDict[identifier] = createdThreadId
+                self?.logger.debug("GPT Assistant thread created successfully with ID: \(createdThreadId) for identifier: \(identifier)")
+                completion(createdThreadId)
             case .failure(let error):
                 self?.logger.error("Failed to create GPT Assistant thread: \(error.localizedDescription)")
+                completion(nil)
             }
         }
     }
@@ -66,25 +66,25 @@ class OCRProcessingHandler {
         logger.debug("Starting local OCR processing for identifier \(identifier).")
         
         //self.logger.debug("Local OCR Text Output for Window \(identifier): \n----------\n\(extractedText)\n----------\n")
-        self.processOCRResults(threadId: self.threadId, text: localText, highlightedText: highlightedText, source: "local", identifier: identifier, completion: completion)
-
-        // GPT Vision OCR processing
-        //logger.debug("Starting GPT Vision OCR processing for identifier \(identifier).")
-        //gptManager.sendImageToOpenAIVision(image: image, identifier: identifier) { [weak self] text in
-        //    guard let self = self else { return }
-        //    let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        //    self.logger.debug("GPT Vision OCR Text Output for Window \(identifier): \n----------\n\(trimmedText)\n----------\n")
-        //    self.processOCRResults(threadId: self.threadId, text: trimmedText, source: "vision", identifier: identifier, completion: completion)
-        //}
+        self.processOCRResults(text: localText, highlightedText: highlightedText, source: "local", identifier: identifier, completion: completion)
     }
 
-    func processOCRResults(threadId: String?, text: String, highlightedText: String, source: String, identifier: String, completion: @escaping () -> Void) {
-        guard let threadId = threadId else {
-            self.logger.error("No GPT Assistant thread available to process OCR results.")
-            completion()
-            return
+    func processOCRResults(text: String, highlightedText: String, source: String, identifier: String, completion: @escaping () -> Void) {
+        if let threadId = threadIdDict[identifier] {
+            processOCRResultsWithThreadId(threadId, text: text, highlightedText: highlightedText, source: source, identifier: identifier, completion: completion)
+        } else {
+            createAssistantThread(for: identifier) { [weak self] newThreadId in
+                guard let self = self, let newThreadId = newThreadId else {
+                    self?.logger.error("Failed to create or retrieve GPT Assistant thread for identifier \(identifier)")
+                    completion()
+                    return
+                }
+                self.processOCRResultsWithThreadId(newThreadId, text: text, highlightedText: highlightedText, source: source, identifier: identifier, completion: completion)
+            }
         }
+    }
 
+    private func processOCRResultsWithThreadId(_ threadId: String, text: String, highlightedText: String, source: String, identifier: String, completion: @escaping () -> Void) {
         // Update source execution status
         var executionStatusDict = sourceExecutionStatus[identifier] ?? [:]
         executionStatusDict[source.lowercased()] = "executing"

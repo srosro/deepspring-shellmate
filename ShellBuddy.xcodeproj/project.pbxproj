@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		DC086F742C133D6A007A994F /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC086F732C133D6A007A994F /* AppColors.swift */; };
-		DC42A33F2C00CB7700B12B28 /* GPTManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC42A33E2C00CB7700B12B28 /* GPTManager.swift */; };
 		DC5D98C92BF5532C000E4D80 /* ShellBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */; };
 		DC5D98CD2BF5532D000E4D80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */; };
 		DC5D98D02BF5532D000E4D80 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC5D98CF2BF5532D000E4D80 /* Preview Assets.xcassets */; };
@@ -67,7 +66,6 @@
 
 /* Begin PBXFileReference section */
 		DC086F732C133D6A007A994F /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
-		DC42A33E2C00CB7700B12B28 /* GPTManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTManager.swift; sourceTree = "<group>"; };
 		DC46C4D52BF9137800E451D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DC5D98C52BF5532C000E4D80 /* ShellBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyApp.swift; sourceTree = "<group>"; };
@@ -170,7 +168,6 @@
 				DC46C4D52BF9137800E451D2 /* Info.plist */,
 				DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */,
 				DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */,
-				DC42A33E2C00CB7700B12B28 /* GPTManager.swift */,
 				DCF05D542C0D222F0018C568 /* GPTAssistantManager.swift */,
 				DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */,
 				DC5D98D12BF5532D000E4D80 /* ShellBuddy.entitlements */,
@@ -458,7 +455,6 @@
 				DC5D98F62BF558D1000E4D80 /* AppViewModel.swift in Sources */,
 				DC6F10A92C0E97AD0078DD36 /* OCRProcessingHandler.swift in Sources */,
 				DCC6A49F2C04CA9500D5562A /* ApplicationMonitor.swift in Sources */,
-				DC42A33F2C00CB7700B12B28 /* GPTManager.swift in Sources */,
 				DC086F742C133D6A007A994F /* AppColors.swift in Sources */,
 				DC6F10AB2C0E98250078DD36 /* ProcessingManager.swift in Sources */,
 				DCB553232C0F5FF50079A9B3 /* Utils.swift in Sources */,
