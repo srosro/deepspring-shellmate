@@ -124,25 +124,6 @@ extension AppViewModel {
                 filteredResults[identifier] = (suggestionsCount: result.suggestionsCount, suggestionsHistory: nonEmptyHistory, updatedAt: result.updatedAt)
             }
         }
-        
-        // Log the filtered results in a pretty manner
-        logFilteredResults(filteredResults)
         return filteredResults
-    }
-    
-    private func logFilteredResults(_ results: [String: (suggestionsCount: Int, suggestionsHistory: [[Dictionary<String, String>]], updatedAt: Date)]) {
-        print("#1234debug Filtered Results:")
-        for (identifier, result) in results {
-            print("#1234debug Identifier: \(identifier)")
-            print("#1234debug Suggestions Count: \(result.suggestionsCount)")
-            print("#1234debug Updated At: \(result.updatedAt)")
-            print("#1234debug Suggestions History:")
-            for history in result.suggestionsHistory {
-                print("#1234debug   - History Batch:")
-                for suggestion in history {
-                    print("#1234debug     - \(suggestion)")
-                }
-            }
-        }
     }
 }
