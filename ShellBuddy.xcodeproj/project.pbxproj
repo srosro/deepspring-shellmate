@@ -7,53 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DC086F742C133D6A007A994F /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC086F732C133D6A007A994F /* AppColors.swift */; };
-		DC5D98C92BF5532C000E4D80 /* ShellBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */; };
-		DC5D98CD2BF5532D000E4D80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */; };
-		DC5D98D02BF5532D000E4D80 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC5D98CF2BF5532D000E4D80 /* Preview Assets.xcassets */; };
-		DC5D98DB2BF5532E000E4D80 /* ShellBuddyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98DA2BF5532E000E4D80 /* ShellBuddyTests.swift */; };
-		DC5D98E52BF5532E000E4D80 /* ShellBuddyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98E42BF5532E000E4D80 /* ShellBuddyUITests.swift */; };
-		DC5D98E72BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98E62BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift */; };
-		DC5D98F62BF558D1000E4D80 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */; };
-		DC6F10A92C0E97AD0078DD36 /* OCRProcessingHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6F10A82C0E97AD0078DD36 /* OCRProcessingHandler.swift */; };
-		DC6F10AB2C0E98250078DD36 /* ProcessingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6F10AA2C0E98250078DD36 /* ProcessingManager.swift */; };
-		DCB553232C0F5FF50079A9B3 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB553222C0F5FF50079A9B3 /* Utils.swift */; };
-		DCC6A49F2C04CA9500D5562A /* ApplicationMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC6A49E2C04CA9500D5562A /* ApplicationMonitor.swift */; };
-		DCF05D552C0D222F0018C568 /* GPTAssistantManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF05D542C0D222F0018C568 /* GPTAssistantManager.swift */; };
-		DCF902EE2C11088F00B0B957 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF902ED2C11088F00B0B957 /* main.swift */; };
-		DCF902F22C1108BC00B0B957 /* paste.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF902DF2C11076E00B0B957 /* paste.swift */; };
-		DCFEB47D2BFE4BC200BDA3CA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */; };
-		DCFEB47F2BFE4BCD00BDA3CA /* SuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */; };
+		DC1778912C2887BB002C852C /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowManager.swift */; };
+		DC9B388A2C24FFEA006755AE /* ShellBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* ShellBuddyApp.swift */; };
+		DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B388B2C24FFEA006755AE /* ContentView.swift */; };
+		DC9B38912C24FFEB006755AE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC9B38902C24FFEB006755AE /* Preview Assets.xcassets */; };
+		DC9B38B32C25016C006755AE /* AXSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DC9B38B22C25016C006755AE /* AXSwift */; };
+		DC9B38B52C2501A3006755AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC9B38B42C2501A3006755AE /* Assets.xcassets */; };
+		DC9B38CA2C2502FA006755AE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38C92C2502FA006755AE /* main.swift */; };
+		DC9B38D12C250342006755AE /* paste.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38CE2C250342006755AE /* paste.swift */; };
+		DC9B38D32C25039F006755AE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38D22C25039E006755AE /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		DC5D98D72BF5532E000E4D80 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DC5D98BD2BF5532C000E4D80 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DC5D98C42BF5532C000E4D80;
-			remoteInfo = ShellBuddy;
-		};
-		DC5D98E12BF5532E000E4D80 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DC5D98BD2BF5532C000E4D80 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DC5D98C42BF5532C000E4D80;
-			remoteInfo = ShellBuddy;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
-		DC90C90D2C1C7D5800E85115 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		DCF902E92C11088F00B0B957 /* CopyFiles */ = {
+		DC9B38C52C2502FA006755AE /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -65,68 +31,31 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		DC086F732C133D6A007A994F /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
-		DC46C4D52BF9137800E451D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		DC5D98C52BF5532C000E4D80 /* ShellBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyApp.swift; sourceTree = "<group>"; };
-		DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DC5D98CF2BF5532D000E4D80 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		DC5D98D12BF5532D000E4D80 /* ShellBuddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShellBuddy.entitlements; sourceTree = "<group>"; };
-		DC5D98D62BF5532E000E4D80 /* ShellBuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShellBuddyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DC5D98DA2BF5532E000E4D80 /* ShellBuddyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyTests.swift; sourceTree = "<group>"; };
-		DC5D98E02BF5532E000E4D80 /* ShellBuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShellBuddyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DC5D98E42BF5532E000E4D80 /* ShellBuddyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyUITests.swift; sourceTree = "<group>"; };
-		DC5D98E62BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
-		DC6F10A82C0E97AD0078DD36 /* OCRProcessingHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRProcessingHandler.swift; sourceTree = "<group>"; };
-		DC6F10AA2C0E98250078DD36 /* ProcessingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingManager.swift; sourceTree = "<group>"; };
-		DC90C90F2C1C7D5800E85115 /* ShellBuddyHighlightDetector */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ShellBuddyHighlightDetector; sourceTree = BUILT_PRODUCTS_DIR; };
-		DC90C91A2C1C7E6D00E85115 /* requirements.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = requirements.txt; sourceTree = "<group>"; };
-		DC90C91B2C1C7E6D00E85115 /* main.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = main.py; sourceTree = "<group>"; };
-		DC90C91C2C1C804200E85115 /* image_processor.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = image_processor.py; sourceTree = "<group>"; };
-		DC90C91D2C1C81D300E85115 /* install_and_run.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = install_and_run.sh; sourceTree = "<group>"; };
-		DCB553222C0F5FF50079A9B3 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
-		DCC6A49E2C04CA9500D5562A /* ApplicationMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationMonitor.swift; sourceTree = "<group>"; };
-		DCF05D542C0D222F0018C568 /* GPTAssistantManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantManager.swift; sourceTree = "<group>"; };
-		DCF902DE2C11076E00B0B957 /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install.sh; sourceTree = "<group>"; };
-		DCF902DF2C11076E00B0B957 /* paste.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = paste.swift; sourceTree = "<group>"; };
-		DCF902E12C11076E00B0B957 /* uninstall.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = uninstall.sh; sourceTree = "<group>"; };
-		DCF902EB2C11088F00B0B957 /* ShellBuddyCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ShellBuddyCLI; sourceTree = BUILT_PRODUCTS_DIR; };
-		DCF902ED2C11088F00B0B957 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionsView.swift; sourceTree = "<group>"; };
+		DC1778902C2887BB002C852C /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
+		DC9B38862C24FFEA006755AE /* ShellBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC9B38892C24FFEA006755AE /* ShellBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyApp.swift; sourceTree = "<group>"; };
+		DC9B388B2C24FFEA006755AE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		DC9B38902C24FFEB006755AE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		DC9B38922C24FFEB006755AE /* ShellBuddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShellBuddy.entitlements; sourceTree = "<group>"; };
+		DC9B38B42C2501A3006755AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DC9B38C72C2502FA006755AE /* ShellBuddyCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ShellBuddyCLI; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC9B38C92C2502FA006755AE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		DC9B38CE2C250342006755AE /* paste.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = paste.swift; sourceTree = "<group>"; };
+		DC9B38CF2C250342006755AE /* uninstall.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = uninstall.sh; sourceTree = "<group>"; };
+		DC9B38D02C250342006755AE /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install.sh; sourceTree = "<group>"; };
+		DC9B38D22C25039E006755AE /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		DC5D98C22BF5532C000E4D80 /* Frameworks */ = {
+		DC9B38832C24FFEA006755AE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DC9B38B32C25016C006755AE /* AXSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DC5D98D32BF5532E000E4D80 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DC5D98DD2BF5532E000E4D80 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DC90C90C2C1C7D5800E85115 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DCF902E82C11088F00B0B957 /* Frameworks */ = {
+		DC9B38C42C2502FA006755AE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -136,188 +65,87 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		DC5D98BC2BF5532C000E4D80 = {
+		DC9B387D2C24FFEA006755AE = {
 			isa = PBXGroup;
 			children = (
-				DC5D98C72BF5532C000E4D80 /* ShellBuddy */,
-				DC5D98D92BF5532E000E4D80 /* ShellBuddyTests */,
-				DC5D98E32BF5532E000E4D80 /* ShellBuddyUITests */,
-				DCF902EC2C11088F00B0B957 /* ShellBuddyCLI */,
-				DC90C9102C1C7D5800E85115 /* ShellBuddyHighlightDetector */,
-				DC5D98C62BF5532C000E4D80 /* Products */,
+				DC9B38882C24FFEA006755AE /* ShellBuddy */,
+				DC9B38C82C2502FA006755AE /* ShellBuddyCLI */,
+				DC9B38872C24FFEA006755AE /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		DC5D98C62BF5532C000E4D80 /* Products */ = {
+		DC9B38872C24FFEA006755AE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DC5D98C52BF5532C000E4D80 /* ShellBuddy.app */,
-				DC5D98D62BF5532E000E4D80 /* ShellBuddyTests.xctest */,
-				DC5D98E02BF5532E000E4D80 /* ShellBuddyUITests.xctest */,
-				DCF902EB2C11088F00B0B957 /* ShellBuddyCLI */,
-				DC90C90F2C1C7D5800E85115 /* ShellBuddyHighlightDetector */,
+				DC9B38862C24FFEA006755AE /* ShellBuddy.app */,
+				DC9B38C72C2502FA006755AE /* ShellBuddyCLI */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		DC5D98C72BF5532C000E4D80 /* ShellBuddy */ = {
+		DC9B38882C24FFEA006755AE /* ShellBuddy */ = {
 			isa = PBXGroup;
 			children = (
-				DCB553222C0F5FF50079A9B3 /* Utils.swift */,
-				DCFEB47B2BFE4B9E00BDA3CA /* Views */,
-				DC46C4D52BF9137800E451D2 /* Info.plist */,
-				DC5D98C82BF5532C000E4D80 /* ShellBuddyApp.swift */,
-				DC5D98F52BF558D1000E4D80 /* AppViewModel.swift */,
-				DCF05D542C0D222F0018C568 /* GPTAssistantManager.swift */,
-				DC5D98CC2BF5532D000E4D80 /* Assets.xcassets */,
-				DC5D98D12BF5532D000E4D80 /* ShellBuddy.entitlements */,
-				DC5D98CE2BF5532D000E4D80 /* Preview Content */,
-				DCC6A49E2C04CA9500D5562A /* ApplicationMonitor.swift */,
-				DC6F10A82C0E97AD0078DD36 /* OCRProcessingHandler.swift */,
-				DC6F10AA2C0E98250078DD36 /* ProcessingManager.swift */,
+				DC9B38B42C2501A3006755AE /* Assets.xcassets */,
+				DC1778902C2887BB002C852C /* WindowManager.swift */,
+				DC9B38D22C25039E006755AE /* AppDelegate.swift */,
+				DC9B38892C24FFEA006755AE /* ShellBuddyApp.swift */,
+				DC9B388B2C24FFEA006755AE /* ContentView.swift */,
+				DC9B38922C24FFEB006755AE /* ShellBuddy.entitlements */,
+				DC9B388F2C24FFEB006755AE /* Preview Content */,
 			);
 			path = ShellBuddy;
 			sourceTree = "<group>";
 		};
-		DC5D98CE2BF5532D000E4D80 /* Preview Content */ = {
+		DC9B388F2C24FFEB006755AE /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				DC5D98CF2BF5532D000E4D80 /* Preview Assets.xcassets */,
+				DC9B38902C24FFEB006755AE /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		DC5D98D92BF5532E000E4D80 /* ShellBuddyTests */ = {
+		DC9B38C82C2502FA006755AE /* ShellBuddyCLI */ = {
 			isa = PBXGroup;
 			children = (
-				DC5D98DA2BF5532E000E4D80 /* ShellBuddyTests.swift */,
-			);
-			path = ShellBuddyTests;
-			sourceTree = "<group>";
-		};
-		DC5D98E32BF5532E000E4D80 /* ShellBuddyUITests */ = {
-			isa = PBXGroup;
-			children = (
-				DC5D98E42BF5532E000E4D80 /* ShellBuddyUITests.swift */,
-				DC5D98E62BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift */,
-			);
-			path = ShellBuddyUITests;
-			sourceTree = "<group>";
-		};
-		DC90C9102C1C7D5800E85115 /* ShellBuddyHighlightDetector */ = {
-			isa = PBXGroup;
-			children = (
-				DC90C91B2C1C7E6D00E85115 /* main.py */,
-				DC90C91A2C1C7E6D00E85115 /* requirements.txt */,
-				DC90C91C2C1C804200E85115 /* image_processor.py */,
-				DC90C91D2C1C81D300E85115 /* install_and_run.sh */,
-			);
-			path = ShellBuddyHighlightDetector;
-			sourceTree = "<group>";
-		};
-		DCF902EC2C11088F00B0B957 /* ShellBuddyCLI */ = {
-			isa = PBXGroup;
-			children = (
-				DCF902DE2C11076E00B0B957 /* install.sh */,
-				DCF902DF2C11076E00B0B957 /* paste.swift */,
-				DCF902E12C11076E00B0B957 /* uninstall.sh */,
-				DCF902ED2C11088F00B0B957 /* main.swift */,
+				DC9B38D02C250342006755AE /* install.sh */,
+				DC9B38CE2C250342006755AE /* paste.swift */,
+				DC9B38CF2C250342006755AE /* uninstall.sh */,
+				DC9B38C92C2502FA006755AE /* main.swift */,
 			);
 			path = ShellBuddyCLI;
-			sourceTree = "<group>";
-		};
-		DCFEB47B2BFE4B9E00BDA3CA /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				DCFEB47C2BFE4BC200BDA3CA /* ContentView.swift */,
-				DCFEB47E2BFE4BCD00BDA3CA /* SuggestionsView.swift */,
-				DC086F732C133D6A007A994F /* AppColors.swift */,
-			);
-			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		DC5D98C42BF5532C000E4D80 /* ShellBuddy */ = {
+		DC9B38852C24FFEA006755AE /* ShellBuddy */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DC5D98EA2BF5532E000E4D80 /* Build configuration list for PBXNativeTarget "ShellBuddy" */;
+			buildConfigurationList = DC9B38952C24FFEB006755AE /* Build configuration list for PBXNativeTarget "ShellBuddy" */;
 			buildPhases = (
-				DC5D98C12BF5532C000E4D80 /* Sources */,
-				DC5D98C22BF5532C000E4D80 /* Frameworks */,
-				DC5D98C32BF5532C000E4D80 /* Resources */,
-				DCF902F52C110D1000B0B957 /* ShellScript */,
+				DC9B38822C24FFEA006755AE /* Sources */,
+				DC9B38832C24FFEA006755AE /* Frameworks */,
+				DC9B38842C24FFEA006755AE /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = ShellBuddy;
+			packageProductDependencies = (
+				DC9B38B22C25016C006755AE /* AXSwift */,
+			);
 			productName = ShellBuddy;
-			productReference = DC5D98C52BF5532C000E4D80 /* ShellBuddy.app */;
+			productReference = DC9B38862C24FFEA006755AE /* ShellBuddy.app */;
 			productType = "com.apple.product-type.application";
 		};
-		DC5D98D52BF5532E000E4D80 /* ShellBuddyTests */ = {
+		DC9B38C62C2502FA006755AE /* ShellBuddyCLI */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DC5D98ED2BF5532E000E4D80 /* Build configuration list for PBXNativeTarget "ShellBuddyTests" */;
+			buildConfigurationList = DC9B38CB2C2502FA006755AE /* Build configuration list for PBXNativeTarget "ShellBuddyCLI" */;
 			buildPhases = (
-				DC5D98D22BF5532E000E4D80 /* Sources */,
-				DC5D98D32BF5532E000E4D80 /* Frameworks */,
-				DC5D98D42BF5532E000E4D80 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				DC5D98D82BF5532E000E4D80 /* PBXTargetDependency */,
-			);
-			name = ShellBuddyTests;
-			productName = ShellBuddyTests;
-			productReference = DC5D98D62BF5532E000E4D80 /* ShellBuddyTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		DC5D98DF2BF5532E000E4D80 /* ShellBuddyUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DC5D98F02BF5532E000E4D80 /* Build configuration list for PBXNativeTarget "ShellBuddyUITests" */;
-			buildPhases = (
-				DC5D98DC2BF5532E000E4D80 /* Sources */,
-				DC5D98DD2BF5532E000E4D80 /* Frameworks */,
-				DC5D98DE2BF5532E000E4D80 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				DC5D98E22BF5532E000E4D80 /* PBXTargetDependency */,
-			);
-			name = ShellBuddyUITests;
-			productName = ShellBuddyUITests;
-			productReference = DC5D98E02BF5532E000E4D80 /* ShellBuddyUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
-		DC90C90E2C1C7D5800E85115 /* ShellBuddyHighlightDetector */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DC90C9152C1C7D5800E85115 /* Build configuration list for PBXNativeTarget "ShellBuddyHighlightDetector" */;
-			buildPhases = (
-				DC90C90B2C1C7D5800E85115 /* Sources */,
-				DC90C90C2C1C7D5800E85115 /* Frameworks */,
-				DC90C90D2C1C7D5800E85115 /* CopyFiles */,
-				DC90C91E2C1C82D100E85115 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ShellBuddyHighlightDetector;
-			productName = ShellBuddyHighlightDetector;
-			productReference = DC90C90F2C1C7D5800E85115 /* ShellBuddyHighlightDetector */;
-			productType = "com.apple.product-type.tool";
-		};
-		DCF902EA2C11088F00B0B957 /* ShellBuddyCLI */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DCF902EF2C11088F00B0B957 /* Build configuration list for PBXNativeTarget "ShellBuddyCLI" */;
-			buildPhases = (
-				DCF902E72C11088F00B0B957 /* Sources */,
-				DCF902E82C11088F00B0B957 /* Frameworks */,
-				DCF902E92C11088F00B0B957 /* CopyFiles */,
+				DC9B38C32C2502FA006755AE /* Sources */,
+				DC9B38C42C2502FA006755AE /* Frameworks */,
+				DC9B38C52C2502FA006755AE /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -325,39 +153,28 @@
 			);
 			name = ShellBuddyCLI;
 			productName = ShellBuddyCLI;
-			productReference = DCF902EB2C11088F00B0B957 /* ShellBuddyCLI */;
+			productReference = DC9B38C72C2502FA006755AE /* ShellBuddyCLI */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		DC5D98BD2BF5532C000E4D80 /* Project object */ = {
+		DC9B387E2C24FFEA006755AE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
-					DC5D98C42BF5532C000E4D80 = {
+					DC9B38852C24FFEA006755AE = {
 						CreatedOnToolsVersion = 15.4;
 					};
-					DC5D98D52BF5532E000E4D80 = {
-						CreatedOnToolsVersion = 15.4;
-						TestTargetID = DC5D98C42BF5532C000E4D80;
-					};
-					DC5D98DF2BF5532E000E4D80 = {
-						CreatedOnToolsVersion = 15.4;
-						TestTargetID = DC5D98C42BF5532C000E4D80;
-					};
-					DC90C90E2C1C7D5800E85115 = {
-						CreatedOnToolsVersion = 15.4;
-					};
-					DCF902EA2C11088F00B0B957 = {
+					DC9B38C62C2502FA006755AE = {
 						CreatedOnToolsVersion = 15.4;
 					};
 				};
 			};
-			buildConfigurationList = DC5D98C02BF5532C000E4D80 /* Build configuration list for PBXProject "ShellBuddy" */;
+			buildConfigurationList = DC9B38812C24FFEA006755AE /* Build configuration list for PBXProject "ShellBuddy" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -365,152 +182,57 @@
 				en,
 				Base,
 			);
-			mainGroup = DC5D98BC2BF5532C000E4D80;
-			productRefGroup = DC5D98C62BF5532C000E4D80 /* Products */;
+			mainGroup = DC9B387D2C24FFEA006755AE;
+			packageReferences = (
+				DC9B38B12C25016C006755AE /* XCRemoteSwiftPackageReference "AXSwift" */,
+			);
+			productRefGroup = DC9B38872C24FFEA006755AE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DC5D98C42BF5532C000E4D80 /* ShellBuddy */,
-				DC5D98D52BF5532E000E4D80 /* ShellBuddyTests */,
-				DC5D98DF2BF5532E000E4D80 /* ShellBuddyUITests */,
-				DCF902EA2C11088F00B0B957 /* ShellBuddyCLI */,
-				DC90C90E2C1C7D5800E85115 /* ShellBuddyHighlightDetector */,
+				DC9B38852C24FFEA006755AE /* ShellBuddy */,
+				DC9B38C62C2502FA006755AE /* ShellBuddyCLI */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		DC5D98C32BF5532C000E4D80 /* Resources */ = {
+		DC9B38842C24FFEA006755AE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DC5D98D02BF5532D000E4D80 /* Preview Assets.xcassets in Resources */,
-				DC5D98CD2BF5532D000E4D80 /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DC5D98D42BF5532E000E4D80 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DC5D98DE2BF5532E000E4D80 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				DC9B38912C24FFEB006755AE /* Preview Assets.xcassets in Resources */,
+				DC9B38B52C2501A3006755AE /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		DC90C91E2C1C82D100E85115 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "/Users/delattre/Desktop/ShellBuddy/ShellBuddyHighlightDetector/install.sh\n";
-		};
-		DCF902F52C110D1000B0B957 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "
-";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
-		DC5D98C12BF5532C000E4D80 /* Sources */ = {
+		DC9B38822C24FFEA006755AE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DCFEB47F2BFE4BCD00BDA3CA /* SuggestionsView.swift in Sources */,
-				DCFEB47D2BFE4BC200BDA3CA /* ContentView.swift in Sources */,
-				DCF05D552C0D222F0018C568 /* GPTAssistantManager.swift in Sources */,
-				DC5D98C92BF5532C000E4D80 /* ShellBuddyApp.swift in Sources */,
-				DC5D98F62BF558D1000E4D80 /* AppViewModel.swift in Sources */,
-				DC6F10A92C0E97AD0078DD36 /* OCRProcessingHandler.swift in Sources */,
-				DCC6A49F2C04CA9500D5562A /* ApplicationMonitor.swift in Sources */,
-				DC086F742C133D6A007A994F /* AppColors.swift in Sources */,
-				DC6F10AB2C0E98250078DD36 /* ProcessingManager.swift in Sources */,
-				DCB553232C0F5FF50079A9B3 /* Utils.swift in Sources */,
+				DC9B38D32C25039F006755AE /* AppDelegate.swift in Sources */,
+				DC1778912C2887BB002C852C /* WindowManager.swift in Sources */,
+				DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */,
+				DC9B388A2C24FFEA006755AE /* ShellBuddyApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DC5D98D22BF5532E000E4D80 /* Sources */ = {
+		DC9B38C32C2502FA006755AE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DC5D98DB2BF5532E000E4D80 /* ShellBuddyTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DC5D98DC2BF5532E000E4D80 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DC5D98E72BF5532E000E4D80 /* ShellBuddyUITestsLaunchTests.swift in Sources */,
-				DC5D98E52BF5532E000E4D80 /* ShellBuddyUITests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DC90C90B2C1C7D5800E85115 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DCF902E72C11088F00B0B957 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DCF902EE2C11088F00B0B957 /* main.swift in Sources */,
-				DCF902F22C1108BC00B0B957 /* paste.swift in Sources */,
+				DC9B38CA2C2502FA006755AE /* main.swift in Sources */,
+				DC9B38D12C250342006755AE /* paste.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		DC5D98D82BF5532E000E4D80 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DC5D98C42BF5532C000E4D80 /* ShellBuddy */;
-			targetProxy = DC5D98D72BF5532E000E4D80 /* PBXContainerItemProxy */;
-		};
-		DC5D98E22BF5532E000E4D80 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DC5D98C42BF5532C000E4D80 /* ShellBuddy */;
-			targetProxy = DC5D98E12BF5532E000E4D80 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
-		DC5D98E82BF5532E000E4D80 /* Debug */ = {
+		DC9B38932C24FFEB006755AE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -573,7 +295,7 @@
 			};
 			name = Debug;
 		};
-		DC5D98E92BF5532E000E4D80 /* Release */ = {
+		DC9B38942C24FFEB006755AE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -628,7 +350,7 @@
 			};
 			name = Release;
 		};
-		DC5D98EB2BF5532E000E4D80 /* Debug */ = {
+		DC9B38962C24FFEB006755AE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -640,11 +362,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ShellBuddy/Preview Content\"";
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShellBuddy/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Shell Buddy";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -658,7 +378,7 @@
 			};
 			name = Debug;
 		};
-		DC5D98EC2BF5532E000E4D80 /* Release */ = {
+		DC9B38972C24FFEB006755AE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -670,11 +390,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ShellBuddy/Preview Content\"";
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShellBuddy/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Shell Buddy";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -688,75 +406,7 @@
 			};
 			name = Release;
 		};
-		DC5D98EE2BF5532E000E4D80 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.CamelsAndNeedles.ShellBuddyTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ShellBuddy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ShellBuddy";
-			};
-			name = Debug;
-		};
-		DC5D98EF2BF5532E000E4D80 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.CamelsAndNeedles.ShellBuddyTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ShellBuddy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ShellBuddy";
-			};
-			name = Release;
-		};
-		DC5D98F12BF5532E000E4D80 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.CamelsAndNeedles.ShellBuddyUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = ShellBuddy;
-			};
-			name = Debug;
-		};
-		DC5D98F22BF5532E000E4D80 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.CamelsAndNeedles.ShellBuddyUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = ShellBuddy;
-			};
-			name = Release;
-		};
-		DC90C9132C1C7D5800E85115 /* Debug */ = {
+		DC9B38CC2C2502FA006755AE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -767,29 +417,7 @@
 			};
 			name = Debug;
 		};
-		DC90C9142C1C7D5800E85115 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
-				ENABLE_HARDENED_RUNTIME = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
-		DCF902F02C11088F00B0B957 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
-				ENABLE_HARDENED_RUNTIME = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		DCF902F12C11088F00B0B957 /* Release */ = {
+		DC9B38CD2C2502FA006755AE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -803,61 +431,53 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DC5D98C02BF5532C000E4D80 /* Build configuration list for PBXProject "ShellBuddy" */ = {
+		DC9B38812C24FFEA006755AE /* Build configuration list for PBXProject "ShellBuddy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DC5D98E82BF5532E000E4D80 /* Debug */,
-				DC5D98E92BF5532E000E4D80 /* Release */,
+				DC9B38932C24FFEB006755AE /* Debug */,
+				DC9B38942C24FFEB006755AE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DC5D98EA2BF5532E000E4D80 /* Build configuration list for PBXNativeTarget "ShellBuddy" */ = {
+		DC9B38952C24FFEB006755AE /* Build configuration list for PBXNativeTarget "ShellBuddy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DC5D98EB2BF5532E000E4D80 /* Debug */,
-				DC5D98EC2BF5532E000E4D80 /* Release */,
+				DC9B38962C24FFEB006755AE /* Debug */,
+				DC9B38972C24FFEB006755AE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DC5D98ED2BF5532E000E4D80 /* Build configuration list for PBXNativeTarget "ShellBuddyTests" */ = {
+		DC9B38CB2C2502FA006755AE /* Build configuration list for PBXNativeTarget "ShellBuddyCLI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DC5D98EE2BF5532E000E4D80 /* Debug */,
-				DC5D98EF2BF5532E000E4D80 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DC5D98F02BF5532E000E4D80 /* Build configuration list for PBXNativeTarget "ShellBuddyUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DC5D98F12BF5532E000E4D80 /* Debug */,
-				DC5D98F22BF5532E000E4D80 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DC90C9152C1C7D5800E85115 /* Build configuration list for PBXNativeTarget "ShellBuddyHighlightDetector" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DC90C9132C1C7D5800E85115 /* Debug */,
-				DC90C9142C1C7D5800E85115 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DCF902EF2C11088F00B0B957 /* Build configuration list for PBXNativeTarget "ShellBuddyCLI" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DCF902F02C11088F00B0B957 /* Debug */,
-				DCF902F12C11088F00B0B957 /* Release */,
+				DC9B38CC2C2502FA006755AE /* Debug */,
+				DC9B38CD2C2502FA006755AE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DC9B38B12C25016C006755AE /* XCRemoteSwiftPackageReference "AXSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tmandry/AXSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DC9B38B22C25016C006755AE /* AXSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DC9B38B12C25016C006755AE /* XCRemoteSwiftPackageReference "AXSwift" */;
+			productName = AXSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = DC5D98BD2BF5532C000E4D80 /* Project object */;
+	rootObject = DC9B387E2C24FFEA006755AE /* Project object */;
 }
