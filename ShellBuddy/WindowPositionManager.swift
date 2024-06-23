@@ -8,27 +8,20 @@
 import Cocoa
 import ApplicationServices
 
-class WindowManager: NSObject, NSApplicationDelegate {
+extension Notification.Name {
+    static let terminalWindowDidChange = Notification.Name("terminalWindowDidChange")
+}
+
+
+class WindowPositionManager: NSObject, NSApplicationDelegate {
     var terminalObserver: AXObserver?
     var isTerminalFocused: Bool = false  // Add a variable to store the focused state
     var focusedTerminalWindowID: CGWindowID? = nil
     
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         print("Application did finish launching.")
-        requestAccessibilityPermissions()
         observeTerminalLifecycle()
-    }
-    
-    func requestAccessibilityPermissions() {
-        let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
-        if AXIsProcessTrustedWithOptions(options) {
-            initializeObserverForRunningTerminal()
-        } else {
-            print("Waiting for accessibility permissions...")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.requestAccessibilityPermissions()
-            }
-        }
     }
     
     func observeTerminalLifecycle() {
@@ -75,7 +68,7 @@ class WindowManager: NSObject, NSApplicationDelegate {
         let pid = terminalApp.processIdentifier
         let callback: AXObserverCallback = { (observer, element, notification, refcon) in
             print("Observer callback triggered for Terminal: \(notification).")
-            let delegate = Unmanaged<WindowManager>.fromOpaque(refcon!).takeUnretainedValue()
+            let delegate = Unmanaged<WindowPositionManager>.fromOpaque(refcon!).takeUnretainedValue()
             delegate.updateAppWindowPositionAndSize()
         }
         
@@ -174,11 +167,25 @@ class WindowManager: NSObject, NSApplicationDelegate {
             let previousFocusedWindowID = focusedTerminalWindowID  // Store the previous focused window ID
             focusedTerminalWindowID = findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)  // Update the current focused window ID
 
-            if (!wasTerminalFocused && isTerminalFocused) || (focusedTerminalWindowID != previousFocusedWindowID) {
-                print("Terminal application is currently focused or the focused window changed.")
+            var shouldBringToFront = false
+
+            if !wasTerminalFocused && isTerminalFocused {
+                print("Terminal application is currently focused.")
+                shouldBringToFront = true
+            }
+
+            // Check if the current and previous window IDs are not nil to avoid misfiring updates
+            if let currentWindowID = focusedTerminalWindowID, let previousWindowID = previousFocusedWindowID, currentWindowID != previousWindowID {
+                print("The focused terminal window changed from \(String(describing: previousFocusedWindowID)) to \(String(describing: currentWindowID)).")
+                shouldBringToFront = true
+                NotificationCenter.default.post(name: .terminalWindowDidChange, object: self, userInfo: [
+                    "terminalWindowID": currentWindowID,
+                    "terminalWindow": focusedWindow
+                ])
+            }
+
+            if shouldBringToFront {
                 bringAppWindowToFrontWithoutFocus()  // Bring the app window to front without stealing focus
-            } else {
-                print("Terminal application is not focused or no change in focus state.")
             }
 
             positionAndSizeWindow(terminalPosition: position, terminalSize: size)
@@ -188,7 +195,6 @@ class WindowManager: NSObject, NSApplicationDelegate {
             return
         }
     }
-
     
     func isTerminalAppFocused(_ terminalApp: NSRunningApplication) -> Bool {
         let systemWideElement = AXUIElementCreateSystemWide()
@@ -218,7 +224,7 @@ class WindowManager: NSObject, NSApplicationDelegate {
         
         window.level = .floating
         window.orderFrontRegardless()  // Bring the window to the front without stealing focus
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             window.level = .normal
         }
     }

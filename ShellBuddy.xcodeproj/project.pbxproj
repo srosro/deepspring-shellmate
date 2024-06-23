@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DC1778912C2887BB002C852C /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowManager.swift */; };
+		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
 		DC9B388A2C24FFEA006755AE /* ShellBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* ShellBuddyApp.swift */; };
 		DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B388B2C24FFEA006755AE /* ContentView.swift */; };
 		DC9B38912C24FFEB006755AE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC9B38902C24FFEB006755AE /* Preview Assets.xcassets */; };
@@ -15,7 +15,8 @@
 		DC9B38B52C2501A3006755AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC9B38B42C2501A3006755AE /* Assets.xcassets */; };
 		DC9B38CA2C2502FA006755AE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38C92C2502FA006755AE /* main.swift */; };
 		DC9B38D12C250342006755AE /* paste.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38CE2C250342006755AE /* paste.swift */; };
-		DC9B38D32C25039F006755AE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38D22C25039E006755AE /* AppDelegate.swift */; };
+		DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38D22C25039E006755AE /* TerminalContentManager.swift */; };
+		DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,7 +32,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		DC1778902C2887BB002C852C /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
+		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
 		DC9B38862C24FFEA006755AE /* ShellBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC9B38892C24FFEA006755AE /* ShellBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyApp.swift; sourceTree = "<group>"; };
 		DC9B388B2C24FFEA006755AE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -43,7 +44,8 @@
 		DC9B38CE2C250342006755AE /* paste.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = paste.swift; sourceTree = "<group>"; };
 		DC9B38CF2C250342006755AE /* uninstall.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = uninstall.sh; sourceTree = "<group>"; };
 		DC9B38D02C250342006755AE /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install.sh; sourceTree = "<group>"; };
-		DC9B38D22C25039E006755AE /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		DC9B38D22C25039E006755AE /* TerminalContentManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TerminalContentManager.swift; sourceTree = "<group>"; };
+		DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,12 +89,13 @@
 			isa = PBXGroup;
 			children = (
 				DC9B38B42C2501A3006755AE /* Assets.xcassets */,
-				DC1778902C2887BB002C852C /* WindowManager.swift */,
-				DC9B38D22C25039E006755AE /* AppDelegate.swift */,
+				DC1778902C2887BB002C852C /* WindowPositionManager.swift */,
+				DC9B38D22C25039E006755AE /* TerminalContentManager.swift */,
 				DC9B38892C24FFEA006755AE /* ShellBuddyApp.swift */,
 				DC9B388B2C24FFEA006755AE /* ContentView.swift */,
 				DC9B38922C24FFEB006755AE /* ShellBuddy.entitlements */,
 				DC9B388F2C24FFEB006755AE /* Preview Content */,
+				DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */,
 			);
 			path = ShellBuddy;
 			sourceTree = "<group>";
@@ -213,8 +216,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DC9B38D32C25039F006755AE /* AppDelegate.swift in Sources */,
-				DC1778912C2887BB002C852C /* WindowManager.swift in Sources */,
+				DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */,
+				DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */,
+				DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */,
 				DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */,
 				DC9B388A2C24FFEA006755AE /* ShellBuddyApp.swift in Sources */,
 			);

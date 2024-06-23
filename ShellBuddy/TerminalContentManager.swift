@@ -1,48 +1,83 @@
 import Cocoa
 import AXSwift
 
-class ApplicationDelegate: NSObject, NSApplicationDelegate {
-    var terminalTextAreaElement: AXUIElement? = nil
+class TerminalContentManager: NSObject, NSApplicationDelegate {
+    var terminalTextAreaElement: AXUIElement?
     var terminalTextObserver: Observer?
     var highlightTextObserver: Observer?
     var previousTerminalText: String?
     var previousHighlightedText: String?
-    var currentTextDebounceUUID: UUID?
-    var currentHighlightDebounceUUID: UUID?
-    var textDebounceTimer: Timer?
-    var highlightDebounceTimer: Timer?
+    var textDebounceWorkItem: DispatchWorkItem?
+    var highlightDebounceWorkItem: DispatchWorkItem?
 
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Check that we have permission
-        guard UIElement.isProcessTrusted(withPrompt: true) else {
-            NSLog("No accessibility API permission, exiting")
-            NSRunningApplication.current.terminate()
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Observe the Terminal lifecycle
+        observeTerminalLifecycle()
+        
+        // Check if Terminal is already running and set up observers
+        setupTerminalObservers()
+        
+        // Add observer for terminal window change notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalWindowDidChange(_:)), name: .terminalWindowDidChange, object: nil)
+    }
+
+    func observeTerminalLifecycle() {
+        let workspace = NSWorkspace.shared
+        workspace.notificationCenter.addObserver(self, selector: #selector(handleTerminalLaunch(_:)), name: NSWorkspace.didLaunchApplicationNotification, object: nil)
+        workspace.notificationCenter.addObserver(self, selector: #selector(handleTerminalTermination(_:)), name: NSWorkspace.didTerminateApplicationNotification, object: nil)
+    }
+
+    @objc func handleTerminalLaunch(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let launchedApp = userInfo[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+              launchedApp.bundleIdentifier == "com.apple.Terminal" else {
             return
         }
+        setupTerminalObservers()
+    }
 
-        // Get Application by bundleIdentifier
-        if let runningApp = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Terminal").first {
-            let appElement = AXUIElementCreateApplication(runningApp.processIdentifier)
-            
-            // Try to get the first window
-            var windowElement: AnyObject?
-            let windowError = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowElement)
-            
-            if windowError == .success, let windowArray = windowElement as? [AXUIElement], let window = windowArray.first {
-                // Retrieve the AXTextArea element directly
-                if let textAreaElement = findTextAreaElement(in: window) {
-                    terminalTextAreaElement = textAreaElement
-                    startTerminalTextObserver(for: textAreaElement)
-                    startHighlightObserver(for: textAreaElement)
-                } else {
-                    NSLog("AXTextArea element not found")
-                }
+    @objc func handleTerminalTermination(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let terminatedApp = userInfo[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+              terminatedApp.bundleIdentifier == "com.apple.Terminal" else {
+            return
+        }
+        removeTerminalObservers()
+        terminalTextAreaElement = nil
+        terminalTextObserver = nil
+        highlightTextObserver = nil
+        NSLog("Terminal application terminated.")
+    }
+
+    func setupTerminalObservers() {
+        guard let runningApp = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Terminal").first else {
+            NSLog("Terminal application is not running")
+            return
+        }
+        
+        let appElement = AXUIElementCreateApplication(runningApp.processIdentifier)
+        
+        // Try to get the first window
+        var windowElement: AnyObject?
+        let windowError = AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &windowElement)
+        
+        if windowError == .success, let windowArray = windowElement as? [AXUIElement], let window = windowArray.first {
+            // Retrieve the AXTextArea element directly
+            if let textAreaElement = findTextAreaElement(in: window) {
+                terminalTextAreaElement = textAreaElement
+                startTerminalTextObserver(for: textAreaElement)
+                startHighlightObserver(for: textAreaElement)
             } else {
-                NSLog("Error retrieving window: \(windowError)")
+                NSLog("AXTextArea element not found")
             }
         } else {
-            NSLog("Terminal application is not running")
+            NSLog("Error retrieving window: \(windowError)")
         }
+    }
+
+    func removeTerminalObservers() {
+        terminalTextObserver = nil
+        highlightTextObserver = nil
     }
 
     func findTextAreaElement(in element: AXUIElement) -> AXUIElement? {
@@ -64,6 +99,25 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
             }
         }
         return nil
+    }
+
+    @objc func handleTerminalWindowDidChange(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let windowID = userInfo["terminalWindowID"] as? CGWindowID,
+              let windowElement = userInfo["terminalWindow"] as! AXUIElement? else {
+            return
+        }
+
+        print("Received notification for terminal window change. Window ID: \(windowID)")
+
+        // Update the terminal text area element based on the new window information
+        if let textAreaElement = findTextAreaElement(in: windowElement) {
+            terminalTextAreaElement = textAreaElement
+            startTerminalTextObserver(for: textAreaElement)
+            startHighlightObserver(for: textAreaElement)
+        } else {
+            NSLog("AXTextArea element not found in the new terminal window")
+        }
     }
 
     func processTerminalText() {
@@ -151,28 +205,20 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     }
 
     func debounceTerminalTextChange() {
-        let uuid = UUID()
-        currentTextDebounceUUID = uuid
-
-        textDebounceTimer?.invalidate()
-        textDebounceTimer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false) { [weak self] _ in
-            guard let self = self else { return }
-            if self.currentTextDebounceUUID == uuid {
-                self.processTerminalText()
-            }
+        textDebounceWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.processTerminalText()
         }
+        textDebounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: workItem)
     }
 
     func debounceHighlightChange() {
-        let uuid = UUID()
-        currentHighlightDebounceUUID = uuid
-
-        highlightDebounceTimer?.invalidate()
-        highlightDebounceTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { [weak self] _ in
-            guard let self = self else { return }
-            if self.currentHighlightDebounceUUID == uuid {
-                self.processHighlightedText()
-            }
+        highlightDebounceWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.processHighlightedText()
         }
+        highlightDebounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem)
     }
 }
