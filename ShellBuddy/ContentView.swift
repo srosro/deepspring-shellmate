@@ -38,9 +38,9 @@ struct SuggestionsView: View {
             ScrollViewReader { scrollView in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.filteredResults[currentTerminalID] {
+                        if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.results[currentTerminalID] {
                             ForEach(windowData.suggestionsHistory.indices, id: \.self) { batchIndex in
-                                SuggestionBatchView(batch: windowData.suggestionsHistory[batchIndex], batchIndex: batchIndex, isLastBatch: batchIndex == windowData.suggestionsHistory.count - 1)
+                                SuggestionBatchView(batch: windowData.suggestionsHistory[batchIndex].1, batchIndex: batchIndex, isLastBatch: batchIndex == windowData.suggestionsHistory.count - 1)
                             }
                         }
                     }
@@ -49,7 +49,7 @@ struct SuggestionsView: View {
                 .padding(.horizontal, 0)
                 .padding(.top, 15)
                 .onChange(of: viewModel.updateCounter) { _ in
-                    if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.filteredResults[currentTerminalID], let lastBatch = windowData.suggestionsHistory.last, let lastSuggestionIndex = lastBatch.indices.last {
+                    if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.results[currentTerminalID], let lastBatch = windowData.suggestionsHistory.last?.1, let lastSuggestionIndex = lastBatch.indices.last {
                         scrollToBottom(scrollView: scrollView, key: "suggestion-\(windowData.suggestionsHistory.count - 1)-\(lastSuggestionIndex)")
                     }
                 }
@@ -190,4 +190,3 @@ struct SuggestionView: View {
         print("Copied to clipboard: \(command)")
     }
 }
-

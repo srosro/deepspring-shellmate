@@ -13,10 +13,10 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Add observer for terminal window change notifications
-        NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalWindowDidChange(_:)), name: .terminalWindowDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalWindowIdDidChange(_:)), name: .terminalWindowIdDidChange, object: nil)
     }
 
-    @objc func handleTerminalWindowDidChange(_ notification: Notification) {
+    @objc func handleTerminalWindowIdDidChange(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let windowID = userInfo["terminalWindowID"] as? CGWindowID else {
             return
@@ -58,6 +58,12 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         return nil
     }
 
+    private func getLastNLines(from text: String, numberOfLines: Int) -> String {
+        let lines = text.split(separator: "\n")
+        let lastNLines = lines.suffix(numberOfLines).joined(separator: "\n")
+        return lastNLines
+    }
+    
     func processTerminalText() {
         guard let element = terminalTextAreaElement else { return }
 
@@ -67,14 +73,22 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         if textError == .success, let textValue = textValue as? String {
             let sanitizedText = textValue.replacingOccurrences(of: "\n+", with: "\n", options: .regularExpression)
             let alphanumericText = sanitizedText.replacingOccurrences(of: "\\W+", with: "", options: .regularExpression)
-            if alphanumericText != previousTerminalText {
+            
+            if alphanumericText != previousTerminalText && !alphanumericText.isEmpty {
                 previousTerminalText = alphanumericText
                 printTerminalText(sanitizedText, windowID: currentTerminalWindowID)
+
+                NotificationCenter.default.post(name: .requestTerminalContentAnalysis, object: nil, userInfo: [
+                    "text": getLastNLines(from: sanitizedText, numberOfLines: 50),
+                    "currentTerminalWindowID": currentTerminalWindowID as Any,
+                    "source": "terminalContent"
+                ])
             }
         } else {
             print("Error retrieving text: \(textError)")
         }
     }
+
 
     func processHighlightedText() {
         guard let element = terminalTextAreaElement else { return }
@@ -85,9 +99,17 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         if selectionResult == .success, let highlightedText = selectionValue as? String {
             let sanitizedText = highlightedText.replacingOccurrences(of: "\n+", with: "\n", options: .regularExpression)
             let alphanumericText = sanitizedText.replacingOccurrences(of: "\\W+", with: "", options: .regularExpression)
-            if alphanumericText != previousHighlightedText {
+            if alphanumericText != previousHighlightedText && !alphanumericText.isEmpty {
                 previousHighlightedText = alphanumericText
                 printHighlightedText(sanitizedText, windowID: currentTerminalWindowID)
+                
+                // Send notification with the required information
+                let userInfo: [String: Any] = [
+                    "text": sanitizedText,
+                    "currentTerminalWindowID": currentTerminalWindowID ?? "",
+                    "source": "highlighted"
+                ]
+                NotificationCenter.default.post(name: .requestTerminalContentAnalysis, object: nil, userInfo: userInfo)
             }
         } else {
             print("No highlighted text or error retrieving it: \(selectionResult)")
@@ -143,18 +165,22 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
     }
 
     func debounceTerminalTextChange() {
+        NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
         textDebounceWorkItem?.cancel()
         let workItem = DispatchWorkItem { [weak self] in
             self?.processTerminalText()
+            NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
         }
         textDebounceWorkItem = workItem
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: workItem)
     }
 
     func debounceHighlightChange() {
+        NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
         highlightDebounceWorkItem?.cancel()
         let workItem = DispatchWorkItem { [weak self] in
             self?.processHighlightedText()
+            NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
         }
         highlightDebounceWorkItem = workItem
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem)

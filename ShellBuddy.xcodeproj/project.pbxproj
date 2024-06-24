@@ -16,6 +16,9 @@
 		DC9B38CA2C2502FA006755AE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38C92C2502FA006755AE /* main.swift */; };
 		DC9B38D12C250342006755AE /* paste.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38CE2C250342006755AE /* paste.swift */; };
 		DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38D22C25039E006755AE /* TerminalContentManager.swift */; };
+		DCAA86462C2A0A550047AE3D /* NotificationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */; };
+		DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */; };
+		DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86492C2A22E40047AE3D /* Utils.swift */; };
 		DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -45,6 +48,9 @@
 		DC9B38CF2C250342006755AE /* uninstall.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = uninstall.sh; sourceTree = "<group>"; };
 		DC9B38D02C250342006755AE /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install.sh; sourceTree = "<group>"; };
 		DC9B38D22C25039E006755AE /* TerminalContentManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TerminalContentManager.swift; sourceTree = "<group>"; };
+		DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationExtensions.swift; sourceTree = "<group>"; };
+		DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantManager.swift; sourceTree = "<group>"; };
+		DCAA86492C2A22E40047AE3D /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -88,14 +94,17 @@
 		DC9B38882C24FFEA006755AE /* ShellBuddy */ = {
 			isa = PBXGroup;
 			children = (
-				DC9B38B42C2501A3006755AE /* Assets.xcassets */,
-				DC1778902C2887BB002C852C /* WindowPositionManager.swift */,
-				DC9B38D22C25039E006755AE /* TerminalContentManager.swift */,
 				DC9B38892C24FFEA006755AE /* ShellBuddyApp.swift */,
+				DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */,
+				DC1778902C2887BB002C852C /* WindowPositionManager.swift */,
+				DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */,
+				DC9B38D22C25039E006755AE /* TerminalContentManager.swift */,
 				DC9B388B2C24FFEA006755AE /* ContentView.swift */,
 				DC9B38922C24FFEB006755AE /* ShellBuddy.entitlements */,
+				DC9B38B42C2501A3006755AE /* Assets.xcassets */,
 				DC9B388F2C24FFEB006755AE /* Preview Content */,
-				DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */,
+				DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */,
+				DCAA86492C2A22E40047AE3D /* Utils.swift */,
 			);
 			path = ShellBuddy;
 			sourceTree = "<group>";
@@ -217,10 +226,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */,
+				DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */,
 				DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */,
 				DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */,
 				DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */,
+				DCAA86462C2A0A550047AE3D /* NotificationExtensions.swift in Sources */,
 				DC9B388A2C24FFEA006755AE /* ShellBuddyApp.swift in Sources */,
+				DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

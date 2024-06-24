@@ -8,10 +8,6 @@
 import Cocoa
 import ApplicationServices
 
-extension Notification.Name {
-    static let terminalWindowDidChange = Notification.Name("terminalWindowDidChange")
-}
-
 
 class WindowPositionManager: NSObject, NSApplicationDelegate {
     var terminalObserver: AXObserver?
@@ -40,7 +36,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         
         let currentWindowID = findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)
         if let windowID = currentWindowID {
-            NotificationCenter.default.post(name: .terminalWindowDidChange, object: self, userInfo: [
+            NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
                 "terminalWindowID": windowID,
                 "terminalWindow": focusedWindow
             ])
@@ -196,7 +192,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             if let currentWindowID = focusedTerminalWindowID, let previousWindowID = previousFocusedWindowID, currentWindowID != previousWindowID {
                 print("The focused terminal window changed from \(String(describing: previousFocusedWindowID)) to \(String(describing: currentWindowID)).")
                 shouldBringToFront = true
-                NotificationCenter.default.post(name: .terminalWindowDidChange, object: self, userInfo: [
+                NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
                     "terminalWindowID": currentWindowID,
                     "terminalWindow": focusedWindow
                 ])
