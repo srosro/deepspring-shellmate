@@ -21,13 +21,30 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         print("Application did finish launching.")
-        observeTerminalLifecycle()
+        initializeFocusedWindowID() // Required in case app launches with terminal already open
     }
     
-    func observeTerminalLifecycle() {
-        let workspace = NSWorkspace.shared
-        workspace.notificationCenter.addObserver(self, selector: #selector(handleTerminalLaunch(_:)), name: NSWorkspace.didLaunchApplicationNotification, object: nil)
-        workspace.notificationCenter.addObserver(self, selector: #selector(handleTerminalTermination(_:)), name: NSWorkspace.didTerminateApplicationNotification, object: nil)
+    func initializeFocusedWindowID() {
+        guard let terminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) else {
+            print("Terminal application is not running.")
+            return
+        }
+
+        guard let focusedWindow = getFocusedWindow(for: terminalApp) else {
+            print("Failed to determine focused window for the Terminal application.")
+            return
+        }
+
+        let position = getWindowPosition(for: focusedWindow)
+        let size = getWindowSize(for: focusedWindow)
+        
+        let currentWindowID = findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)
+        if let windowID = currentWindowID {
+            NotificationCenter.default.post(name: .terminalWindowDidChange, object: self, userInfo: [
+                "terminalWindowID": windowID,
+                "terminalWindow": focusedWindow
+            ])
+        }
     }
     
     @objc func handleTerminalLaunch(_ notification: Notification) {
@@ -37,6 +54,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             return
         }
         setupTerminalObserver()
+        initializeFocusedWindowID() // Required in case app launches with terminal not open yet
     }
     
     @objc func handleTerminalTermination(_ notification: Notification) {

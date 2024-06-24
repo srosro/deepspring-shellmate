@@ -28,8 +28,23 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     }
     
     func initializeApp() {
+        observeTerminalLifecycle()
         terminalContentDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))
         windowPositionDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))
         windowPositionDelegate.initializeObserverForRunningTerminal()
+    }
+    
+    func observeTerminalLifecycle() {
+        let workspace = NSWorkspace.shared
+        
+        workspace.notificationCenter.addObserver(windowPositionDelegate, 
+                                                 selector: #selector(WindowPositionManager.handleTerminalLaunch(_:)),
+                                                 name: NSWorkspace.didLaunchApplicationNotification,
+                                                 object: nil)
+        
+        workspace.notificationCenter.addObserver(windowPositionDelegate, 
+                                                 selector: #selector(WindowPositionManager.handleTerminalTermination(_:)),
+                                                 name: NSWorkspace.didTerminateApplicationNotification,
+                                                 object: nil)
     }
 }
