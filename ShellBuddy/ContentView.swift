@@ -48,7 +48,7 @@ struct SuggestionsView: View {
                 }
                 .padding(.horizontal, 0)
                 .padding(.top, 15)
-                .onChange(of: viewModel.updateCounter) { _ in
+                .onChange(of: viewModel.updateCounter) {
                     if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.results[currentTerminalID], let lastBatch = windowData.suggestionsHistory.last?.1, let lastSuggestionIndex = lastBatch.indices.last {
                         scrollToBottom(scrollView: scrollView, key: "suggestion-\(windowData.suggestionsHistory.count - 1)-\(lastSuggestionIndex)")
                     }
@@ -63,6 +63,12 @@ struct SuggestionsView: View {
                     .foregroundColor(viewModel.currentStateText == "Detecting changes..." ? AppColors.green : AppColors.gray700.opacity(0.9))
                     .padding(.leading)
                 Spacer()
+                if let currentTerminalID = viewModel.currentTerminalID, viewModel.isGeneratingSuggestion[currentTerminalID] == true {
+                    Text("Generating suggestion...")
+                        .font(.footnote)
+                        .foregroundColor(AppColors.green)
+                        .padding(.trailing)
+                }
             }
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity, alignment: .center)
@@ -74,6 +80,7 @@ struct SuggestionsView: View {
             scrollView.scrollTo(key, anchor: .bottom)
         }
     }
+
 
     private func copyToClipboard(command: String) {
         let pasteboard = NSPasteboard.general

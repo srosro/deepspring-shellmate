@@ -28,7 +28,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
             initializeApp()
         } else {
             print("Waiting for accessibility permissions...")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
                 self.requestAccessibilityPermissions()
             }
         }
