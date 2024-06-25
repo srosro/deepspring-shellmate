@@ -10,6 +10,8 @@ struct ShellBuddyApp: App {
         WindowGroup {
             ContentView(viewModel: viewModel)
         }
+        .windowResizability(.contentSize)
+        .defaultSize(width: 800, height: 600)
     }
 }
 
@@ -20,10 +22,14 @@ class AppViewModel: ObservableObject {
     @Published var updateCounter: Int = 0
     @Published var results: [String: (suggestionsCount: Int, suggestionsHistory: [(UUID, [[String: String]])], updatedAt: Date)]
 
+    private var threadIdDict: [String: String] = [:]
+    let gptAssistantManager: GPTAssistantManager
+
     init() {
         self.results = [:]
         self.currentTerminalID = "dummyID"
         self.currentStateText = "No changes on Terminal"
+        self.gptAssistantManager = GPTAssistantManager(assistantId: "asst_IQyOH1i0Qjs0agZsBE23nQrS")
         self.fakeAppendResults()
         // Add observers for text change notifications
         NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalChangeStarted), name: .terminalContentChangeStarted, object: nil)
@@ -59,6 +65,49 @@ class AppViewModel: ObservableObject {
             print("Text: \(text)")
             print("Window ID: \(windowID)")
             print("Source: \(source)")
+            analyzeTerminalContent(text: text, windowID: windowID, source: source)
+        }
+    }
+
+    private func analyzeTerminalContent(text: String, windowID: CGWindowID, source: String) {
+        guard let identifier = self.currentTerminalID else {
+            print("No current terminal ID found.")
+            return
+        }
+
+        getOrCreateThreadId(for: identifier) { [weak self] threadId in
+            guard let self = self, let threadId = threadId else {
+                print("Failed to create or retrieve GPT Assistant thread for identifier \(identifier)")
+                return
+            }
+
+            self.gptAssistantManager.processMessageInThread(threadId: threadId, messageContent: text) { result in
+                switch result {
+                case .success(let response):
+                    print("Received GPT response: \(response)")
+                    // Handle the GPT response if needed
+                case .failure(let error):
+                    print("Error processing message in thread: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
+    private func getOrCreateThreadId(for identifier: String, completion: @escaping (String?) -> Void) {
+        if let threadId = threadIdDict[identifier] {
+            completion(threadId)
+        } else {
+            gptAssistantManager.createThread { [weak self] result in
+                switch result {
+                case .success(let createdThreadId):
+                    self?.threadIdDict[identifier] = createdThreadId
+                    print("GPT Assistant thread created successfully with ID: \(createdThreadId) for identifier: \(identifier)")
+                    completion(createdThreadId)
+                case .failure(let error):
+                    print("Failed to create GPT Assistant thread: \(error.localizedDescription)")
+                    completion(nil)
+                }
+            }
         }
     }
 

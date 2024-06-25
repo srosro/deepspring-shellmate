@@ -8,10 +8,17 @@
 import Cocoa
 
 class ApplicationDelegate: NSObject, NSApplicationDelegate {
+    var window: NSWindow!
     let terminalContentDelegate = TerminalContentManager()
     let windowPositionDelegate = WindowPositionManager()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if let window = NSApplication.shared.windows.first {
+            window.setContentSize(NSSize(width: 400, height: 600))
+            window.center() // Optional: to center the window
+            self.window = window
+        }
+        
         requestAccessibilityPermissions()
     }
     
