@@ -22,7 +22,7 @@ class AppViewModel: ObservableObject {
     private var threadIdDict: [String: String] = [:]
     private var currentTerminalStateID: UUID?
     private let additionalSuggestionDelaySeconds: TimeInterval = 2.0
-    private let maxAdditionalSuggestions: Int = 3
+    private let maxSuggestionsPerEvent: Int = 4
     let gptAssistantManager: GPTAssistantManager
 
     init() {
@@ -85,7 +85,7 @@ class AppViewModel: ObservableObject {
         guard let terminalStateID = self.currentTerminalStateID else {
             return
         }
-
+        
         getOrCreateThreadId(for: identifier) { [weak self] threadId in
             guard let self = self, let threadId = threadId else {
                 return
@@ -93,27 +93,33 @@ class AppViewModel: ObservableObject {
 
             self.processGPTResponse(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId, messageContent: text) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + self.additionalSuggestionDelaySeconds) {
-                    self.generateAdditionalSuggestions(identifier: identifier, terminalStateID: terminalStateID, currentCount: 0, threadId: threadId)
+                    self.generateAdditionalSuggestions(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId)
                 }
             }
         }
     }
 
-    private func generateAdditionalSuggestions(identifier: String, terminalStateID: UUID, currentCount: Int, threadId: String) {
+    private func generateAdditionalSuggestions(identifier: String, terminalStateID: UUID, threadId: String) {
         guard let currentTerminalID = self.currentTerminalID,
               let currentTerminalStateID = self.currentTerminalStateID,
               currentTerminalID == identifier,
               currentTerminalStateID == terminalStateID else {
             return
         }
-
-        guard currentCount < self.maxAdditionalSuggestions else {
+        
+        if self.currentStateText != "No changes on Terminal" {
             return
         }
 
-        self.processGPTResponse(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId, messageContent: "additional suggestion request") {
+        if let suggestionsHistory = results[currentTerminalID]?.suggestionsHistory,
+           let lastSuggestions = suggestionsHistory.last?.1,
+           lastSuggestions.count >= self.maxSuggestionsPerEvent {
+            return
+        }
+
+        self.processGPTResponse(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId, messageContent: "please generate another suggestion of command. Don't provide a duplicated suggestion") {
             DispatchQueue.main.asyncAfter(deadline: .now() + self.additionalSuggestionDelaySeconds) {
-                self.generateAdditionalSuggestions(identifier: identifier, terminalStateID: terminalStateID, currentCount: currentCount + 1, threadId: threadId)
+                self.generateAdditionalSuggestions(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId)
             }
         }
     }
