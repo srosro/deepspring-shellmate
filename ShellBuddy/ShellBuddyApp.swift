@@ -184,8 +184,19 @@ class AppViewModel: ObservableObject {
         }
     }
 
-    private func getDownloadsDirectory() -> URL {
-        FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]
+    private func getSharedTemporaryDirectory() -> URL {
+        let sharedTempDirectory = URL(fileURLWithPath: "/tmp/shellBuddyShared")
+        
+        // Ensure the directory exists
+        if !FileManager.default.fileExists(atPath: sharedTempDirectory.path) {
+            do {
+                try FileManager.default.createDirectory(at: sharedTempDirectory, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print("Failed to create shared temporary directory: \(error)")
+            }
+        }
+        
+        return sharedTempDirectory
     }
 
     private func writeResultsToFile() {
@@ -194,9 +205,8 @@ class AppViewModel: ObservableObject {
                   let terminalResults = self.results[currentTerminalID] else {
                 return
             }
-
-            let downloadsDirectory = self.getDownloadsDirectory()
-            let filePath = downloadsDirectory.appendingPathComponent("shellBuddyCommandSuggestions.json")
+            let sharedTempDirectory = self.getSharedTemporaryDirectory()
+            let filePath = sharedTempDirectory.appendingPathComponent("shellBuddyCommandSuggestions.json")
 
             var jsonOutput: [String: String] = [:]
             for (batchIndex, batch) in terminalResults.suggestionsHistory.enumerated() {

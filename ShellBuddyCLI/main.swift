@@ -7,10 +7,19 @@
 import Foundation
 import AppKit
 
-// Function to get the Downloads directory
-func getDownloadsDirectory() -> URL {
-    let paths = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)
-    return paths[0]
+private func getSharedTemporaryDirectory() -> URL {
+    let sharedTempDirectory = URL(fileURLWithPath: "/tmp/shellBuddyShared")
+    
+    // Ensure the directory exists
+    if !FileManager.default.fileExists(atPath: sharedTempDirectory.path) {
+        do {
+            try FileManager.default.createDirectory(at: sharedTempDirectory, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            print("Failed to create shared temporary directory: \(error)")
+        }
+    }
+    
+    return sharedTempDirectory
 }
 
 // Function to load a command from JSON file
@@ -55,8 +64,8 @@ func processCommandID(_ key: String, filePath: URL) {
 // Main function
 func sbCLIMain() {
     // Get the path to the Downloads directory
-    let downloadsDirectory = getDownloadsDirectory()
-    let filePath = downloadsDirectory.appendingPathComponent("shellBuddyCommandSuggestions.json")
+    let tmpDirectory = getSharedTemporaryDirectory()
+    let filePath = tmpDirectory.appendingPathComponent("shellBuddyCommandSuggestions.json")
     
     // Verify the file exists
     guard FileManager.default.fileExists(atPath: filePath.path) else {

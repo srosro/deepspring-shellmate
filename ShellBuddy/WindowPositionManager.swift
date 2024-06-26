@@ -83,7 +83,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         let callback: AXObserverCallback = { (observer, element, notification, refcon) in
             print("Observer callback triggered for Terminal: \(notification).")
             let delegate = Unmanaged<WindowPositionManager>.fromOpaque(refcon!).takeUnretainedValue()
-            delegate.updateAppWindowPositionAndSize()
+            delegate.updateAppWindowPositionAndSize(notification: notification as CFString) // Pass the notification
         }
         
         let result = AXObserverCreate(pid_t(pid), callback, &observer)
@@ -107,7 +107,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         
         let refcon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
         addNotifications(to: observer, element: terminalElement, refcon: refcon)
-        updateAppWindowPositionAndSize()
+        updateAppWindowPositionAndSize(notification: kAXFocusedWindowChangedNotification as CFString)
     }
     
     func removeTerminalObserver() {
@@ -139,7 +139,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         }
     }
     
-    func updateAppWindowPositionAndSize() {
+    func updateAppWindowPositionAndSize(notification: CFString) {
         print("Updating app window position and size.")
 
         guard let terminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) else {
@@ -202,13 +202,15 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
                 bringAppWindowToFrontWithoutFocus()  // Bring the app window to front without stealing focus
             }
 
-            positionAndSizeWindow(terminalPosition: position, terminalSize: size)
+            let shouldAnimate = (notification == kAXWindowMovedNotification as CFString)
+            positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: shouldAnimate)
         } else {
             print("Failed to get windows for Terminal.")
             miniaturizeAppWindow()
             return
         }
     }
+
     
     func isTerminalAppFocused(_ terminalApp: NSRunningApplication) -> Bool {
         let systemWideElement = AXUIElementCreateSystemWide()
@@ -299,8 +301,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
     }
 }
 
-
-func positionAndSizeWindow(terminalPosition: CGPoint, terminalSize: CGSize) {
+func positionAndSizeWindow(terminalPosition: CGPoint, terminalSize: CGSize, shouldAnimate: Bool) {
     guard let screen = NSScreen.main, let window = NSApplication.shared.windows.first else {
         print("Failed to find the application window or screen.")
         return
@@ -310,8 +311,20 @@ func positionAndSizeWindow(terminalPosition: CGPoint, terminalSize: CGSize) {
     let screenHeight = screen.frame.height
     let newYPosition = screenHeight - terminalPosition.y - terminalSize.height
     
+    // Calculate the new position
     let newPosition = CGPoint(x: terminalPosition.x + terminalSize.width, y: newYPosition)
     let newSize = CGSize(width: window.frame.width, height: terminalSize.height)
     
-    window.setFrame(NSRect(origin: newPosition, size: newSize), display: true)
+    if shouldAnimate {
+        // Animate the window position change
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.3 // Set the duration of the animation
+            window.animator().setFrame(NSRect(origin: newPosition, size: newSize), display: true)
+        }, completionHandler: {
+            print("Window repositioning animation completed.")
+        })
+    } else {
+        // Update the window position and size without animation
+        window.setFrame(NSRect(origin: newPosition, size: newSize), display: true)
+    }
 }
