@@ -1,16 +1,5 @@
 import SwiftUI
 
-@main
-struct ShellBuddyApp: App {
-    @NSApplicationDelegateAdaptor(ApplicationDelegate.self) var appDelegate
-    @StateObject private var viewModel = AppViewModel()
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView(viewModel: viewModel)
-        }
-    }
-}
 
 class AppViewModel: ObservableObject {
     @Published var currentTerminalID: String?
