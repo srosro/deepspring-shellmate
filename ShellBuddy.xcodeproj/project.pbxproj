@@ -8,7 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
-		DC9B388A2C24FFEA006755AE /* ShellBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* ShellBuddyApp.swift */; };
+		DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */; };
+		DC5C7B582C2E0BFB0044E0B3 /* sb in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC5C7B502C2E0AE70044E0B3 /* sb */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		DC5C7B592C2E0BFD0044E0B3 /* sb_paste in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC5C7B512C2E0AE70044E0B3 /* sb_paste */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
+		DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8FF0922C2CC30300E5F0A7 /* App.swift */; };
+		DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* AppViewModel.swift */; };
 		DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B388B2C24FFEA006755AE /* ContentView.swift */; };
 		DC9B38912C24FFEB006755AE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC9B38902C24FFEB006755AE /* Preview Assets.xcassets */; };
 		DC9B38B32C25016C006755AE /* AXSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DC9B38B22C25016C006755AE /* AXSwift */; };
@@ -16,6 +21,8 @@
 		DC9B38CA2C2502FA006755AE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38C92C2502FA006755AE /* main.swift */; };
 		DC9B38D12C250342006755AE /* paste.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38CE2C250342006755AE /* paste.swift */; };
 		DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38D22C25039E006755AE /* TerminalContentManager.swift */; };
+		DCA94B672C2C9921004A2BCE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA94B662C2C9921004A2BCE /* SettingsView.swift */; };
+		DCA94B692C2CA726004A2BCE /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA94B682C2CA726004A2BCE /* SettingsViewModel.swift */; };
 		DCAA86462C2A0A550047AE3D /* NotificationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */; };
 		DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */; };
 		DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86492C2A22E40047AE3D /* Utils.swift */; };
@@ -23,21 +30,28 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		DC9B38C52C2502FA006755AE /* CopyFiles */ = {
+		DC5C7B4B2C2E068F0044E0B3 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			dstPath = "";
+			dstSubfolderSpec = 7;
 			files = (
+				DC5C7B582C2E0BFB0044E0B3 /* sb in CopyFiles */,
+				DC5C7B592C2E0BFD0044E0B3 /* sb_paste in CopyFiles */,
+				DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
+		DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
+		DC5C7B502C2E0AE70044E0B3 /* sb */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = sb; sourceTree = "<group>"; };
+		DC5C7B512C2E0AE70044E0B3 /* sb_paste */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = sb_paste; sourceTree = "<group>"; };
+		DC8FF0922C2CC30300E5F0A7 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		DC9B38862C24FFEA006755AE /* ShellBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DC9B38892C24FFEA006755AE /* ShellBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellBuddyApp.swift; sourceTree = "<group>"; };
+		DC9B38892C24FFEA006755AE /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		DC9B388B2C24FFEA006755AE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DC9B38902C24FFEB006755AE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		DC9B38922C24FFEB006755AE /* ShellBuddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShellBuddy.entitlements; sourceTree = "<group>"; };
@@ -48,6 +62,8 @@
 		DC9B38CF2C250342006755AE /* uninstall.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = uninstall.sh; sourceTree = "<group>"; };
 		DC9B38D02C250342006755AE /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install.sh; sourceTree = "<group>"; };
 		DC9B38D22C25039E006755AE /* TerminalContentManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TerminalContentManager.swift; sourceTree = "<group>"; };
+		DCA94B662C2C9921004A2BCE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		DCA94B682C2CA726004A2BCE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationExtensions.swift; sourceTree = "<group>"; };
 		DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantManager.swift; sourceTree = "<group>"; };
 		DCAA86492C2A22E40047AE3D /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -73,6 +89,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DC8FF0912C2CC2C300E5F0A7 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				DC9B38892C24FFEA006755AE /* AppViewModel.swift */,
+				DCA94B682C2CA726004A2BCE /* SettingsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		DC9B387D2C24FFEA006755AE = {
 			isa = PBXGroup;
 			children = (
@@ -94,12 +119,13 @@
 		DC9B38882C24FFEA006755AE /* ShellBuddy */ = {
 			isa = PBXGroup;
 			children = (
-				DC9B38892C24FFEA006755AE /* ShellBuddyApp.swift */,
+				DC8FF0912C2CC2C300E5F0A7 /* ViewModels */,
+				DCA94B652C2C98FA004A2BCE /* Views */,
+				DC8FF0922C2CC30300E5F0A7 /* App.swift */,
 				DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */,
 				DC1778902C2887BB002C852C /* WindowPositionManager.swift */,
 				DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */,
 				DC9B38D22C25039E006755AE /* TerminalContentManager.swift */,
-				DC9B388B2C24FFEA006755AE /* ContentView.swift */,
 				DC9B38922C24FFEB006755AE /* ShellBuddy.entitlements */,
 				DC9B38B42C2501A3006755AE /* Assets.xcassets */,
 				DC9B388F2C24FFEB006755AE /* Preview Content */,
@@ -120,12 +146,24 @@
 		DC9B38C82C2502FA006755AE /* ShellBuddyCLI */ = {
 			isa = PBXGroup;
 			children = (
+				DC5C7B502C2E0AE70044E0B3 /* sb */,
+				DC5C7B512C2E0AE70044E0B3 /* sb_paste */,
 				DC9B38D02C250342006755AE /* install.sh */,
 				DC9B38CE2C250342006755AE /* paste.swift */,
 				DC9B38CF2C250342006755AE /* uninstall.sh */,
 				DC9B38C92C2502FA006755AE /* main.swift */,
 			);
 			path = ShellBuddyCLI;
+			sourceTree = "<group>";
+		};
+		DCA94B652C2C98FA004A2BCE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DC9B388B2C24FFEA006755AE /* ContentView.swift */,
+				DCA94B662C2C9921004A2BCE /* SettingsView.swift */,
+				DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -138,6 +176,7 @@
 				DC9B38822C24FFEA006755AE /* Sources */,
 				DC9B38832C24FFEA006755AE /* Frameworks */,
 				DC9B38842C24FFEA006755AE /* Resources */,
+				DC5C7B4B2C2E068F0044E0B3 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -157,7 +196,6 @@
 			buildPhases = (
 				DC9B38C32C2502FA006755AE /* Sources */,
 				DC9B38C42C2502FA006755AE /* Frameworks */,
-				DC9B38C52C2502FA006755AE /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -226,12 +264,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */,
+				DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */,
 				DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */,
+				DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */,
 				DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */,
 				DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */,
 				DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */,
+				DCA94B692C2CA726004A2BCE /* SettingsViewModel.swift in Sources */,
 				DCAA86462C2A0A550047AE3D /* NotificationExtensions.swift in Sources */,
-				DC9B388A2C24FFEA006755AE /* ShellBuddyApp.swift in Sources */,
+				DCA94B672C2C9921004A2BCE /* SettingsView.swift in Sources */,
+				DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */,
 				DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

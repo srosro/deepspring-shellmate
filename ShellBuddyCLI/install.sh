@@ -11,7 +11,10 @@ PASTE_EXECUTABLE_NAME="sb_paste"
 TARGET_DIR="$HOME/shellbuddy"
 LINK_DIR="$HOME/bin"
 
-echo "Starting installation script from $SCRIPT_DIR..."
+echo -e "Starting installation script from:\n $SCRIPT_DIR"
+
+echo -e "\nFiles in the directory:\n"
+ls "$SCRIPT_DIR"
 
 # Check if swiftc is installed
 if ! command -v swiftc &> /dev/null
@@ -28,35 +31,21 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Compile the main Swift source file
-echo "Compiling $MAIN_SOURCE_FILE..."
-swiftc "$MAIN_SOURCE_FILE" -o "$MAIN_EXECUTABLE_NAME"
-if [ $? -ne 0 ]; then
-    echo "Error: Compilation of $MAIN_SOURCE_FILE failed."
-    exit 1
-fi
-
-# Compile the paste Swift source file
-echo "Compiling $PASTE_SOURCE_FILE..."
-swiftc "$PASTE_SOURCE_FILE" -o "$PASTE_EXECUTABLE_NAME"
-if [ $? -ne 0 ]; then
-    echo "Error: Compilation of $PASTE_SOURCE_FILE failed."
-    exit 1
-fi
 
 # Move the executables to the target directory
 echo "Moving $MAIN_EXECUTABLE_NAME and $PASTE_EXECUTABLE_NAME to $TARGET_DIR..."
-mv "$MAIN_EXECUTABLE_NAME" "$TARGET_DIR"
+cp "$SCRIPT_DIR/$MAIN_EXECUTABLE_NAME" "$TARGET_DIR"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to move $MAIN_EXECUTABLE_NAME to $TARGET_DIR."
     exit 1
 fi
 
-mv "$PASTE_EXECUTABLE_NAME" "$TARGET_DIR"
+cp "$SCRIPT_DIR/$PASTE_EXECUTABLE_NAME" "$TARGET_DIR"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to move $PASTE_EXECUTABLE_NAME to $TARGET_DIR."
     exit 1
 fi
+
 
 # Create the link directory if it does not exist
 echo "Creating link directory $LINK_DIR if it does not exist..."
