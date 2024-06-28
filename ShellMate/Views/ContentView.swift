@@ -113,7 +113,7 @@ struct SbButtonIdxView: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            Text("sb \(batchIndex + 1)")
+            Text("sm \(batchIndex + 1)")
                 .font(.footnote)
                 .fontWeight(.regular)
                 .foregroundColor(AppColors.black)
