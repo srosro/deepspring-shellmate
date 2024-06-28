@@ -206,7 +206,11 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: shouldAnimate)
         } else {
             print("Failed to get windows for Terminal.")
-            miniaturizeAppWindow()
+            
+            // Check if the app has accessibility access
+            if !AccessibilityChecker.isAppTrusted() {
+                showSettingsView()
+            }
             return
         }
     }

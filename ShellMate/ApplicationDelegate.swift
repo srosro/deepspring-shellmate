@@ -8,6 +8,8 @@
 import Cocoa
 import AXSwift
 
+
+
 class ApplicationDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     let terminalContentDelegate = TerminalContentManager()
@@ -41,13 +43,9 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
             showSettingsView()
         }
     }
-    
-    func showSettingsView() {
-        UserDefaults.standard.set(true, forKey: "showSettingsView")
-    }
-    
+
     func initializeApp() {
-        UserDefaults.standard.set(false, forKey: "showSettingsView")
+        showContentView()
         observeTerminalLifecycle()
         terminalContentDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))
         windowPositionDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))

@@ -17,7 +17,14 @@ func retrieveOpenaiAPIKey() -> String {
     let apiKey = "sk-proj-QJTEXwwbbp2LhwahZ2F3T3BlbkFJeLNulBYi20omTgB7wk3l";
     return apiKey
 }
+    
+func showSettingsView() {
+    UserDefaults.standard.set(true, forKey: "showSettingsView")
+}
 
+func showContentView() {
+    UserDefaults.standard.set(false, forKey: "showSettingsView")
+}
 
 class AccessibilityChecker {
     static func isAppTrusted() -> Bool {
