@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Sparkle
 
 
 @main
@@ -15,6 +16,12 @@ struct ShellMateApp: App {
     @StateObject private var settingsViewModel = SettingsViewModel()
     @State private var showSettingsView = UserDefaults.standard.bool(forKey: "showSettingsView")
 
+    private let updaterController: SPUStandardUpdaterController
+    
+    init() {
+        updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+    }
+    
     var body: some Scene {
         WindowGroup {
             if showSettingsView {
@@ -34,6 +41,11 @@ struct ShellMateApp: App {
                     }
                     appDelegate.initializeApp()
                 }
+            }
+        }
+        .commands {
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesView(updater: updaterController.updater)
             }
         }
     }
