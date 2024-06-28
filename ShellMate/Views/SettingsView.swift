@@ -60,7 +60,7 @@ struct PermissionsView: View {
                         Text("ShellMate - Accessibility")
                             .font(.subheadline)
                             .bold()
-                        Text("Allows you to talk to shellbuddy directly from your terminal.")
+                        Text("Allows you to talk to shellmate directly from your terminal.")
                             .font(.footnote)
                     }
                     Spacer()

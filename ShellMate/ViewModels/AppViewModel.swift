@@ -180,7 +180,7 @@ class AppViewModel: ObservableObject {
     }
 
     private func getSharedTemporaryDirectory() -> URL {
-        let sharedTempDirectory = URL(fileURLWithPath: "/tmp/shellBuddyShared")
+        let sharedTempDirectory = URL(fileURLWithPath: "/tmp/shellMateShared")
         
         // Ensure the directory exists
         if !FileManager.default.fileExists(atPath: sharedTempDirectory.path) {
@@ -201,7 +201,7 @@ class AppViewModel: ObservableObject {
                 return
             }
             let sharedTempDirectory = self.getSharedTemporaryDirectory()
-            let filePath = sharedTempDirectory.appendingPathComponent("shellBuddyCommandSuggestions.json")
+            let filePath = sharedTempDirectory.appendingPathComponent("shellMateCommandSuggestions.json")
 
             var jsonOutput: [String: String] = [:]
             for (batchIndex, batch) in terminalResults.suggestionsHistory.enumerated() {

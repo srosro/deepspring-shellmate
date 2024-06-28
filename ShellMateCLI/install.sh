@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Define the source files and the target executable
 MAIN_SOURCE_FILE="$SCRIPT_DIR/main.swift"
 MAIN_EXECUTABLE_NAME="sb"
-TARGET_DIR="$HOME/shellbuddy"
+TARGET_DIR="$HOME/shellmate"
 LINK_DIR="$HOME/bin"
 
 echo -e "Starting installation script from:\n $SCRIPT_DIR"
