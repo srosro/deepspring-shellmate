@@ -7,25 +7,24 @@
 
 import SwiftUI
 
-
-
 struct SettingsView: View {
     @ObservedObject var viewModel: SettingsViewModel
     @State private var apiKey = "samplekey" // Default text value
     let onContinue: () -> Void
 
     var body: some View {
-        VStack(alignment: .center) {
+        VStack(alignment: .center, spacing: 20) {
+            Spacer()
             WelcomeView()
-
+            Spacer()
             PermissionsView(viewModel: viewModel)
-            
-            LicenseView(apiKey: $apiKey)
-
+            Spacer()
+            //LicenseView(apiKey: $apiKey)
+            //Spacer()
             ContinueButtonView(viewModel: viewModel, onContinue: onContinue)
+            Spacer()
         }
         .padding()
-        //.frame(width: 400, height: 600)
     }
 }
 
@@ -44,8 +43,6 @@ struct WelcomeView: View {
         .frame(maxWidth: .infinity, alignment: .center) // Center align the header text
     }
 }
-
-
 
 struct PermissionsView: View {
     @ObservedObject var viewModel: SettingsViewModel
@@ -79,42 +76,6 @@ struct PermissionsView: View {
                     } else {
                         Button(action: {
                             viewModel.requestAccessibilityPermissions()
-                        }) {
-                            Text("Grant Access")
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
-                                .background(AppColors.black)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                                .font(.subheadline)
-                        }
-                        .background(Color.clear)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                }
-                .padding()
-
-                HStack {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Terminal - Accessibility")
-                            .font(.subheadline)
-                            .bold()
-                        Text("Allows terminal to paste shellbuddy suggestions directly into your terminal.")
-                            .font(.footnote)
-                    }
-                    Spacer()
-                    if viewModel.isTerminalTrusted {
-                        HStack {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(AppColors.green)
-                                .font(.subheadline)
-                            Text("Granted")
-                                .foregroundColor(AppColors.green)
-                                .font(.subheadline)
-                        }
-                    } else {
-                        Button(action: {
-                            viewModel.openAccessibilityPreferences()
                         }) {
                             Text("Grant Access")
                                 .padding(.horizontal, 10)
@@ -177,7 +138,6 @@ struct LicenseView: View {
     }
 }
 
-
 struct ContinueButtonView: View {
     @ObservedObject var viewModel: SettingsViewModel
     let onContinue: () -> Void
@@ -190,13 +150,12 @@ struct ContinueButtonView: View {
             Text("Continue")
                 .padding(.horizontal, 40)
                 .padding(.vertical, 8)
-                .background(viewModel.isAppTrusted && viewModel.isTerminalTrusted ? AppColors.black : AppColors.gray400)
+                .background(viewModel.isAppTrusted ? AppColors.black : AppColors.gray400)
                 .foregroundColor(.white)
                 .cornerRadius(8)
         }
-        .disabled(!(viewModel.isAppTrusted && viewModel.isTerminalTrusted))
+        .disabled(!(viewModel.isAppTrusted))
         .background(Color.clear) // Ensure background color is clear to avoid white corners
         .clipShape(RoundedRectangle(cornerRadius: 8)) // Clip the shape to remove background outside corners
     }
 }
-

@@ -178,22 +178,37 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
 
     func debounceHighlightChange() {
         // This check is necessary because clicking on the terminal without highlighting anything will trigger a selected text changed event.
-        if self.hasValidHighlightText() {
-            NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
-            
-            highlightDebounceWorkItem?.cancel()
-            let workItem = DispatchWorkItem { [weak self] in
-                guard let self = self else { return }
-                if self.hasValidHighlightText() {
-                    self.processHighlightedText()
-                    NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
-                }
-            }
-            
-            highlightDebounceWorkItem = workItem
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
+        guard self.hasValidHighlightText() else {
+            NSLog("Invalid highlight text")
+            return
         }
+
+        NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
+
+        highlightDebounceWorkItem?.cancel()
+
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self = self else {
+                NSLog("Self is nil in DispatchWorkItem")
+                return
+            }
+
+            guard self.hasValidHighlightText() else {
+                NSLog("Invalid highlight text during debounced work item execution")
+                return
+            }
+
+            // Ensure processHighlightedText is executed on the main thread
+            DispatchQueue.main.async {
+                self.processHighlightedText()
+                NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
+            }
+        }
+
+        highlightDebounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
     }
+
 
     private func getSanitizedHighlightedText() -> String? {
         guard let element = terminalTextAreaElement else { return nil }

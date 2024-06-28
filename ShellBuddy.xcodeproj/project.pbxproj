@@ -9,9 +9,8 @@
 /* Begin PBXBuildFile section */
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
 		DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */; };
-		DC5C7B582C2E0BFB0044E0B3 /* sb in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC5C7B502C2E0AE70044E0B3 /* sb */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		DC5C7B592C2E0BFD0044E0B3 /* sb_paste in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC5C7B512C2E0AE70044E0B3 /* sb_paste */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
+		DC6753EC2C2EE6B100111AAB /* sb in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC6753EB2C2EE69B00111AAB /* sb */; };
 		DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8FF0922C2CC30300E5F0A7 /* App.swift */; };
 		DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* AppViewModel.swift */; };
 		DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B388B2C24FFEA006755AE /* ContentView.swift */; };
@@ -19,7 +18,6 @@
 		DC9B38B32C25016C006755AE /* AXSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DC9B38B22C25016C006755AE /* AXSwift */; };
 		DC9B38B52C2501A3006755AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC9B38B42C2501A3006755AE /* Assets.xcassets */; };
 		DC9B38CA2C2502FA006755AE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38C92C2502FA006755AE /* main.swift */; };
-		DC9B38D12C250342006755AE /* paste.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38CE2C250342006755AE /* paste.swift */; };
 		DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38D22C25039E006755AE /* TerminalContentManager.swift */; };
 		DCA94B672C2C9921004A2BCE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA94B662C2C9921004A2BCE /* SettingsView.swift */; };
 		DCA94B692C2CA726004A2BCE /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA94B682C2CA726004A2BCE /* SettingsViewModel.swift */; };
@@ -36,9 +34,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				DC5C7B582C2E0BFB0044E0B3 /* sb in CopyFiles */,
-				DC5C7B592C2E0BFD0044E0B3 /* sb_paste in CopyFiles */,
 				DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */,
+				DC6753EC2C2EE6B100111AAB /* sb in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,8 +44,7 @@
 /* Begin PBXFileReference section */
 		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
 		DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
-		DC5C7B502C2E0AE70044E0B3 /* sb */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = sb; sourceTree = "<group>"; };
-		DC5C7B512C2E0AE70044E0B3 /* sb_paste */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = sb_paste; sourceTree = "<group>"; };
+		DC6753EB2C2EE69B00111AAB /* sb */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = sb; sourceTree = "<group>"; };
 		DC8FF0922C2CC30300E5F0A7 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		DC9B38862C24FFEA006755AE /* ShellBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC9B38892C24FFEA006755AE /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
@@ -58,7 +54,6 @@
 		DC9B38B42C2501A3006755AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DC9B38C72C2502FA006755AE /* ShellBuddyCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ShellBuddyCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC9B38C92C2502FA006755AE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		DC9B38CE2C250342006755AE /* paste.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = paste.swift; sourceTree = "<group>"; };
 		DC9B38CF2C250342006755AE /* uninstall.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = uninstall.sh; sourceTree = "<group>"; };
 		DC9B38D02C250342006755AE /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install.sh; sourceTree = "<group>"; };
 		DC9B38D22C25039E006755AE /* TerminalContentManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TerminalContentManager.swift; sourceTree = "<group>"; };
@@ -146,10 +141,8 @@
 		DC9B38C82C2502FA006755AE /* ShellBuddyCLI */ = {
 			isa = PBXGroup;
 			children = (
-				DC5C7B502C2E0AE70044E0B3 /* sb */,
-				DC5C7B512C2E0AE70044E0B3 /* sb_paste */,
+				DC6753EB2C2EE69B00111AAB /* sb */,
 				DC9B38D02C250342006755AE /* install.sh */,
-				DC9B38CE2C250342006755AE /* paste.swift */,
 				DC9B38CF2C250342006755AE /* uninstall.sh */,
 				DC9B38C92C2502FA006755AE /* main.swift */,
 			);
@@ -283,7 +276,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC9B38CA2C2502FA006755AE /* main.swift in Sources */,
-				DC9B38D12C250342006755AE /* paste.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

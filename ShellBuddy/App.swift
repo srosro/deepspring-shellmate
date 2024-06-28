@@ -26,11 +26,6 @@ struct ShellBuddyApp: App {
                         showSettingsView = UserDefaults.standard.bool(forKey: "showSettingsView")
                     }
                 }
-                .onDisappear {
-                    if settingsViewModel.isAppTrusted && settingsViewModel.isTerminalTrusted {
-                        appDelegate.initializeApp()
-                    }
-                }
             } else {
                 ContentView(viewModel: viewModel)
                 .onAppear {

@@ -3,11 +3,9 @@
 # Get the directory of the script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Define the source files and the target executables
+# Define the source files and the target executable
 MAIN_SOURCE_FILE="$SCRIPT_DIR/main.swift"
-PASTE_SOURCE_FILE="$SCRIPT_DIR/paste.swift"
 MAIN_EXECUTABLE_NAME="sb"
-PASTE_EXECUTABLE_NAME="sb_paste"
 TARGET_DIR="$HOME/shellbuddy"
 LINK_DIR="$HOME/bin"
 
@@ -31,21 +29,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-
-# Move the executables to the target directory
-echo "Moving $MAIN_EXECUTABLE_NAME and $PASTE_EXECUTABLE_NAME to $TARGET_DIR..."
+# Move the executable to the target directory
+echo "Moving $MAIN_EXECUTABLE_NAME to $TARGET_DIR..."
 cp "$SCRIPT_DIR/$MAIN_EXECUTABLE_NAME" "$TARGET_DIR"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to move $MAIN_EXECUTABLE_NAME to $TARGET_DIR."
     exit 1
 fi
-
-cp "$SCRIPT_DIR/$PASTE_EXECUTABLE_NAME" "$TARGET_DIR"
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to move $PASTE_EXECUTABLE_NAME to $TARGET_DIR."
-    exit 1
-fi
-
 
 # Create the link directory if it does not exist
 echo "Creating link directory $LINK_DIR if it does not exist..."

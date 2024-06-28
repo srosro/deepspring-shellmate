@@ -14,17 +14,20 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     let windowPositionDelegate = WindowPositionManager()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        resizeWindow(width: 400, height: 600)
+        checkAccessibilityPermissions()
+    }
+    
+    func resizeWindow(width: CGFloat, height: CGFloat) {
         if let window = NSApplication.shared.windows.first {
-            window.setContentSize(NSSize(width: 400, height: 600))
+            window.setContentSize(NSSize(width: width, height: height))
             window.center() // Optional: to center the window
             self.window = window
         }
-        checkAccessibilityPermissions()
     }
     
     func checkAccessibilityPermissions() {
         let isAppTrusted = AccessibilityChecker.isAppTrusted()
-        let isTerminalTrusted = AccessibilityChecker.isTerminalTrusted()
         
         if isAppTrusted {
             print("Application is trusted for accessibility.")
@@ -32,13 +35,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
             print("Application is not trusted for accessibility.")
         }
         
-        if isTerminalTrusted {
-            print("Terminal is trusted for accessibility.")
-        } else {
-            print("Terminal is not trusted for accessibility.")
-        }
-        
-        if isAppTrusted && isTerminalTrusted {
+        if isAppTrusted {
             initializeApp()
         } else {
             showSettingsView()
