@@ -12,6 +12,8 @@ class GPTAssistantManager {
     let assistantId: String
     let headers: [String: String]
     
+    private let pollingInterval: Double = 0.5
+    
     init(assistantId: String) {
         self.apiKey = retrieveOpenaiAPIKey()
         self.assistantId = assistantId
@@ -22,32 +24,30 @@ class GPTAssistantManager {
         ]
     }
     
-    func createThread(completion: @escaping (Result<String, Error>) -> Void) {
+    func createThread() async throws -> String {
         let url = URL(string: "https://api.openai.com/v1/threads")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.allHTTPHeaderFields = headers
         request.httpBody = "{}".data(using: .utf8)
         
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            self.handleResponse(data: data, response: response, error: error, completion: completion)
-        }.resume()
+        let (data, response) = try await URLSession.shared.data(for: request)
+        return try await handleResponse(data: data, response: response)
     }
     
-    func createMessage(threadId: String, messageContent: String, completion: @escaping (Result<String, Error>) -> Void) {
+    func createMessage(threadId: String, messageContent: String) async throws -> String {
         let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/messages")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.allHTTPHeaderFields = headers
         let payload = ["role": "user", "content": messageContent]
         request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            self.handleResponse(data: data, response: response, error: error, completion: completion)
-        }.resume()
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        return try await handleResponse(data: data, response: response)
     }
     
-    func startRun(threadId: String, completion: @escaping (Result<String, Error>) -> Void) {
+    func startRun(threadId: String) async throws -> String {
         let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/runs")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -55,18 +55,31 @@ class GPTAssistantManager {
         let payload = ["assistant_id": assistantId]
         request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
         
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            self.handleResponse(data: data, response: response, error: error, completion: completion)
-        }.resume()
+        let (data, response) = try await URLSession.shared.data(for: request)
+        return try await handleResponse(data: data, response: response)
     }
     
-    func pollRunStatus(threadId: String, runId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    func pollRunStatus(threadId: String, runId: String) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            pollRunStatus(threadId: threadId, runId: runId) { result in
+                switch result {
+                case .success():
+                    continuation.resume()
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    private func pollRunStatus(threadId: String, runId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/runs/\(runId)")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
         
         func checkStatus() {
+            let interval = pollingInterval
             URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
                     completion(.failure(error))
@@ -85,7 +98,7 @@ class GPTAssistantManager {
                 } else if status == "failed" || status == "cancelled" || status == "expired" {
                     completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Run did not complete successfully: \(status)"])))
                 } else {
-                    DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
+                    DispatchQueue.global().asyncAfter(deadline: .now() + interval) {
                         checkStatus() // Recursively check after delay
                     }
                 }
@@ -95,43 +108,35 @@ class GPTAssistantManager {
         checkStatus() // Initial call to start the polling
     }
 
-    func fetchMessageResult(threadId: String, completion: @escaping (Result<[String: Any], Error>) -> Void) {
+    func fetchMessageResult(threadId: String) async throws -> [String: Any] {
         let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/messages")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        guard let jsonData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw  NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to receive or parse data"])
+        }
         
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            guard let data = data,
-                let jsonData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to receive or parse data"])))
-                return
-            }
+        // Print the entire raw JSON response for debugging
+        print("Raw JSON response: \(jsonData)")
 
-            // Print the entire raw JSON response for debugging
-            print("Raw JSON response: \(jsonData)")
-
-            if let messages = jsonData["data"] as? [[String: Any]],
-            let firstResponse = messages.first,
-            let contents = firstResponse["content"] as? [[String: Any]],
-            let textContent = contents.first,
-            let textDict = textContent["text"] as? [String: Any],
-            let textValue = textDict["value"] as? String {
-                
-                if let valueDict = self.convertStringToDictionary(text: textValue) {
-                    print("Parsed GPT response: \(valueDict)")
-                    completion(.success(valueDict))
-                } else {
-                    completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "JSON string in 'value' could not be parsed"])))
-                }
+        if let messages = jsonData["data"] as? [[String: Any]],
+           let firstResponse = messages.first,
+           let contents = firstResponse["content"] as? [[String: Any]],
+           let textContent = contents.first,
+           let textDict = textContent["text"] as? [String: Any],
+           let textValue = textDict["value"] as? String {
+            if let valueDict = self.convertStringToDictionary(text: textValue) {
+                print("Parsed GPT response: \(valueDict)")
+                return valueDict
             } else {
-                completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to parse message content correctly or no content found"])))
+                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "JSON string in 'value' could not be parsed"])
             }
-        }.resume()
+        } else {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to parse message content correctly or no content found"])
+        }
     }
     
     private func convertStringToDictionary(text: String) -> [String: Any]? {
@@ -151,57 +156,23 @@ class GPTAssistantManager {
         return nil
     }
 
-    
-    private func handleResponse(data: Data?, response: URLResponse?, error: Error?, completion: @escaping (Result<String, Error>) -> Void) {
-        if let error = error {
-            completion(.failure(error))
-            return
-        }
-        guard let data = data, let response = response as? HTTPURLResponse, response.statusCode == 200,
-              let jsonObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+    private func handleResponse(data: Data, response: URLResponse) async throws -> String {
+        guard let response = response as? HTTPURLResponse,
+            response.statusCode == 200,
+              let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let id = jsonObject["id"] as? String else {
-            completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to parse JSON or bad response"])))
-            return
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to parse JSON or bad response"])
         }
-        completion(.success(id))
+        return id
     }
-
-    func processMessageInThread(threadId: String, messageContent: String, completion: @escaping (Result<[String: Any], Error>) -> Void) {
-        createMessage(threadId: threadId, messageContent: messageContent) { result in
-            switch result {
-            case .success(let messageId):
-                print("Message created successfully with ID: \(messageId)")
-                self.startRun(threadId: threadId) { result in
-                    switch result {
-                    case .success(let runId):
-                        print("Run started successfully with ID: \(runId)")
-                        self.pollRunStatus(threadId: threadId, runId: runId) { result in
-                            switch result {
-                            case .success():
-                                self.fetchMessageResult(threadId: threadId) { result in
-                                    switch result {
-                                    case .success(let messageData):
-                                        print("GPT Response: \(messageData)")
-                                        completion(.success(messageData))
-                                    case .failure(let error):
-                                        print("Error fetching message result: \(error.localizedDescription)")
-                                        completion(.failure(error))
-                                    }
-                                }
-                            case .failure(let error):
-                                print("Error during run polling: \(error.localizedDescription)")
-                                completion(.failure(error))
-                            }
-                        }
-                    case .failure(let error):
-                        print("Error starting run: \(error.localizedDescription)")
-                        completion(.failure(error))
-                    }
-                }
-            case .failure(let error):
-                print("Error creating message: \(error.localizedDescription)")
-                completion(.failure(error))
-            }
-        }
+    
+    func processMessageInThread(threadId: String, messageContent: String) async throws -> [String: Any] {
+        let messageId = try await createMessage(threadId: threadId, messageContent: messageContent)
+        print("Message created successfully with ID: \(messageId)")
+        let runId = try await startRun(threadId: threadId)
+        print("Run started successfully with ID: \(runId)")
+        try await pollRunStatus(threadId: threadId, runId: runId)
+        let messageData = try await fetchMessageResult(threadId: threadId)
+        return messageData
     }
 }
