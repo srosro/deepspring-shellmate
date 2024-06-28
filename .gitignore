@@ -66,7 +66,7 @@ fastlane/test_output
 *~
 
 # Custom
-ShellBuddy.xcodeproj/project.xcworkspace/
-ShellBuddy.xcodeproj/xcuserdata/
-ShellBuddy.xcodeproj/project.xcworkspace/xcuserdata/
-ShellBuddy.xcodeproj/xcshareddata/
+ShellMate.xcodeproj/project.xcworkspace/
+ShellMate.xcodeproj/xcuserdata/
+ShellMate.xcodeproj/project.xcworkspace/xcuserdata/
+ShellMate.xcodeproj/xcshareddata/

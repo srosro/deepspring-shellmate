@@ -1,6 +1,6 @@
 //
 //  App.swift
-//  ShellBuddy
+//  ShellMate
 //
 //  Created by Daniel Delattre on 26/06/24.
 //
@@ -9,7 +9,7 @@ import SwiftUI
 
 
 @main
-struct ShellBuddyApp: App {
+struct ShellMateApp: App {
     @NSApplicationDelegateAdaptor(ApplicationDelegate.self) var appDelegate
     @StateObject private var viewModel = AppViewModel()
     @StateObject private var settingsViewModel = SettingsViewModel()

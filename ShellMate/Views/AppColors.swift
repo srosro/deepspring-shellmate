@@ -1,6 +1,6 @@
 //
 //  Colors.swift
-//  ShellBuddy
+//  ShellMate
 //
 //  Created by Daniel Delattre on 27/06/24.
 //

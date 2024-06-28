@@ -1,5 +1,5 @@
 //  main.swift
-//  ShellBuddyCLI
+//  ShellMateCLI
 //
 //  Created by Daniel Delattre on 05/06/24.
 //

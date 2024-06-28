@@ -1,6 +1,6 @@
 //
 //  WindowManager.swift
-//  ShellBuddy
+//  ShellMate
 //
 //  Created by Daniel Delattre on 23/06/24.
 //
@@ -163,7 +163,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             }
 
             if visibleWindows.isEmpty {
-                print("No visible Terminal windows found. Miniaturizing ShellBuddy app window.")
+                print("No visible Terminal windows found. Miniaturizing ShellMate app window.")
                 miniaturizeAppWindow()
                 return
             }

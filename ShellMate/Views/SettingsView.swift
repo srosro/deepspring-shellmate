@@ -1,6 +1,6 @@
 //
 //  Settings.swift
-//  ShellBuddy
+//  ShellMate
 //
 //  Created by Daniel Delattre on 26/06/24.
 //

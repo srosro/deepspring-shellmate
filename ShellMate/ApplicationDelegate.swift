@@ -1,6 +1,6 @@
 //
 //  ApplicationDelegate.swift
-//  ShellBuddy
+//  ShellMate
 //
 //  Created by Daniel Delattre on 23/06/24.
 //

@@ -1,6 +1,6 @@
 //
 //  NotificationExtensions.swift
-//  ShellBuddy
+//  ShellMate
 //
 //  Created by Daniel Delattre on 24/06/24.
 //

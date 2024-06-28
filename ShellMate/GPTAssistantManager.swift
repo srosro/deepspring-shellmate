@@ -1,6 +1,6 @@
 //
 //  GPTAssistantManager.swift
-//  ShellBuddy
+//  ShellMate
 //
 //  Created by Daniel Delattre on 02/06/24.
 //

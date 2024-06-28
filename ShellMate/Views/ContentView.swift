@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  ShellBuddy
+//  ShellMate
 //
 //  Created by Daniel Delattre on 20/06/24.
 //

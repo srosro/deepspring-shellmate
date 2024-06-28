@@ -1,6 +1,6 @@
 //
 //  Utils.swift
-//  ShellBuddy
+//  ShellMate
 //
 //  Created by Daniel Delattre on 04/06/24.
 //
