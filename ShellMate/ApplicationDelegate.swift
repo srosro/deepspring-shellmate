@@ -94,4 +94,8 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
             print("Failed to execute script: \(error)")
         }
     }
+    
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return true
+    }
 }
