@@ -1,0 +1,15 @@
+{
+  "originHash" : "3d94c783f25f5c1f172a974606043d13a4cd831a5ab0c26953f0c8e045f1b0e9",
+  "pins" : [
+    {
+      "identity" : "axswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tmandry/AXSwift",
+      "state" : {
+        "revision" : "81dcc36aced905d6464cc25e35f8d13184bbf21c",
+        "version" : "0.3.2"
+      }
+    }
+  ],
+  "version" : 3
+}

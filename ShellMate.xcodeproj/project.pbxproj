@@ -46,13 +46,13 @@
 		DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		DC6753EB2C2EE69B00111AAB /* sb */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = sb; sourceTree = "<group>"; };
 		DC8FF0922C2CC30300E5F0A7 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
-		DC9B38862C24FFEA006755AE /* ShellBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC9B38862C24FFEA006755AE /* ShellMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC9B38892C24FFEA006755AE /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		DC9B388B2C24FFEA006755AE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DC9B38902C24FFEB006755AE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		DC9B38922C24FFEB006755AE /* ShellBuddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShellBuddy.entitlements; sourceTree = "<group>"; };
+		DC9B38922C24FFEB006755AE /* ShellMate.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShellMate.entitlements; sourceTree = "<group>"; };
 		DC9B38B42C2501A3006755AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DC9B38C72C2502FA006755AE /* ShellBuddyCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ShellBuddyCLI; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC9B38C72C2502FA006755AE /* ShellMateCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ShellMateCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC9B38C92C2502FA006755AE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		DC9B38CF2C250342006755AE /* uninstall.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = uninstall.sh; sourceTree = "<group>"; };
 		DC9B38D02C250342006755AE /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install.sh; sourceTree = "<group>"; };
@@ -96,8 +96,8 @@
 		DC9B387D2C24FFEA006755AE = {
 			isa = PBXGroup;
 			children = (
-				DC9B38882C24FFEA006755AE /* ShellBuddy */,
-				DC9B38C82C2502FA006755AE /* ShellBuddyCLI */,
+				DC9B38882C24FFEA006755AE /* ShellMate */,
+				DC9B38C82C2502FA006755AE /* ShellMateCLI */,
 				DC9B38872C24FFEA006755AE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -105,13 +105,13 @@
 		DC9B38872C24FFEA006755AE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DC9B38862C24FFEA006755AE /* ShellBuddy.app */,
-				DC9B38C72C2502FA006755AE /* ShellBuddyCLI */,
+				DC9B38862C24FFEA006755AE /* ShellMate.app */,
+				DC9B38C72C2502FA006755AE /* ShellMateCLI */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		DC9B38882C24FFEA006755AE /* ShellBuddy */ = {
+		DC9B38882C24FFEA006755AE /* ShellMate */ = {
 			isa = PBXGroup;
 			children = (
 				DC8FF0912C2CC2C300E5F0A7 /* ViewModels */,
@@ -121,13 +121,13 @@
 				DC1778902C2887BB002C852C /* WindowPositionManager.swift */,
 				DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */,
 				DC9B38D22C25039E006755AE /* TerminalContentManager.swift */,
-				DC9B38922C24FFEB006755AE /* ShellBuddy.entitlements */,
+				DC9B38922C24FFEB006755AE /* ShellMate.entitlements */,
 				DC9B38B42C2501A3006755AE /* Assets.xcassets */,
 				DC9B388F2C24FFEB006755AE /* Preview Content */,
 				DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */,
 				DCAA86492C2A22E40047AE3D /* Utils.swift */,
 			);
-			path = ShellBuddy;
+			path = ShellMate;
 			sourceTree = "<group>";
 		};
 		DC9B388F2C24FFEB006755AE /* Preview Content */ = {
@@ -138,7 +138,7 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		DC9B38C82C2502FA006755AE /* ShellBuddyCLI */ = {
+		DC9B38C82C2502FA006755AE /* ShellMateCLI */ = {
 			isa = PBXGroup;
 			children = (
 				DC6753EB2C2EE69B00111AAB /* sb */,
@@ -146,7 +146,7 @@
 				DC9B38CF2C250342006755AE /* uninstall.sh */,
 				DC9B38C92C2502FA006755AE /* main.swift */,
 			);
-			path = ShellBuddyCLI;
+			path = ShellMateCLI;
 			sourceTree = "<group>";
 		};
 		DCA94B652C2C98FA004A2BCE /* Views */ = {
@@ -162,9 +162,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		DC9B38852C24FFEA006755AE /* ShellBuddy */ = {
+		DC9B38852C24FFEA006755AE /* ShellMate */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DC9B38952C24FFEB006755AE /* Build configuration list for PBXNativeTarget "ShellBuddy" */;
+			buildConfigurationList = DC9B38952C24FFEB006755AE /* Build configuration list for PBXNativeTarget "ShellMate" */;
 			buildPhases = (
 				DC9B38822C24FFEA006755AE /* Sources */,
 				DC9B38832C24FFEA006755AE /* Frameworks */,
@@ -175,17 +175,17 @@
 			);
 			dependencies = (
 			);
-			name = ShellBuddy;
+			name = ShellMate;
 			packageProductDependencies = (
 				DC9B38B22C25016C006755AE /* AXSwift */,
 			);
 			productName = ShellBuddy;
-			productReference = DC9B38862C24FFEA006755AE /* ShellBuddy.app */;
+			productReference = DC9B38862C24FFEA006755AE /* ShellMate.app */;
 			productType = "com.apple.product-type.application";
 		};
-		DC9B38C62C2502FA006755AE /* ShellBuddyCLI */ = {
+		DC9B38C62C2502FA006755AE /* ShellMateCLI */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DC9B38CB2C2502FA006755AE /* Build configuration list for PBXNativeTarget "ShellBuddyCLI" */;
+			buildConfigurationList = DC9B38CB2C2502FA006755AE /* Build configuration list for PBXNativeTarget "ShellMateCLI" */;
 			buildPhases = (
 				DC9B38C32C2502FA006755AE /* Sources */,
 				DC9B38C42C2502FA006755AE /* Frameworks */,
@@ -194,9 +194,9 @@
 			);
 			dependencies = (
 			);
-			name = ShellBuddyCLI;
+			name = ShellMateCLI;
 			productName = ShellBuddyCLI;
-			productReference = DC9B38C72C2502FA006755AE /* ShellBuddyCLI */;
+			productReference = DC9B38C72C2502FA006755AE /* ShellMateCLI */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -217,7 +217,7 @@
 					};
 				};
 			};
-			buildConfigurationList = DC9B38812C24FFEA006755AE /* Build configuration list for PBXProject "ShellBuddy" */;
+			buildConfigurationList = DC9B38812C24FFEA006755AE /* Build configuration list for PBXProject "ShellMate" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -233,8 +233,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DC9B38852C24FFEA006755AE /* ShellBuddy */,
-				DC9B38C62C2502FA006755AE /* ShellBuddyCLI */,
+				DC9B38852C24FFEA006755AE /* ShellMate */,
+				DC9B38C62C2502FA006755AE /* ShellMateCLI */,
 			);
 		};
 /* End PBXProject section */
@@ -405,12 +405,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = ShellBuddy/ShellBuddy.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ShellMate/ShellMate.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"ShellBuddy/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"ShellMate/Preview Content\"";
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -421,7 +421,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.CamelsAndNeedles.ShellBuddy;
+				PRODUCT_BUNDLE_IDENTIFIER = com.CamelsAndNeedles.ShellMate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -433,12 +433,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = ShellBuddy/ShellBuddy.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ShellMate/ShellMate.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"ShellBuddy/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"ShellMate/Preview Content\"";
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -449,7 +449,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.CamelsAndNeedles.ShellBuddy;
+				PRODUCT_BUNDLE_IDENTIFIER = com.CamelsAndNeedles.ShellMate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -481,7 +481,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DC9B38812C24FFEA006755AE /* Build configuration list for PBXProject "ShellBuddy" */ = {
+		DC9B38812C24FFEA006755AE /* Build configuration list for PBXProject "ShellMate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DC9B38932C24FFEB006755AE /* Debug */,
@@ -490,7 +490,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DC9B38952C24FFEB006755AE /* Build configuration list for PBXNativeTarget "ShellBuddy" */ = {
+		DC9B38952C24FFEB006755AE /* Build configuration list for PBXNativeTarget "ShellMate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DC9B38962C24FFEB006755AE /* Debug */,
@@ -499,7 +499,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DC9B38CB2C2502FA006755AE /* Build configuration list for PBXNativeTarget "ShellBuddyCLI" */ = {
+		DC9B38CB2C2502FA006755AE /* Build configuration list for PBXNativeTarget "ShellMateCLI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DC9B38CC2C2502FA006755AE /* Debug */,
