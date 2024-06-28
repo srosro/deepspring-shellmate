@@ -13,12 +13,12 @@ class AppViewModel: ObservableObject {
     private let additionalSuggestionDelaySeconds: TimeInterval = 2.0
     private let maxSuggestionsPerEvent: Int = 4
     let gptAssistantManager: GPTAssistantManager
-
+    
     init() {
         self.gptAssistantManager = GPTAssistantManager(assistantId: "asst_IQyOH1i0Qjs0agZsBE23nQrS")
         setupNotificationObservers() // Moved notification observer setup to a separate method
     }
-
+    
     private func setupNotificationObservers() { // New method for setting up notification observers
         NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalChangeStarted), name: .terminalContentChangeStarted, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalChangeEnded), name: .terminalContentChangeEnded, object: nil)
@@ -26,11 +26,11 @@ class AppViewModel: ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleRequestTerminalContentAnalysis(_:)), name: .requestTerminalContentAnalysis, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleSuggestionGenerationStatusChanged(_:)), name: .suggestionGenerationStatusChanged, object: nil)
     }
-
+    
     @objc private func handleTerminalChangeStarted() {
         self.currentStateText = "Detecting changes..."
     }
-
+    
     @objc private func handleTerminalChangeEnded() {
         self.currentStateText = "No changes on Terminal"
         // Process trigger the generation of a suggestion.
@@ -75,19 +75,16 @@ class AppViewModel: ObservableObject {
             return
         }
         
-        getOrCreateThreadId(for: identifier) { [weak self] threadId in
-            guard let self = self, let threadId = threadId else {
-                return
-            }
-
-            self.processGPTResponse(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId, messageContent: text) {
-                DispatchQueue.main.asyncAfter(deadline: .now() + self.additionalSuggestionDelaySeconds) {
-                    self.generateAdditionalSuggestions(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId)
-                }
+        Task.detached { [weak self] in
+            guard let strongSelf = self else { return }
+            guard let threadId = await strongSelf.getOrCreateThreadId(for: identifier) else { return }
+            await strongSelf.processGPTResponse(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId, messageContent: text)
+            DispatchQueue.main.asyncAfter(deadline: .now() + strongSelf.additionalSuggestionDelaySeconds) {
+                strongSelf.generateAdditionalSuggestions(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId)
             }
         }
     }
-
+    
     private func generateAdditionalSuggestions(identifier: String, terminalStateID: UUID, threadId: String) {
         guard let currentTerminalID = self.currentTerminalID,
               let currentTerminalStateID = self.currentTerminalStateID,
@@ -99,53 +96,56 @@ class AppViewModel: ObservableObject {
         if self.currentStateText != "No changes on Terminal" {
             return
         }
-
+        
         if let suggestionsHistory = results[currentTerminalID]?.suggestionsHistory,
            let lastSuggestions = suggestionsHistory.last?.1,
            lastSuggestions.count >= self.maxSuggestionsPerEvent {
             return
         }
-
-        self.processGPTResponse(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId, messageContent: "please generate another suggestion of command. Don't provide a duplicated suggestion") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + self.additionalSuggestionDelaySeconds) {
-                self.generateAdditionalSuggestions(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId)
+        
+        Task.detached { [weak self] in
+            guard let strongSelf = self else { return }
+            await strongSelf.processGPTResponse(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId, messageContent: "please generate another suggestion of command. Don't provide a duplicated suggestion")
+            DispatchQueue.main.asyncAfter(deadline: .now() + strongSelf.additionalSuggestionDelaySeconds) {
+                strongSelf.generateAdditionalSuggestions(identifier: identifier, terminalStateID: terminalStateID, threadId: threadId)
             }
         }
     }
-
-    private func getOrCreateThreadId(for identifier: String, completion: @escaping (String?) -> Void) {
+    
+    @MainActor
+    private func getOrCreateThreadId(for identifier: String) async -> String? {
         if let threadId = threadIdDict[identifier] {
-            completion(threadId)
-        } else {
-            gptAssistantManager.createThread { [weak self] result in
-                switch result {
-                case .success(let createdThreadId):
-                    self?.threadIdDict[identifier] = createdThreadId
-                    completion(createdThreadId)
-                case .failure:
-                    completion(nil)
-                }
-            }
+            return threadId
+        }
+        
+        do {
+            let createdThreadId = try await gptAssistantManager.createThread()
+            threadIdDict[identifier] = createdThreadId
+            return createdThreadId
+        } catch {
+            return nil
         }
     }
-
-    private func processGPTResponse(identifier: String, terminalStateID: UUID, threadId: String, messageContent: String, completion: @escaping () -> Void) {
-        NotificationCenter.default.post(name: .suggestionGenerationStatusChanged, object: nil, userInfo: ["identifier": identifier, "isGeneratingSuggestion": true])
-        self.gptAssistantManager.processMessageInThread(threadId: threadId, messageContent: messageContent) { result in
-            switch result {
-            case .success(let response):
-                if let command = response["command"] as? String,
-                   let intention = response["intention"] as? String {
-                    self.appendResult(identifier: identifier, terminalStateID: terminalStateID, response: intention, command: command, explanation: "explanation")
-                    completion()
-                }
-            case .failure(let error):
-                print("Error processing message in thread: \(error.localizedDescription)")
+    
+    private func processGPTResponse(identifier: String, terminalStateID: UUID, threadId: String, messageContent: String) async {
+        Task { @MainActor in
+            NotificationCenter.default.post(name: .suggestionGenerationStatusChanged, object: nil, userInfo: ["identifier": identifier, "isGeneratingSuggestion": true])
+        }
+        do {
+            let response = try await gptAssistantManager.processMessageInThread(threadId: threadId, messageContent: messageContent)
+            if let command = response["command"] as? String,
+               let intention = response["intention"] as? String {
+                await appendResult(identifier: identifier, terminalStateID: terminalStateID, response: intention, command: command, explanation: "explanation")
             }
+        } catch {
+            print("Error processing message in thread: \(error.localizedDescription)")
+        }
+        Task { @MainActor in
             NotificationCenter.default.post(name: .suggestionGenerationStatusChanged, object: nil, userInfo: ["identifier": identifier, "isGeneratingSuggestion": false])
         }
     }
 
+    @MainActor
     private func appendResult(identifier: String, terminalStateID: UUID, response: String?, command: String?, explanation: String?) {
         guard let response = response, !response.isEmpty,
               let command = command, !command.isEmpty,
