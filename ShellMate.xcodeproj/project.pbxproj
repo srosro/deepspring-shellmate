@@ -10,7 +10,7 @@
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
 		DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */; };
 		DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
-		DC6753EC2C2EE6B100111AAB /* sb in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC6753EB2C2EE69B00111AAB /* sb */; };
+		DC6753EC2C2EE6B100111AAB /* sm in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC6753EB2C2EE69B00111AAB /* sm */; };
 		DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8FF0922C2CC30300E5F0A7 /* App.swift */; };
 		DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* AppViewModel.swift */; };
 		DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B388B2C24FFEA006755AE /* ContentView.swift */; };
@@ -35,7 +35,7 @@
 			dstSubfolderSpec = 7;
 			files = (
 				DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */,
-				DC6753EC2C2EE6B100111AAB /* sb in CopyFiles */,
+				DC6753EC2C2EE6B100111AAB /* sm in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -44,7 +44,7 @@
 /* Begin PBXFileReference section */
 		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
 		DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
-		DC6753EB2C2EE69B00111AAB /* sb */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = sb; sourceTree = "<group>"; };
+		DC6753EB2C2EE69B00111AAB /* sm */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = sm; sourceTree = "<group>"; };
 		DC8FF0922C2CC30300E5F0A7 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		DC9B38862C24FFEA006755AE /* ShellMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC9B38892C24FFEA006755AE /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
@@ -141,7 +141,7 @@
 		DC9B38C82C2502FA006755AE /* ShellMateCLI */ = {
 			isa = PBXGroup;
 			children = (
-				DC6753EB2C2EE69B00111AAB /* sb */,
+				DC6753EB2C2EE69B00111AAB /* sm */,
 				DC9B38D02C250342006755AE /* install.sh */,
 				DC9B38CF2C250342006755AE /* uninstall.sh */,
 				DC9B38C92C2502FA006755AE /* main.swift */,

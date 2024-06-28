@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Define the source files and the target executable
 MAIN_SOURCE_FILE="$SCRIPT_DIR/main.swift"
-MAIN_EXECUTABLE_NAME="sb"
+MAIN_EXECUTABLE_NAME="sm"
 TARGET_DIR="$HOME/shellmate"
 LINK_DIR="$HOME/bin"
 

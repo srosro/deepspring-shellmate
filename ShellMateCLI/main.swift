@@ -16,7 +16,7 @@ func sbCLIMain() {
         print("""
         Wrong Usage:
         For message requests:
-            sb "insert your message with quotations" (e.g., sb "How can I find my external IP address?")\n
+            sm "insert your message with quotations" (e.g., sm "How can I find my external IP address?")\n
         """)
         return
     }
