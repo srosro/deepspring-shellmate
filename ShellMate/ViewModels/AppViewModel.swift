@@ -4,7 +4,7 @@ import SwiftUI
 class AppViewModel: ObservableObject {
     @Published var currentTerminalID: String?
     @Published var currentStateText: String = "No changes on Terminal"
-    @Published var updateCounter: Int = 0
+    @Published var updateCounter: Int = 1
     @Published var results: [String: (suggestionsCount: Int, suggestionsHistory: [(UUID, [[String: String]])], updatedAt: Date)] = [:]
     @Published var isGeneratingSuggestion: [String: Bool] = [:]
     
