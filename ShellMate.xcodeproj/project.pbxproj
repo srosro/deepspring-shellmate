@@ -10,6 +10,7 @@
 		DC00C0342C2F51210019BEB1 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = DC00C0332C2F51210019BEB1 /* Sparkle */; };
 		DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */; };
 		DC00C03C2C2F62100019BEB1 /* CheckForUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */; };
+		DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = DC15545E2C3336FF00F24C18 /* Mixpanel */; };
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
 		DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */; };
 		DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
@@ -76,6 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */,
 				DC9B38B32C25016C006755AE /* AXSwift in Frameworks */,
 				DC00C0342C2F51210019BEB1 /* Sparkle in Frameworks */,
 			);
@@ -197,6 +199,7 @@
 			packageProductDependencies = (
 				DC9B38B22C25016C006755AE /* AXSwift */,
 				DC00C0332C2F51210019BEB1 /* Sparkle */,
+				DC15545E2C3336FF00F24C18 /* Mixpanel */,
 			);
 			productName = ShellBuddy;
 			productReference = DC9B38862C24FFEA006755AE /* ShellMate.app */;
@@ -248,6 +251,7 @@
 			packageReferences = (
 				DC9B38B12C25016C006755AE /* XCRemoteSwiftPackageReference "AXSwift" */,
 				DC00C0312C2F50EA0019BEB1 /* XCRemoteSwiftPackageReference "Sparkle" */,
+				DC15545D2C33346E00F24C18 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
 			);
 			productRefGroup = DC9B38872C24FFEA006755AE /* Products */;
 			projectDirPath = "";
@@ -483,6 +487,7 @@
 		DC9B38CC2C2502FA006755AE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -494,6 +499,7 @@
 		DC9B38CD2C2502FA006755AE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -543,6 +549,14 @@
 				minimumVersion = 2.6.3;
 			};
 		};
+		DC15545D2C33346E00F24C18 /* XCRemoteSwiftPackageReference "mixpanel-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mixpanel/mixpanel-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		DC9B38B12C25016C006755AE /* XCRemoteSwiftPackageReference "AXSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tmandry/AXSwift";
@@ -558,6 +572,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DC00C0312C2F50EA0019BEB1 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		DC15545E2C3336FF00F24C18 /* Mixpanel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DC15545D2C33346E00F24C18 /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
+			productName = Mixpanel;
 		};
 		DC9B38B22C25016C006755AE /* AXSwift */ = {
 			isa = XCSwiftPackageProductDependency;

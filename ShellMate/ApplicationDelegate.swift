@@ -7,7 +7,7 @@
 
 import Cocoa
 import AXSwift
-
+import Mixpanel
 
 
 class ApplicationDelegate: NSObject, NSApplicationDelegate {
@@ -16,6 +16,9 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     let windowPositionDelegate = WindowPositionManager()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        trackFirstLaunchAfterInstall()
+        MixpanelHelper.shared.trackEvent(name: "applicationLaunch")
+        
         resizeWindow(width: 400, height: 600)
         checkAccessibilityPermissions()
     }
