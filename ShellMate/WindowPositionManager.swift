@@ -13,7 +13,8 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
     var terminalObserver: AXObserver?
     var isTerminalFocused: Bool = false  // Add a variable to store the focused state
     var focusedTerminalWindowID: CGWindowID? = nil
-    
+    var previousFocusedWindowID: CGWindowID? = nil
+
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         print("Application did finish launching.")
@@ -173,14 +174,26 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
                 miniaturizeAppWindow()
                 return
             }
+            
+            // Get the window's title
+            guard let title = getWindowTitle(for: focusedWindow) else {
+                // This check is necessary to avoid attaching ShellMate to non-terminal windows
+                // (e.g., the prompt where the user confirms if they want to close the terminal)
+                print("Unable to retrieve window title")
+                return
+            }
 
+            print("Focused window title: \(title)")
+
+            // Update the current focused window ID
+            previousFocusedWindowID = focusedTerminalWindowID  // Store the previous focused window ID
             // Get the window's position and size
             let position = getWindowPosition(for: focusedWindow)
             let size = getWindowSize(for: focusedWindow)
-            
-            let previousFocusedWindowID = focusedTerminalWindowID  // Store the previous focused window ID
-            focusedTerminalWindowID = findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)  // Update the current focused window ID
+            focusedTerminalWindowID = findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)
 
+            
+            
             var shouldBringToFront = false
 
             if !wasTerminalFocused && isTerminalFocused {
