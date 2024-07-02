@@ -23,5 +23,6 @@ extension Notification.Name {
     /// - "text": String
     /// - "currentTerminalWindowID": String
     /// - "source": String (e.g., "highlighted" or "terminalContent")
+    /// - "changeIdentifiedAt": Double (current timestamp in seconds)
     static let requestTerminalContentAnalysis = Notification.Name("requestTerminalContentAnalysis")
 }
