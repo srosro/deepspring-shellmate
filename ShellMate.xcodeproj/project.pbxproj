@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		49D68AD52C35B830000AB5AF /* sm in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38C72C2502FA006755AE /* sm */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		DC00C0342C2F51210019BEB1 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = DC00C0332C2F51210019BEB1 /* Sparkle */; };
 		DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */; };
 		DC00C03C2C2F62100019BEB1 /* CheckForUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */; };
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
 		DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */; };
 		DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
-		DC6753EC2C2EE6B100111AAB /* sm in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC6753EB2C2EE69B00111AAB /* sm */; };
 		DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8FF0922C2CC30300E5F0A7 /* App.swift */; };
 		DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* AppViewModel.swift */; };
 		DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B388B2C24FFEA006755AE /* ContentView.swift */; };
@@ -30,6 +30,16 @@
 		DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		49D68AD32C35B827000AB5AF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DC9B387E2C24FFEA006755AE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DC9B38C62C2502FA006755AE;
+			remoteInfo = ShellMateCLI;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		DC5C7B4B2C2E068F0044E0B3 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -37,8 +47,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
+				49D68AD52C35B830000AB5AF /* sm in CopyFiles */,
 				DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */,
-				DC6753EC2C2EE6B100111AAB /* sm in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,7 +68,7 @@
 		DC9B38902C24FFEB006755AE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		DC9B38922C24FFEB006755AE /* ShellMate.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShellMate.entitlements; sourceTree = "<group>"; };
 		DC9B38B42C2501A3006755AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DC9B38C72C2502FA006755AE /* ShellMateCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ShellMateCLI; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC9B38C72C2502FA006755AE /* sm */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sm; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC9B38C92C2502FA006755AE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		DC9B38CF2C250342006755AE /* uninstall.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = uninstall.sh; sourceTree = "<group>"; };
 		DC9B38D02C250342006755AE /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install.sh; sourceTree = "<group>"; };
@@ -122,7 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				DC9B38862C24FFEA006755AE /* ShellMate.app */,
-				DC9B38C72C2502FA006755AE /* ShellMateCLI */,
+				DC9B38C72C2502FA006755AE /* sm */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -192,6 +202,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				49D68AD42C35B827000AB5AF /* PBXTargetDependency */,
 			);
 			name = ShellMate;
 			packageProductDependencies = (
@@ -215,7 +226,7 @@
 			);
 			name = ShellMateCLI;
 			productName = ShellBuddyCLI;
-			productReference = DC9B38C72C2502FA006755AE /* ShellMateCLI */;
+			productReference = DC9B38C72C2502FA006755AE /* sm */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -302,6 +313,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		49D68AD42C35B827000AB5AF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DC9B38C62C2502FA006755AE /* ShellMateCLI */;
+			targetProxy = 49D68AD32C35B827000AB5AF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		DC9B38932C24FFEB006755AE /* Debug */ = {
@@ -486,7 +505,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
 				ENABLE_HARDENED_RUNTIME = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = sm;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -497,7 +516,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
 				ENABLE_HARDENED_RUNTIME = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = sm;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
