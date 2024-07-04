@@ -31,6 +31,13 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         SentrySDK.start { options in
             options.dsn = "https://0256895de48160d74021d3ffe93688e6@o4507511162798080.ingest.us.sentry.io/4507540074463232"
             options.debug = true // Enable debug for initial setup
+            // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+            // We recommend adjusting this value in production.
+            options.tracesSampleRate = 1.0
+
+            // Sample rate for profiling, applied on top of TracesSampleRate.
+            // We recommend adjusting this value in production.
+            options.profilesSampleRate = 1.0
         }
     }
     
