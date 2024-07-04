@@ -29,6 +29,7 @@
 		DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */; };
 		DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86492C2A22E40047AE3D /* Utils.swift */; };
 		DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */; };
+		DCCC41462C36082B00A4846C /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = DCCC41452C36082B00A4846C /* Sentry */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -80,6 +81,7 @@
 				DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */,
 				DC9B38B32C25016C006755AE /* AXSwift in Frameworks */,
 				DC00C0342C2F51210019BEB1 /* Sparkle in Frameworks */,
+				DCCC41462C36082B00A4846C /* Sentry in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,6 +202,7 @@
 				DC9B38B22C25016C006755AE /* AXSwift */,
 				DC00C0332C2F51210019BEB1 /* Sparkle */,
 				DC15545E2C3336FF00F24C18 /* Mixpanel */,
+				DCCC41452C36082B00A4846C /* Sentry */,
 			);
 			productName = ShellBuddy;
 			productReference = DC9B38862C24FFEA006755AE /* ShellMate.app */;
@@ -252,6 +255,7 @@
 				DC9B38B12C25016C006755AE /* XCRemoteSwiftPackageReference "AXSwift" */,
 				DC00C0312C2F50EA0019BEB1 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				DC15545D2C33346E00F24C18 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
+				DCCC41442C36082B00A4846C /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 			);
 			productRefGroup = DC9B38872C24FFEA006755AE /* Products */;
 			projectDirPath = "";
@@ -565,6 +569,14 @@
 				minimumVersion = 0.3.2;
 			};
 		};
+		DCCC41442C36082B00A4846C /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.30.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -582,6 +594,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DC9B38B12C25016C006755AE /* XCRemoteSwiftPackageReference "AXSwift" */;
 			productName = AXSwift;
+		};
+		DCCC41452C36082B00A4846C /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DCCC41442C36082B00A4846C /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

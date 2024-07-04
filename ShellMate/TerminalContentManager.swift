@@ -1,5 +1,6 @@
 import Cocoa
 import AXSwift
+import Sentry
 
 class TerminalContentManager: NSObject, NSApplicationDelegate {
     var terminalTextAreaElement: AXUIElement?
@@ -141,6 +142,24 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
 
     func printHighlightedText(_ text: String, windowID: CGWindowID?) {
         print("Highlighted text from window \(String(describing: windowID)):\n\"\(text)\"")
+        // Intentionally causing an error
+        //fatalError("Intentional crash to test Sentry integration - Highlight")
+        
+        do {
+            try intentionalError()
+        } catch {
+            SentrySDK.capture(error: error)
+            fatalError("Intentional crash to test Sentry integration")
+
+        }
+
+    }
+    func intentionalError() throws {
+        enum TestError: Error {
+            case intentional
+        }
+        
+        throw TestError.intentional
     }
 
     func startTerminalTextObserver(for element: AXUIElement) {
