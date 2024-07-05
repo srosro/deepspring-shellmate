@@ -1,8 +1,7 @@
 #!/bin/sh
 
-# Define the target executables and directories
-MAIN_EXECUTABLE_NAME="sb"
-PASTE_EXECUTABLE_NAME="sb_paste"
+# Define the target executable and directories
+MAIN_EXECUTABLE_NAME="sm"
 TARGET_DIR="$HOME/shellmate"
 LINK_DIR="$HOME/bin"
 
@@ -14,17 +13,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Remove the executables from the target directory
-echo "Removing $MAIN_EXECUTABLE_NAME and $PASTE_EXECUTABLE_NAME from $TARGET_DIR..."
+# Remove the executable from the target directory
+echo "Removing $MAIN_EXECUTABLE_NAME from $TARGET_DIR..."
 rm -f $TARGET_DIR/$MAIN_EXECUTABLE_NAME
 if [ $? -ne 0 ]; then
     echo "Error: Failed to remove $MAIN_EXECUTABLE_NAME from $TARGET_DIR."
-    exit 1
-fi
-
-rm -f $TARGET_DIR/$PASTE_EXECUTABLE_NAME
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to remove $PASTE_EXECUTABLE_NAME from $TARGET_DIR."
     exit 1
 fi
 

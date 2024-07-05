@@ -7,7 +7,7 @@
 import Foundation
 
 // Main function
-func sbCLIMain() {
+func smCLIMain() {
     // Get the arguments passed to the script
     let arguments = CommandLine.arguments
     
@@ -28,4 +28,4 @@ func sbCLIMain() {
 }
 
 // Usage
-sbCLIMain()
+smCLIMain()

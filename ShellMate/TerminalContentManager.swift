@@ -59,42 +59,57 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         return nil
     }
 
-    private func getLastNLines(from text: String, numberOfLines: Int) -> String {
-        let lines = text.split(separator: "\n")
-        let lastNLines = lines.suffix(numberOfLines).joined(separator: "\n")
-        return lastNLines
-    }
-    
     func processTerminalText() {
-        // Define the source as a constant
-        let source = "terminalContent"
-
-        // send notification terminal content change has been identified
         guard let element = terminalTextAreaElement else { return }
 
+        if let sanitizedText = getSanitizedTerminalText(from: element) {
+            let alphanumericText = sanitizedText.replacingOccurrences(of: "\\W+", with: "", options: .regularExpression)
+
+            if alphanumericText != previousTerminalText && !alphanumericText.isEmpty {
+                previousTerminalText = alphanumericText
+                printTerminalText(sanitizedText, windowID: currentTerminalWindowID)
+
+                // Log the event when terminal change is identified
+                MixpanelHelper.shared.trackEvent(name: "terminalTextChangeIdentified")
+
+                // Send notifications
+                let last50Lines = getLastNLines(from: sanitizedText, numberOfLines: 50)
+                sendContentAnalysisNotification(text: last50Lines, windowID: currentTerminalWindowID, source: "terminalContent")
+            }
+        } else {
+            print("Error retrieving text")
+        }
+    }
+
+    private func getSanitizedTerminalText(from element: AXUIElement) -> String? {
         var textValue: AnyObject?
         let textError = AXUIElementCopyAttributeValue(element, kAXValueAttribute as CFString, &textValue)
 
         if textError == .success, let textValue = textValue as? String {
             let sanitizedText = textValue.replacingOccurrences(of: "\n+", with: "\n", options: .regularExpression)
-            let alphanumericText = sanitizedText.replacingOccurrences(of: "\\W+", with: "", options: .regularExpression)
-            
-            if alphanumericText != previousTerminalText && !alphanumericText.isEmpty {
-                previousTerminalText = alphanumericText
-                printTerminalText(sanitizedText, windowID: currentTerminalWindowID)
-                
-                // Log the event when terminal change is identified
-                MixpanelHelper.shared.trackEvent(name: "terminalTextChangeIdentified")
-                
-                sendContentAnalysisNotification(text: getLastNLines(from: sanitizedText, numberOfLines: 50),
-                                                windowID: currentTerminalWindowID,
-                                                source: source)
-            }
+            return sanitizedText
         } else {
-            print("Error retrieving text: \(textError)")
+            return nil
         }
     }
 
+    private func getLastLine(from text: String) -> String {
+        let lines = text.split(separator: "\n")
+        return lines.last.map(String.init) ?? ""
+    }
+
+    private func getLastNLines(from text: String, numberOfLines: Int) -> String {
+        let lines = text.split(separator: "\n")
+        let lastNLines = lines.suffix(numberOfLines).joined(separator: "\n")
+        return lastNLines
+    }
+
+    private func postTerminalActiveLineChangedNotification(text: String) {
+        let userInfo: [String: Any] = [
+            "activeLine": text
+        ]
+        NotificationCenter.default.post(name: .terminalActiveLineChanged, object: nil, userInfo: userInfo)
+    }
 
     private func sendContentAnalysisNotification(text: String, windowID: CGWindowID?, source: String) {
         let currentTimestamp = Double(Date().timeIntervalSince1970)
@@ -107,6 +122,24 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         NotificationCenter.default.post(name: .requestTerminalContentAnalysis, object: nil, userInfo: userInfo)
     }
 
+    func debounceTerminalTextChange() {
+        guard let element = terminalTextAreaElement else { return }
+
+        // Send the active line notification immediately
+        if let sanitizedText = getSanitizedTerminalText(from: element) {
+            let lastLine = getLastLine(from: sanitizedText)
+            postTerminalActiveLineChangedNotification(text: lastLine)
+        }
+
+        NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
+        textDebounceWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.processTerminalText()
+            NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
+        }
+        textDebounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
+    }
 
     func processHighlightedText() {
         // Define the source as a constant
@@ -132,9 +165,6 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
             }
         }
     }
-
-
-
 
     func printTerminalText(_ text: String, windowID: CGWindowID?) {
         print("Terminal text from window \(String(describing: windowID)):\n\"\(text)\"")
@@ -191,17 +221,6 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         } catch let error {
             NSLog("Error: Could not watch element \(element): \(error)")
         }
-    }
-
-    func debounceTerminalTextChange() {
-        NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
-        textDebounceWorkItem?.cancel()
-        let workItem = DispatchWorkItem { [weak self] in
-            self?.processTerminalText()
-            NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
-        }
-        textDebounceWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
     }
 
     func debounceHighlightChange() {

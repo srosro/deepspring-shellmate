@@ -25,4 +25,9 @@ extension Notification.Name {
     /// - "source": String (e.g., "highlighted" or "terminalContent")
     /// - "changeIdentifiedAt": Double (current timestamp in seconds)
     static let requestTerminalContentAnalysis = Notification.Name("requestTerminalContentAnalysis")
+    
+    /// Notification to send the current active terminal line for processing.
+    /// userInfo dictionary should contain:
+    /// - "activeLine": String (the last line of the terminal text)
+    static let terminalActiveLineChanged = Notification.Name("terminalActiveLineChanged")
 }

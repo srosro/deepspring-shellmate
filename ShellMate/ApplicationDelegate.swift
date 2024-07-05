@@ -15,11 +15,13 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     let terminalContentDelegate = TerminalContentManager()
     let windowPositionDelegate = WindowPositionManager()
-    
+    //let keyPressDelegate = KeyPressDelegate() // Instantiate KeyPressDelegate
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupSentry()
 
-        
+        runInstallScript() // Run the install.sh script
+
         trackFirstLaunchAfterInstall()
         MixpanelHelper.shared.trackEvent(name: "applicationLaunch")
         
@@ -30,7 +32,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     func setupSentry() {        // Initialize Sentry SDK
         SentrySDK.start { options in
             options.dsn = "https://0256895de48160d74021d3ffe93688e6@o4507511162798080.ingest.us.sentry.io/4507540074463232"
-            options.debug = true // Enable debug for initial setup
+            options.debug = false // Enable debug for initial setup
             // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
             // We recommend adjusting this value in production.
             options.tracesSampleRate = 1.0
@@ -71,7 +73,6 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         terminalContentDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))
         windowPositionDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))
         windowPositionDelegate.initializeObserverForRunningTerminal()
-        runInstallScript() // Run the install.sh script
     }
     
     func observeTerminalLifecycle() {

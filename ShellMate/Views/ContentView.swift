@@ -107,7 +107,7 @@ struct SuggestionBatchView: View {
     }
 }
 
-struct SbButtonIdxView: View {
+struct SmButtonIdxView: View {
     var batchIndex: Int
     var index: Int
     
@@ -150,7 +150,7 @@ struct SuggestionView: View {
                             .fontWeight(.regular)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
-                        SbButtonIdxView(batchIndex: batchIndex, index: index)
+                        SmButtonIdxView(batchIndex: batchIndex, index: index)
                     }
                     .padding(10)
                     .background(AppColors.white)
