@@ -3,7 +3,7 @@
 # Define the target executables and directories
 MAIN_EXECUTABLE_NAME="sb"
 PASTE_EXECUTABLE_NAME="sb_paste"
-TARGET_DIR="$HOME/shellbuddy"
+TARGET_DIR="$HOME/shellmate"
 LINK_DIR="$HOME/bin"
 
 # Remove the symbolic link for the main executable

@@ -16,7 +16,7 @@ class GPTAssistantInstructions {
             Analyze the OCR results from the user's terminal to infer their intention and suggest the most appropriate command.
           </objective>
           <objective>
-            Provide concise, clear, and accurate command suggestions based on the extracted text, highlighted text, and ShellBuddy messages.
+            Provide concise, clear, and accurate command suggestions based on the extracted text, highlighted text, and ShellMate messages.
           </objective>
         </objectives>
 
@@ -127,11 +127,11 @@ class GPTAssistantInstructions {
 
         <dialogue_examples>
           <example>
-            {"extractedText": ["ls -l", "cd /var/www", "sudo service apache2 restart"], "highlighted": "", "shellbuddyMessages": "Service apache2 needs to be restarted"}
+            {"extractedText": ["ls -l", "cd /var/www", "sudo service apache2 restart"], "highlighted": "", "shellMateMessages": "Service apache2 needs to be restarted"}
             {"intention": "restart apache2 service", "command": "sudo service apache2 restart", "commandExplanation": "Restarts the Apache2 service"}
           </example>
           <example>
-            {"extractedText": ["git pull origin master", "make build", "make test"], "highlighted": "make test failed", "shellbuddyMessages": "Test failure in module X"}
+            {"extractedText": ["git pull origin master", "make build", "make test"], "highlighted": "make test failed", "shellMateMessages": "Test failure in module X"}
             {"intention": "debug test failure", "command": "make test -v", "commandExplanation": "Runs tests in verbose mode"}
           </example>
         </dialogue_examples>
