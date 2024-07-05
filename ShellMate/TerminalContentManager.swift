@@ -1,5 +1,6 @@
 import Cocoa
 import AXSwift
+import Sentry
 
 class TerminalContentManager: NSObject, NSApplicationDelegate {
     var terminalTextAreaElement: AXUIElement?
@@ -65,6 +66,10 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
     }
     
     func processTerminalText() {
+        // Define the source as a constant
+        let source = "terminalContent"
+
+        // send notification terminal content change has been identified
         guard let element = terminalTextAreaElement else { return }
 
         var textValue: AnyObject?
@@ -78,25 +83,35 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
                 previousTerminalText = alphanumericText
                 printTerminalText(sanitizedText, windowID: currentTerminalWindowID)
                 
+                // Log the event when terminal change is identified
+                MixpanelHelper.shared.trackEvent(name: "terminalTextChangeIdentified")
+                
                 sendContentAnalysisNotification(text: getLastNLines(from: sanitizedText, numberOfLines: 50),
                                                 windowID: currentTerminalWindowID,
-                                                source: "terminalContent")
+                                                source: source)
             }
         } else {
             print("Error retrieving text: \(textError)")
         }
     }
 
+
     private func sendContentAnalysisNotification(text: String, windowID: CGWindowID?, source: String) {
+        let currentTimestamp = Double(Date().timeIntervalSince1970)
         let userInfo: [String: Any] = [
             "text": text,
             "currentTerminalWindowID": windowID ?? "",
-            "source": source
+            "source": source,
+            "changeIdentifiedAt": currentTimestamp
         ]
         NotificationCenter.default.post(name: .requestTerminalContentAnalysis, object: nil, userInfo: userInfo)
     }
 
+
     func processHighlightedText() {
+        // Define the source as a constant
+        let source = "highlighted"
+
         if let sanitizedText = getSanitizedHighlightedText() {
             let alphanumericText = sanitizedText.replacingOccurrences(of: "\\W+", with: "", options: .regularExpression)
             
@@ -108,7 +123,9 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
                 previousHighlightedText = alphanumericText
                 printHighlightedText(sanitizedText, windowID: currentTerminalWindowID)
                 
-                sendContentAnalysisNotification(text: sanitizedText, windowID: currentTerminalWindowID, source: "highlighted")
+                // Log the event when highlighted text change is identified
+                MixpanelHelper.shared.trackEvent(name: "terminalHighlightChangeIdentified")
+                sendContentAnalysisNotification(text: sanitizedText, windowID: currentTerminalWindowID, source: source)
             } else {
                 // Log when no meaningful change is detected
                 NSLog("No meaningful change detected in highlighted text.")
@@ -116,12 +133,23 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         }
     }
 
+
+
+
     func printTerminalText(_ text: String, windowID: CGWindowID?) {
         print("Terminal text from window \(String(describing: windowID)):\n\"\(text)\"")
     }
 
     func printHighlightedText(_ text: String, windowID: CGWindowID?) {
         print("Highlighted text from window \(String(describing: windowID)):\n\"\(text)\"")
+    }
+    
+    func intentionalError() throws {
+        enum TestError: Error {
+            case intentional
+        }
+        
+        throw TestError.intentional
     }
 
     func startTerminalTextObserver(for element: AXUIElement) {

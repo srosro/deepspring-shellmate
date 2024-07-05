@@ -11,9 +11,13 @@
 		DC00C0342C2F51210019BEB1 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = DC00C0332C2F51210019BEB1 /* Sparkle */; };
 		DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */; };
 		DC00C03C2C2F62100019BEB1 /* CheckForUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */; };
+		DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = DC15545E2C3336FF00F24C18 /* Mixpanel */; };
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
+		DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */; };
+		DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */; };
 		DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */; };
 		DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
+		DC7DD61D2C36DEF80034E6ED /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = DC7DD61C2C36DEF80034E6ED /* Sentry */; };
 		DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8FF0922C2CC30300E5F0A7 /* App.swift */; };
 		DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* AppViewModel.swift */; };
 		DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B388B2C24FFEA006755AE /* ContentView.swift */; };
@@ -59,6 +63,8 @@
 		DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesViewModel.swift; sourceTree = "<group>"; };
 		DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesView.swift; sourceTree = "<group>"; };
 		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
+		DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantCreator.swift; sourceTree = "<group>"; };
+		DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantInstructions.swift; sourceTree = "<group>"; };
 		DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		DC8FF0922C2CC30300E5F0A7 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		DC9B38862C24FFEA006755AE /* ShellMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,8 +91,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */,
 				DC9B38B32C25016C006755AE /* AXSwift in Frameworks */,
 				DC00C0342C2F51210019BEB1 /* Sparkle in Frameworks */,
+				DC7DD61D2C36DEF80034E6ED /* Sentry in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -151,7 +159,9 @@
 				DC9B38B42C2501A3006755AE /* Assets.xcassets */,
 				DC9B388F2C24FFEB006755AE /* Preview Content */,
 				DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */,
+				DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */,
 				DCAA86492C2A22E40047AE3D /* Utils.swift */,
+				DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */,
 			);
 			path = ShellMate;
 			sourceTree = "<group>";
@@ -206,6 +216,8 @@
 			packageProductDependencies = (
 				DC9B38B22C25016C006755AE /* AXSwift */,
 				DC00C0332C2F51210019BEB1 /* Sparkle */,
+				DC15545E2C3336FF00F24C18 /* Mixpanel */,
+				DC7DD61C2C36DEF80034E6ED /* Sentry */,
 			);
 			productName = ShellBuddy;
 			productReference = DC9B38862C24FFEA006755AE /* ShellMate.app */;
@@ -257,6 +269,8 @@
 			packageReferences = (
 				DC9B38B12C25016C006755AE /* XCRemoteSwiftPackageReference "AXSwift" */,
 				DC00C0312C2F50EA0019BEB1 /* XCRemoteSwiftPackageReference "Sparkle" */,
+				DC15545D2C33346E00F24C18 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
+				DCCC41442C36082B00A4846C /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 			);
 			productRefGroup = DC9B38872C24FFEA006755AE /* Products */;
 			projectDirPath = "";
@@ -288,6 +302,7 @@
 				DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */,
 				DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */,
 				DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */,
+				DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */,
 				DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */,
 				DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */,
 				DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */,
@@ -298,6 +313,7 @@
 				DCA94B672C2C9921004A2BCE /* SettingsView.swift in Sources */,
 				DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */,
 				DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */,
+				DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */,
 				DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -503,6 +519,7 @@
 		DC9B38CC2C2502FA006755AE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -514,6 +531,7 @@
 		DC9B38CD2C2502FA006755AE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -564,12 +582,28 @@
 				minimumVersion = 2.6.3;
 			};
 		};
+		DC15545D2C33346E00F24C18 /* XCRemoteSwiftPackageReference "mixpanel-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mixpanel/mixpanel-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		DC9B38B12C25016C006755AE /* XCRemoteSwiftPackageReference "AXSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tmandry/AXSwift";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.3.2;
+			};
+		};
+		DCCC41442C36082B00A4846C /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.30.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -579,6 +613,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DC00C0312C2F50EA0019BEB1 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		DC15545E2C3336FF00F24C18 /* Mixpanel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DC15545D2C33346E00F24C18 /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
+			productName = Mixpanel;
+		};
+		DC7DD61C2C36DEF80034E6ED /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DCCC41442C36082B00A4846C /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
 		};
 		DC9B38B22C25016C006755AE /* AXSwift */ = {
 			isa = XCSwiftPackageProductDependency;

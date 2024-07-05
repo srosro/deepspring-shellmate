@@ -7,7 +7,8 @@
 
 import Cocoa
 import AXSwift
-
+import Mixpanel
+import Sentry
 
 
 class ApplicationDelegate: NSObject, NSApplicationDelegate {
@@ -16,8 +17,28 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     let windowPositionDelegate = WindowPositionManager()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        setupSentry()
+
+        
+        trackFirstLaunchAfterInstall()
+        MixpanelHelper.shared.trackEvent(name: "applicationLaunch")
+        
         resizeWindow(width: 400, height: 600)
         checkAccessibilityPermissions()
+    }
+    
+    func setupSentry() {        // Initialize Sentry SDK
+        SentrySDK.start { options in
+            options.dsn = "https://0256895de48160d74021d3ffe93688e6@o4507511162798080.ingest.us.sentry.io/4507540074463232"
+            options.debug = true // Enable debug for initial setup
+            // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+            // We recommend adjusting this value in production.
+            options.tracesSampleRate = 1.0
+
+            // Sample rate for profiling, applied on top of TracesSampleRate.
+            // We recommend adjusting this value in production.
+            options.profilesSampleRate = 1.0
+        }
     }
     
     func resizeWindow(width: CGFloat, height: CGFloat) {
