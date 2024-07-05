@@ -82,3 +82,20 @@ func trackFirstLaunchAfterInstall() {
     }
 }
 
+
+enum AppInfoError: Error {
+    case missingVersion
+    case missingBuild
+}
+
+func getAppVersionAndBuild() throws -> String {
+    guard let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else {
+        throw AppInfoError.missingVersion
+    }
+    
+    guard let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String else {
+        throw AppInfoError.missingBuild
+    }
+    
+    return "Version\(version)Build\(build)"
+}

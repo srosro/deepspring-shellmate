@@ -12,6 +12,8 @@
 		DC00C03C2C2F62100019BEB1 /* CheckForUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */; };
 		DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = DC15545E2C3336FF00F24C18 /* Mixpanel */; };
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
+		DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */; };
+		DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */; };
 		DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */; };
 		DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
 		DC6753EC2C2EE6B100111AAB /* sm in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC6753EB2C2EE69B00111AAB /* sm */; };
@@ -51,6 +53,8 @@
 		DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesViewModel.swift; sourceTree = "<group>"; };
 		DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesView.swift; sourceTree = "<group>"; };
 		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
+		DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantCreator.swift; sourceTree = "<group>"; };
+		DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantInstructions.swift; sourceTree = "<group>"; };
 		DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		DC6753EB2C2EE69B00111AAB /* sm */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = sm; sourceTree = "<group>"; };
 		DC8FF0922C2CC30300E5F0A7 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
@@ -146,7 +150,9 @@
 				DC9B38B42C2501A3006755AE /* Assets.xcassets */,
 				DC9B388F2C24FFEB006755AE /* Preview Content */,
 				DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */,
+				DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */,
 				DCAA86492C2A22E40047AE3D /* Utils.swift */,
+				DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */,
 			);
 			path = ShellMate;
 			sourceTree = "<group>";
@@ -287,6 +293,7 @@
 				DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */,
 				DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */,
 				DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */,
+				DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */,
 				DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */,
 				DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */,
 				DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */,
@@ -297,6 +304,7 @@
 				DCA94B672C2C9921004A2BCE /* SettingsView.swift in Sources */,
 				DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */,
 				DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */,
+				DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */,
 				DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

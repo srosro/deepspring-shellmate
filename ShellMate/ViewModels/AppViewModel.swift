@@ -15,7 +15,7 @@ class AppViewModel: ObservableObject {
     let gptAssistantManager: GPTAssistantManager
     
     init() {
-        self.gptAssistantManager = GPTAssistantManager(assistantId: "asst_IQyOH1i0Qjs0agZsBE23nQrS")
+        self.gptAssistantManager = GPTAssistantManager()
         setupNotificationObservers() // Moved notification observer setup to a separate method
     }
     

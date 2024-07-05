@@ -9,19 +9,46 @@ import Foundation
 
 class GPTAssistantManager {
     let apiKey: String
-    let assistantId: String
+    var assistantId: String
     let headers: [String: String]
     
     private let pollingInterval: Double = 0.5
     
-    init(assistantId: String) {
+    init() {
         self.apiKey = retrieveOpenaiAPIKey()
-        self.assistantId = assistantId
+        self.assistantId = ""
         self.headers = [
             "Content-Type": "application/json",
             "Authorization": "Bearer \(apiKey)",
             "OpenAI-Beta": "assistants=v2",
         ]
+        setupAssistant()
+    }
+    
+    private func setupAssistant() {
+        let assistantCreator = GPTAssistantCreator()
+        let assistantBaseName = "ShellMateSuggestCommands"
+        let assistantCurrentVersion: String
+        do {
+            assistantCurrentVersion = try getAppVersionAndBuild()
+        } catch {
+            fatalError("Error retrieving app version and build: \(error)")
+        }
+        let assistantInstructions = GPTAssistantInstructions.getInstructions()
+
+        Task {
+            do {
+                let assistantId = try await assistantCreator.getOrUpdateAssistant(
+                    assistantBaseName: assistantBaseName,
+                    assistantCurrentVersion: assistantCurrentVersion,
+                    assistantInstructions: assistantInstructions
+                )
+                print("Assistant ID: \(assistantId)")
+                self.assistantId = assistantId
+            } catch {
+                fatalError("Error occurred while setting up GPT Assistant: \(error)")
+            }
+        }
     }
     
     func createThread() async throws -> String {
