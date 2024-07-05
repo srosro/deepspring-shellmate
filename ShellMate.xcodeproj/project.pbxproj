@@ -60,7 +60,6 @@
 		DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesView.swift; sourceTree = "<group>"; };
 		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
 		DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
-		DC6753EB2C2EE69B00111AAB /* sm */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = sm; sourceTree = "<group>"; };
 		DC8FF0922C2CC30300E5F0A7 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		DC9B38862C24FFEA006755AE /* ShellMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC9B38892C24FFEA006755AE /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
@@ -168,7 +167,6 @@
 		DC9B38C82C2502FA006755AE /* ShellMateCLI */ = {
 			isa = PBXGroup;
 			children = (
-				DC6753EB2C2EE69B00111AAB /* sm */,
 				DC9B38D02C250342006755AE /* install.sh */,
 				DC9B38CF2C250342006755AE /* uninstall.sh */,
 				DC9B38C92C2502FA006755AE /* main.swift */,
