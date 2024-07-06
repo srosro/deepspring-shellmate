@@ -19,6 +19,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     var isAppInitialized = false // Add this property
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        resizeWindow(width: 400, height: 600)
         print("ApplicationDelegate - Application did finish launching.")
 
         setupSentry()
@@ -28,7 +29,6 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         trackFirstLaunchAfterInstall()
         MixpanelHelper.shared.trackEvent(name: "applicationLaunch")
         
-        resizeWindow(width: 400, height: 600)
         checkAccessibilityPermissions()
     }
     

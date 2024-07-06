@@ -274,8 +274,7 @@ class AppViewModel: ObservableObject {
                   let terminalResults = self.results[currentTerminalID] else {
                 return
             }
-            let sharedTempDirectory = self.getSharedTemporaryDirectory()
-            let filePath = sharedTempDirectory.appendingPathComponent("shellMateCommandSuggestions.json")
+            let filePath = getShellMateCommandSuggestionsFilePath()
 
             var jsonOutput: [String: String] = [:]
             for (batchIndex, batch) in terminalResults.suggestionsHistory.enumerated() {

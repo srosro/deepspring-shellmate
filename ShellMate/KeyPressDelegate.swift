@@ -81,16 +81,69 @@ class KeyPressDelegate {
         return false
     }
     
+    // Function to extract the index after `sm` command
+    func extractSMCommandIndex(line: String) -> String? {
+        // Regular expression to match `sm` followed by a space and a number
+        let regex = try! NSRegularExpression(pattern: #"sm\s+([0-9]*\.?[0-9]+)"#, options: [])
+        let nsString = line as NSString
+        let results = regex.matches(in: line, options: [], range: NSRange(location: 0, length: nsString.length))
+        
+        // Extract the first match
+        if let match = results.first {
+            let numberRange = match.range(at: 1)
+            let numberString = nsString.substring(with: numberRange)
+            
+            // Check if the number is an integer
+            if let intArg = Int(numberString) {
+                // Convert integer argument to float with ".1" suffix
+                return "\(intArg).1"
+            } else if let _ = Float(numberString) {
+                // If it's already a float, return it as is
+                return numberString
+            }
+        }
+        
+        // Return nil if no valid `sm` command index is found
+        return nil
+    }
+
+    // Updated processEnterKey function
     private func processEnterKey() {
         print("Enter key pressed in Terminal")
         if let activeLine = currentActiveLine {
             print("Current active line: \(activeLine)")
             let isValidSMCommand = isValidSMCommand(line: activeLine)
             print("Is valid 'sm' command: \(isValidSMCommand)")
+            
+            if isValidSMCommand {
+                // Extract the `sm` command index
+                if let smCommandIndex = extractSMCommandIndex(line: activeLine) {
+                    print("Extracted 'sm' command index: \(smCommandIndex)")
+                    
+                    // Get the file path to shellMateCommandSuggestions.json
+                    let filePath = getShellMateCommandSuggestionsFilePath()
+                    
+                    // Load the command from JSON file using the extracted index
+                    if let command = loadCommandFromJSON(filePath: filePath, key: smCommandIndex) {
+                        print("Loaded command: \(command)")
+                        
+                        // Set the desired text into the clipboard
+                        setClipboardContent(text: command)
+                        
+                        // Paste the clipboard content
+                        pasteClipboardContent()
+                    } else {
+                        print("No command found for index \(smCommandIndex)")
+                    }
+                } else {
+                    print("No valid 'sm' command index found.")
+                }
+            }
         } else {
             print("No active line available.")
         }
     }
+
 
     @objc private func handleTerminalActiveLineChanged(_ notification: Notification) {
         if let userInfo = notification.userInfo, let activeLine = userInfo["activeLine"] as? String {
@@ -99,3 +152,4 @@ class KeyPressDelegate {
         }
     }
 }
+

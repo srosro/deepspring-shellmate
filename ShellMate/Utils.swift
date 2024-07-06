@@ -9,7 +9,8 @@ import Foundation
 import ApplicationServices
 import SQLite3
 import Mixpanel
-
+import AppKit
+import CoreGraphics
 
 /// Retrieve the API key from environment variables
 func retrieveOpenaiAPIKey() -> String {
@@ -55,7 +56,6 @@ class AccessibilityChecker {
 }
 
 
-
 class MixpanelHelper {
     static let shared = MixpanelHelper()
     
@@ -98,4 +98,52 @@ func getAppVersionAndBuild() throws -> String {
     }
     
     return "Version\(version)Build\(build)"
+}
+
+
+func setClipboardContent(text: String) {
+    let pasteboard = NSPasteboard.general
+    pasteboard.clearContents()
+    pasteboard.setString(text, forType: .string)
+}
+
+func sendKeyPress(keyCode: CGKeyCode, modifiers: CGEventFlags) {
+    let keyDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true)
+    keyDown?.flags = modifiers
+    keyDown?.post(tap: .cghidEventTap)
+
+    let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false)
+    keyUp?.flags = modifiers
+    keyUp?.post(tap: .cghidEventTap)
+}
+
+func pasteClipboardContent() {
+    let commandKey: CGEventFlags = .maskCommand
+    sendKeyPress(keyCode: 9, modifiers: commandKey) // Assuming 'v' key has a key code of 9
+}
+
+// Function to get the complete path to shellMateCommandSuggestions.json
+func getShellMateCommandSuggestionsFilePath() -> URL {
+    let sharedTempDirectory = getSharedTemporaryDirectory()
+    let filePath = sharedTempDirectory.appendingPathComponent("shellMateCommandSuggestions.json")
+    return filePath
+}
+
+// Helper function to get the shared temporary directory
+func getSharedTemporaryDirectory() -> URL {
+    let tempDirectoryURL = FileManager.default.temporaryDirectory
+    return tempDirectoryURL
+}
+
+// Function to load a command from JSON file
+func loadCommandFromJSON(filePath: URL, key: String) -> String? {
+    do {
+        let data = try Data(contentsOf: filePath)
+        if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: String] {
+            return json[key]
+        }
+    } catch {
+        print("Error loading or parsing JSON: \(error)")
+    }
+    return nil
 }

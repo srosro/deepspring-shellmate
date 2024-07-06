@@ -203,7 +203,7 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         terminalTextObserver = app.createObserver { [weak self] (observer: Observer, element: UIElement, event: AXNotification, info: [String: AnyObject]?) in
             guard let self = self else { return }
             if event == .valueChanged {
-                //self.debounceTerminalTextChange()
+                self.debounceTerminalTextChange()
                 self.debounceActiveLineChange()
             }
         }
