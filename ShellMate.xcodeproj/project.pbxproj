@@ -155,16 +155,16 @@
 				DC8FF0922C2CC30300E5F0A7 /* App.swift */,
 				DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */,
 				DC1778902C2887BB002C852C /* WindowPositionManager.swift */,
-				DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */,
+				DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */,
 				DC9B38D22C25039E006755AE /* TerminalContentManager.swift */,
+				DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */,
 				DC9B38922C24FFEB006755AE /* ShellMate.entitlements */,
 				DC9B38B42C2501A3006755AE /* Assets.xcassets */,
 				DC9B388F2C24FFEB006755AE /* Preview Content */,
 				DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */,
 				DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */,
-				DCAA86492C2A22E40047AE3D /* Utils.swift */,
 				DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */,
-				DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */,
+				DCAA86492C2A22E40047AE3D /* Utils.swift */,
 			);
 			path = ShellMate;
 			sourceTree = "<group>";

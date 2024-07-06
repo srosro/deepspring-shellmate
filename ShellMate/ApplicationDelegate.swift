@@ -15,9 +15,12 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     let terminalContentDelegate = TerminalContentManager()
     let windowPositionDelegate = WindowPositionManager()
-    //let keyPressDelegate = KeyPressDelegate() // Instantiate KeyPressDelegate
+    let keyPressDelegate = KeyPressDelegate()
+    var isAppInitialized = false // Add this property
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        print("ApplicationDelegate - Application did finish launching.")
+
         setupSentry()
 
         runInstallScript() // Run the install.sh script
@@ -69,10 +72,16 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
 
     func initializeApp() {
         showContentView()
+        guard !isAppInitialized else { return } // Add this check
+
+        isAppInitialized = true // Set the flag to true
+        print("ApplicationDelegate - initializeApp called.")
+        
         observeTerminalLifecycle()
         terminalContentDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))
         windowPositionDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))
         windowPositionDelegate.initializeObserverForRunningTerminal()
+        keyPressDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))
     }
     
     func observeTerminalLifecycle() {

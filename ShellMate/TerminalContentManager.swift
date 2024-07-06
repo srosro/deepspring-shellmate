@@ -8,8 +8,10 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
     var highlightTextObserver: Observer?
     var previousTerminalText: String?
     var previousHighlightedText: String?
+    var previousActiveLine: String?
     var textDebounceWorkItem: DispatchWorkItem?
     var highlightDebounceWorkItem: DispatchWorkItem?
+    var activeLineDebounceWorkItem: DispatchWorkItem?
     var currentTerminalWindowID: CGWindowID? // Store the current terminal window ID
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -105,11 +107,15 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
     }
 
     private func postTerminalActiveLineChangedNotification(text: String) {
+        guard text != previousActiveLine else { return } // Avoid duplicate notifications
+        previousActiveLine = text
+
         let userInfo: [String: Any] = [
             "activeLine": text
         ]
         NotificationCenter.default.post(name: .terminalActiveLineChanged, object: nil, userInfo: userInfo)
     }
+
 
     private func sendContentAnalysisNotification(text: String, windowID: CGWindowID?, source: String) {
         let currentTimestamp = Double(Date().timeIntervalSince1970)
@@ -121,16 +127,22 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         ]
         NotificationCenter.default.post(name: .requestTerminalContentAnalysis, object: nil, userInfo: userInfo)
     }
-
-    func debounceTerminalTextChange() {
+    
+    func debounceActiveLineChange() {
         guard let element = terminalTextAreaElement else { return }
 
-        // Send the active line notification immediately
-        if let sanitizedText = getSanitizedTerminalText(from: element) {
-            let lastLine = getLastLine(from: sanitizedText)
-            postTerminalActiveLineChangedNotification(text: lastLine)
+        activeLineDebounceWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            if let sanitizedText = self?.getSanitizedTerminalText(from: element) {
+                let lastLine = self?.getLastLine(from: sanitizedText)
+                self?.postTerminalActiveLineChangedNotification(text: lastLine ?? "")
+            }
         }
+        activeLineDebounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: workItem)
+    }
 
+    func debounceTerminalTextChange() {
         NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
         textDebounceWorkItem?.cancel()
         let workItem = DispatchWorkItem { [weak self] in
@@ -191,7 +203,8 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         terminalTextObserver = app.createObserver { [weak self] (observer: Observer, element: UIElement, event: AXNotification, info: [String: AnyObject]?) in
             guard let self = self else { return }
             if event == .valueChanged {
-                self.debounceTerminalTextChange()
+                //self.debounceTerminalTextChange()
+                self.debounceActiveLineChange()
             }
         }
 
