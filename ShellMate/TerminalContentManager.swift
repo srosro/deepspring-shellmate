@@ -74,9 +74,12 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
                 // Log the event when terminal change is identified
                 MixpanelHelper.shared.trackEvent(name: "terminalTextChangeIdentified")
 
-                // Send notifications
                 let last50Lines = getLastNLines(from: sanitizedText, numberOfLines: 50)
-                sendContentAnalysisNotification(text: last50Lines, windowID: currentTerminalWindowID, source: "terminalContent")
+                // Obfuscate sensitive information
+                let obfuscatedLast50Lines = obfuscateAuthTokens(in: last50Lines)
+                
+                // Send notifications
+                sendContentAnalysisNotification(text: obfuscatedLast50Lines, windowID: currentTerminalWindowID, source: "terminalContent")
             }
         } else {
             print("Error retrieving text")

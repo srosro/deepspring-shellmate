@@ -147,3 +147,39 @@ func loadCommandFromJSON(filePath: URL, key: String) -> String? {
     }
     return nil
 }
+
+
+func obfuscateAuthTokens(in text: String) -> String {
+    let pattern = "(?i)(token|key|auth|bearer)[\\s_-]([\\S]{16})"
+    let regex = try? NSRegularExpression(pattern: pattern)
+    
+    let obfuscatedText = regex?.stringByReplacingMatches(in: text, options: [], range: NSRange(location: 0, length: text.utf16.count), withTemplate: "$1 ****************") ?? text
+    
+    return obfuscatedText
+}
+
+// Test function
+func testObfuscateAuthTokens() {
+    let testCases = [
+        ("token 1234567890abcdef", "token ****************"),
+        ("key_1234abcd5678efgh", "key ****************"),
+        ("auth-1234567890abcd12", "auth ****************"),
+        ("bearer 1234567890abcd12", "bearer ****************"),
+        ("TOKEN 1234567890ABCD12", "TOKEN ****************"),
+        ("KEY_1234abcd5678EFGH", "KEY ****************"),
+        ("AUTH-1234567890ABCD12", "AUTH ****************"),
+        ("BEARER 1234567890abcd12", "BEARER ****************"),
+        ("token 1234abcd5678efgh", "token ****************"),
+        ("key_!@#$%^&*()_+{}[]", "key ****************"),
+        ("auth-<>,.?/;'\":123456", "auth ****************"),
+        ("bearer_+=-~`|{}[]123456", "bearer ****************")
+    ]
+    
+    for (input, expected) in testCases {
+        let result = obfuscateAuthTokens(in: input)
+        //print("\"\(input)\" -> \"\(result)\"")
+        assert(result == expected, "Test failed for input: \"\(input)\". \nExpected: \"\(expected)\", but got: \"\(result)\"")
+    }
+    //print("All tests passed.")
+}
+
