@@ -110,18 +110,14 @@ struct SuggestionBatchView: View {
 struct SmButtonIdxView: View {
     var batchIndex: Int
     var index: Int
-    
+    @Binding var buttonText: String
+
     var body: some View {
         HStack(spacing: 0) {
-            Text("sm \(batchIndex + 1)")
+            Text(buttonText)
                 .font(.footnote)
                 .fontWeight(.regular)
                 .foregroundColor(AppColors.black)
-            Text(".\(index + 1)")
-                .font(.footnote)
-                .fontWeight(.regular)
-                .foregroundColor(AppColors.black)
-                .opacity(index == 0 ? 0.4 : 1.0)
         }
         .padding(.horizontal, 8)
         .background(AppColors.gray600.opacity(0.05))
@@ -138,11 +134,24 @@ struct SuggestionView: View {
     var batchIndex: Int
     var index: Int
 
+    @State private var isHovered: Bool = false
+    @State private var borderColor: Color = AppColors.gray600.opacity(0.2)
+    @State private var borderWidth: CGFloat = 1
+    @State private var buttonText: String
+
+    init(resultDict: [String: String], batchIndex: Int, index: Int) {
+        self.resultDict = resultDict
+        self.batchIndex = batchIndex
+        self.index = index
+        _buttonText = State(initialValue: "sm \(batchIndex + 1).\(index + 1)")
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if let command = resultDict["suggestedCommand"] {
                 Button(action: {
                     copyToClipboard(command: command)
+                    provideFeedback()
                 }) {
                     HStack {
                         Text("> \(command)")
@@ -150,18 +159,21 @@ struct SuggestionView: View {
                             .fontWeight(.regular)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
-                        SmButtonIdxView(batchIndex: batchIndex, index: index)
+                        SmButtonIdxView(batchIndex: batchIndex, index: index, buttonText: $buttonText)
                     }
                     .padding(10)
-                    .background(AppColors.white)
+                    .background(isHovered ? AppColors.gray600.opacity(0.05) : AppColors.white)
                     .foregroundColor(AppColors.black)
                     .cornerRadius(8)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(AppColors.gray600.opacity(0.2), lineWidth: 1)
+                            .stroke(borderColor, lineWidth: borderWidth)
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
+                .onHover { hovering in
+                    isHovered = hovering
+                }
             }
 
             if let explanation = resultDict["commandExplanation"] {
@@ -177,10 +189,26 @@ struct SuggestionView: View {
         .cornerRadius(8)
     }
 
+
     private func copyToClipboard(command: String) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(command, forType: .string)
         print("Copied to clipboard: \(command)")
+    }
+
+    private func provideFeedback() {
+        withAnimation(Animation.easeInOut(duration: 0.02)) {
+            borderColor = AppColors.black
+            borderWidth = 2
+            buttonText = "copied"
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation {
+                borderColor = AppColors.gray600.opacity(0.2)
+                borderWidth = 1
+                buttonText = "sm \(batchIndex + 1).\(index + 1)"
+            }
+        }
     }
 }
