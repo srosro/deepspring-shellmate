@@ -12,6 +12,8 @@ import AppKit
 
 class SettingsViewModel: ObservableObject {
     @Published var isAppTrusted = false
+    @Published var openAtLogin: Bool = false
+    
     private var timer: AnyCancellable?
 
     init() {
@@ -44,5 +46,9 @@ class SettingsViewModel: ObservableObject {
     func requestAccessibilityPermissions() {
         let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
+    }
+    
+    func toggleOpenAtLogin() {
+        // Logic to handle the change of the login setting
     }
 }
