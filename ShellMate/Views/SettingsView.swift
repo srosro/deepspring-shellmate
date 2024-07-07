@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LaunchAtLogin
 
 struct SettingsView: View {
     @ObservedObject var viewModel: SettingsViewModel
@@ -155,7 +156,7 @@ struct GeneralView: View {
                             .font(.subheadline)
                             .bold()
                             .padding(.bottom, 5)
-                        Toggle(isOn: $viewModel.openAtLogin) {
+                        LaunchAtLogin.Toggle {
                             Text("Open ShellMate at login")
                                 .font(.subheadline)
                         }

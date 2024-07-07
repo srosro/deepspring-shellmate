@@ -18,6 +18,7 @@
 		DC53925E2C38CFEA003CB46D /* KeyPressDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */; };
 		DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */; };
 		DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
+		DC60BD912C3AF8A10027048D /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = DC60BD902C3AF8A10027048D /* LaunchAtLogin */; };
 		DC7DD61D2C36DEF80034E6ED /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = DC7DD61C2C36DEF80034E6ED /* Sentry */; };
 		DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8FF0922C2CC30300E5F0A7 /* App.swift */; };
 		DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* AppViewModel.swift */; };
@@ -96,6 +97,7 @@
 				DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */,
 				DC9B38B32C25016C006755AE /* AXSwift in Frameworks */,
 				DC00C0342C2F51210019BEB1 /* Sparkle in Frameworks */,
+				DC60BD912C3AF8A10027048D /* LaunchAtLogin in Frameworks */,
 				DC7DD61D2C36DEF80034E6ED /* Sentry in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -221,6 +223,7 @@
 				DC00C0332C2F51210019BEB1 /* Sparkle */,
 				DC15545E2C3336FF00F24C18 /* Mixpanel */,
 				DC7DD61C2C36DEF80034E6ED /* Sentry */,
+				DC60BD902C3AF8A10027048D /* LaunchAtLogin */,
 			);
 			productName = ShellBuddy;
 			productReference = DC9B38862C24FFEA006755AE /* ShellMate.app */;
@@ -274,6 +277,7 @@
 				DC00C0312C2F50EA0019BEB1 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				DC15545D2C33346E00F24C18 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
 				DCCC41442C36082B00A4846C /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
+				DC60BD8F2C3AF8A10027048D /* XCRemoteSwiftPackageReference "LaunchAtLogin-modern" */,
 			);
 			productRefGroup = DC9B38872C24FFEA006755AE /* Products */;
 			projectDirPath = "";
@@ -596,6 +600,14 @@
 				kind = branch;
 			};
 		};
+		DC60BD8F2C3AF8A10027048D /* XCRemoteSwiftPackageReference "LaunchAtLogin-modern" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin-modern";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		DC9B38B12C25016C006755AE /* XCRemoteSwiftPackageReference "AXSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tmandry/AXSwift";
@@ -624,6 +636,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DC15545D2C33346E00F24C18 /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
 			productName = Mixpanel;
+		};
+		DC60BD902C3AF8A10027048D /* LaunchAtLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DC60BD8F2C3AF8A10027048D /* XCRemoteSwiftPackageReference "LaunchAtLogin-modern" */;
+			productName = LaunchAtLogin;
 		};
 		DC7DD61C2C36DEF80034E6ED /* Sentry */ = {
 			isa = XCSwiftPackageProductDependency;
