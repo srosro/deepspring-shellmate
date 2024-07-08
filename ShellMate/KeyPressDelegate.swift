@@ -24,7 +24,7 @@ class KeyPressDelegate {
     func startMonitoring() {
         print("KeyPressDelegate - Start monitoring key presses.")
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            print("KeyPressDelegate - Key press detected.")
+            //print("KeyPressDelegate - Key press detected.")
             self?.handleKeyPress(event: event)
         }
     }

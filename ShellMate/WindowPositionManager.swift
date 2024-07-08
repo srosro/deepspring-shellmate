@@ -34,7 +34,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
 
         let position = getWindowPosition(for: focusedWindow)
         let size = getWindowSize(for: focusedWindow)
-        
+
         let currentWindowID = findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)
         if let windowID = currentWindowID {
             NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
@@ -42,6 +42,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
                 "terminalWindow": focusedWindow
             ])
         }
+        positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: true) // If terminal is open, already attach app window to terminal
     }
     
     @objc func handleTerminalLaunch(_ notification: Notification) {
@@ -164,8 +165,12 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             }
 
             if visibleWindows.isEmpty {
-                print("No visible Terminal windows found. Miniaturizing ShellMate app window.")
-                miniaturizeAppWindow()
+                let shouldMiniaturize = (notification == kAXWindowMiniaturizedNotification as CFString) || (notification == kAXUIElementDestroyedNotification as CFString)
+
+                if shouldMiniaturize {
+                    print("No visible Terminal windows found. Miniaturizing ShellMate app window.")
+                    miniaturizeAppWindow()
+                }
                 return
             }
 

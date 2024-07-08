@@ -72,7 +72,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
 
     func initializeApp() {
         showContentView()
-        guard !isAppInitialized else { return } // Add this check
+        guard !isAppInitialized else { return } // Dont run initialization twice
 
         isAppInitialized = true // Set the flag to true
         print("ApplicationDelegate - initializeApp called.")
