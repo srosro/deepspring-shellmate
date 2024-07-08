@@ -12,11 +12,12 @@ class AppViewModel: ObservableObject {
     private var currentTerminalStateID: UUID?
     private let additionalSuggestionDelaySeconds: TimeInterval = 2.0
     private let maxSuggestionsPerEvent: Int = 4
-    let gptAssistantManager: GPTAssistantManager
-    
+    private lazy var gptAssistantManager: GPTAssistantManager = {
+        return GPTAssistantManager()
+    }()
+
     init() {
-        self.gptAssistantManager = GPTAssistantManager()
-        setupNotificationObservers() // Moved notification observer setup to a separate method
+        setupNotificationObservers()
     }
     
     private func setupNotificationObservers() { // New method for setting up notification observers

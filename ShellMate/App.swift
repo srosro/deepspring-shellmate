@@ -27,6 +27,7 @@ struct ShellMateApp: App {
             if showSettingsView {
                 SettingsView(viewModel: settingsViewModel, onContinue: {
                     showSettingsView = false
+                    UserDefaults.standard.set(false, forKey: "showSettingsView")
                 })
                 .onAppear {
                     NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { _ in
@@ -46,6 +47,12 @@ struct ShellMateApp: App {
         .commands {
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesView(updater: updaterController.updater)
+            }
+            CommandGroup(replacing: .appSettings) {
+                Button("Settings") {
+                    ShellMate.showSettingsView()
+                }
+                .keyboardShortcut(",", modifiers: .command)
             }
         }
     }

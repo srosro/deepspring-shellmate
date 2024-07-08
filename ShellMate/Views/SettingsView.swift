@@ -10,7 +10,6 @@ import LaunchAtLogin
 
 struct SettingsView: View {
     @ObservedObject var viewModel: SettingsViewModel
-    @State private var apiKey = "samplekey" // Default text value
     let onContinue: () -> Void
 
     var body: some View {
@@ -20,7 +19,7 @@ struct SettingsView: View {
             Spacer()
             PermissionsView(viewModel: viewModel)
             Spacer()
-            LicenseView(apiKey: $apiKey)
+            LicenseView(apiKey: $viewModel.apiKey, apiKeyValidationState: viewModel.apiKeyValidationState)
             Spacer()
             GeneralView(viewModel: viewModel)
             Spacer()
@@ -105,6 +104,7 @@ struct PermissionsView: View {
 
 struct LicenseView: View {
     @Binding var apiKey: String
+    var apiKeyValidationState: ApiKeyValidationState
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -126,6 +126,13 @@ struct LicenseView: View {
 
                 TextField("sk-...", text: $apiKey)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                // Conditionally show the feedback message if the API key is invalid
+                if apiKeyValidationState == .invalid {
+                    Text("API Key is invalid")
+                        .foregroundColor(.red)
+                        .font(.footnote)
+                        .padding(.top, 5)
+                }
             }
             .padding()
             .cornerRadius(8)
@@ -188,11 +195,11 @@ struct ContinueButtonView: View {
             Text("Continue")
                 .padding(.horizontal, 40)
                 .padding(.vertical, 8)
-                .background(viewModel.isAppTrusted ? AppColors.black : AppColors.gray400)
+                .background(viewModel.isAppTrusted && viewModel.apiKeyValidationState == .valid ? AppColors.black : AppColors.gray400)
                 .foregroundColor(.white)
                 .cornerRadius(8)
         }
-        .disabled(!(viewModel.isAppTrusted))
+        .disabled(!(viewModel.isAppTrusted && viewModel.apiKeyValidationState == .valid))
         .background(Color.clear) // Ensure background color is clear to avoid white corners
         .clipShape(RoundedRectangle(cornerRadius: 8)) // Clip the shape to remove background outside corners
     }

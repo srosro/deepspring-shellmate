@@ -23,13 +23,10 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         print("ApplicationDelegate - Application did finish launching.")
 
         setupSentry()
-
         runInstallScript() // Run the install.sh script
-
         trackFirstLaunchAfterInstall()
         MixpanelHelper.shared.trackEvent(name: "applicationLaunch")
-        
-        checkAccessibilityPermissions()
+        checkAccessibilityPermissionsAndApiKey()
     }
     
     func setupSentry() {        // Initialize Sentry SDK
@@ -54,7 +51,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    func checkAccessibilityPermissions() {
+    func checkAccessibilityPermissionsAndApiKey() {
         let isAppTrusted = AccessibilityChecker.isAppTrusted()
         
         if isAppTrusted {
@@ -63,7 +60,10 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
             print("Application is not trusted for accessibility.")
         }
         
-        if isAppTrusted {
+        let apiKeyValidationState = UserDefaults.standard.string(forKey: "apiKeyValidationState") ?? ApiKeyValidationState.unverified.rawValue
+        let isApiKeyValid = apiKeyValidationState == ApiKeyValidationState.valid.rawValue
+
+        if isAppTrusted && isApiKeyValid {
             initializeApp()
         } else {
             showSettingsView()

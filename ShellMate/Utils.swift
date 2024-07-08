@@ -12,12 +12,11 @@ import Mixpanel
 import AppKit
 import CoreGraphics
 
-/// Retrieve the API key from environment variables
+/// Retrieve the API key from UserDefaults
 func retrieveOpenaiAPIKey() -> String {
-    //guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
-    //    fatalError("API key not found in environment variables")
-    //}
-    let apiKey = "sk-proj-QJTEXwwbbp2LhwahZ2F3T3BlbkFJeLNulBYi20omTgB7wk3l";
+    guard let apiKey = UserDefaults.standard.string(forKey: "apiKey"), !apiKey.isEmpty else {
+        fatalError("API key not found in UserDefaults or is empty")
+    }
     return apiKey
 }
     
