@@ -202,5 +202,6 @@ struct ContinueButtonView: View {
         .disabled(!(viewModel.isAppTrusted && viewModel.apiKeyValidationState == .valid))
         .background(Color.clear) // Ensure background color is clear to avoid white corners
         .clipShape(RoundedRectangle(cornerRadius: 8)) // Clip the shape to remove background outside corners
+        .buttonStyle(BorderlessButtonStyle())
     }
 }
