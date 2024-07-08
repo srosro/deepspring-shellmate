@@ -66,7 +66,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         if isAppTrusted && isApiKeyValid {
             initializeApp()
         } else {
-            showSettingsView()
+            showPermissionsView()
         }
     }
 

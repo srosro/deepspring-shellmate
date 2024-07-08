@@ -227,7 +227,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             
             // Check if the app has accessibility access
             if !AccessibilityChecker.isAppTrusted() {
-                showSettingsView()
+                showPermissionsView()
             }
             return
         }

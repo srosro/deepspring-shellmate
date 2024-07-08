@@ -28,8 +28,8 @@
 		DC9B38B52C2501A3006755AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC9B38B42C2501A3006755AE /* Assets.xcassets */; };
 		DC9B38CA2C2502FA006755AE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38C92C2502FA006755AE /* main.swift */; };
 		DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38D22C25039E006755AE /* TerminalContentManager.swift */; };
-		DCA94B672C2C9921004A2BCE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA94B662C2C9921004A2BCE /* SettingsView.swift */; };
-		DCA94B692C2CA726004A2BCE /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA94B682C2CA726004A2BCE /* SettingsViewModel.swift */; };
+		DCA94B672C2C9921004A2BCE /* PermissionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA94B662C2C9921004A2BCE /* PermissionsView.swift */; };
+		DCA94B692C2CA726004A2BCE /* PermissionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA94B682C2CA726004A2BCE /* PermissionsViewModel.swift */; };
 		DCAA86462C2A0A550047AE3D /* NotificationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */; };
 		DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */; };
 		DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86492C2A22E40047AE3D /* Utils.swift */; };
@@ -81,8 +81,8 @@
 		DC9B38CF2C250342006755AE /* uninstall.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = uninstall.sh; sourceTree = "<group>"; };
 		DC9B38D02C250342006755AE /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = install.sh; sourceTree = "<group>"; };
 		DC9B38D22C25039E006755AE /* TerminalContentManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TerminalContentManager.swift; sourceTree = "<group>"; };
-		DCA94B662C2C9921004A2BCE /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		DCA94B682C2CA726004A2BCE /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		DCA94B662C2C9921004A2BCE /* PermissionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsView.swift; sourceTree = "<group>"; };
+		DCA94B682C2CA726004A2BCE /* PermissionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewModel.swift; sourceTree = "<group>"; };
 		DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationExtensions.swift; sourceTree = "<group>"; };
 		DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantManager.swift; sourceTree = "<group>"; };
 		DCAA86492C2A22E40047AE3D /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -123,7 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				DC9B38892C24FFEA006755AE /* AppViewModel.swift */,
-				DCA94B682C2CA726004A2BCE /* SettingsViewModel.swift */,
+				DCA94B682C2CA726004A2BCE /* PermissionsViewModel.swift */,
 				DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */,
 			);
 			path = ViewModels;
@@ -193,7 +193,7 @@
 			isa = PBXGroup;
 			children = (
 				DC9B388B2C24FFEA006755AE /* ContentView.swift */,
-				DCA94B662C2C9921004A2BCE /* SettingsView.swift */,
+				DCA94B662C2C9921004A2BCE /* PermissionsView.swift */,
 				DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */,
 				DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */,
 			);
@@ -316,9 +316,9 @@
 				DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */,
 				DC00C03C2C2F62100019BEB1 /* CheckForUpdatesView.swift in Sources */,
 				DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */,
-				DCA94B692C2CA726004A2BCE /* SettingsViewModel.swift in Sources */,
+				DCA94B692C2CA726004A2BCE /* PermissionsViewModel.swift in Sources */,
 				DCAA86462C2A0A550047AE3D /* NotificationExtensions.swift in Sources */,
-				DCA94B672C2C9921004A2BCE /* SettingsView.swift in Sources */,
+				DCA94B672C2C9921004A2BCE /* PermissionsView.swift in Sources */,
 				DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */,
 				DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */,
 				DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */,

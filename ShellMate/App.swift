@@ -13,8 +13,8 @@ import Sparkle
 struct ShellMateApp: App {
     @NSApplicationDelegateAdaptor(ApplicationDelegate.self) var appDelegate
     @StateObject private var viewModel = AppViewModel()
-    @StateObject private var settingsViewModel = SettingsViewModel()
-    @State private var showSettingsView = UserDefaults.standard.bool(forKey: "showSettingsView")
+    @StateObject private var permissionsViewModel = PermissionsViewModel()
+    @State private var showPermissionsView = UserDefaults.standard.bool(forKey: "showPermissionsView")
 
     private let updaterController: SPUStandardUpdaterController
     
@@ -24,21 +24,21 @@ struct ShellMateApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if showSettingsView {
-                SettingsView(viewModel: settingsViewModel, onContinue: {
-                    showSettingsView = false
-                    UserDefaults.standard.set(false, forKey: "showSettingsView")
+            if showPermissionsView {
+                PermissionsWindowView(viewModel: permissionsViewModel, onContinue: {
+                    showPermissionsView = false
+                    UserDefaults.standard.set(false, forKey: "showPermissionsView")
                 })
                 .onAppear {
                     NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { _ in
-                        showSettingsView = UserDefaults.standard.bool(forKey: "showSettingsView")
+                        showPermissionsView = UserDefaults.standard.bool(forKey: "showPermissionsView")
                     }
                 }
             } else {
                 ContentView(viewModel: viewModel)
                 .onAppear {
                     NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { _ in
-                        showSettingsView = UserDefaults.standard.bool(forKey: "showSettingsView")
+                        showPermissionsView = UserDefaults.standard.bool(forKey: "showPermissionsView")
                     }
                     appDelegate.initializeApp()
                 }
@@ -49,8 +49,8 @@ struct ShellMateApp: App {
                 CheckForUpdatesView(updater: updaterController.updater)
             }
             CommandGroup(replacing: .appSettings) {
-                Button("Settings") {
-                    ShellMate.showSettingsView()
+                Button("Permissions") {
+                    ShellMate.showPermissionsView()
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }

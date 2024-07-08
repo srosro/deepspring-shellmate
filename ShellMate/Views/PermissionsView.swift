@@ -1,5 +1,5 @@
 //
-//  Settings.swift
+//  Permissions.swift
 //  ShellMate
 //
 //  Created by Daniel Delattre on 26/06/24.
@@ -8,8 +8,8 @@
 import SwiftUI
 import LaunchAtLogin
 
-struct SettingsView: View {
-    @ObservedObject var viewModel: SettingsViewModel
+struct PermissionsWindowView: View {
+    @ObservedObject var viewModel: PermissionsViewModel
     let onContinue: () -> Void
 
     var body: some View {
@@ -47,7 +47,7 @@ struct WelcomeView: View {
 }
 
 struct PermissionsView: View {
-    @ObservedObject var viewModel: SettingsViewModel
+    @ObservedObject var viewModel: PermissionsViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -147,7 +147,7 @@ struct LicenseView: View {
 
 
 struct GeneralView: View {
-    @ObservedObject var viewModel: SettingsViewModel
+    @ObservedObject var viewModel: PermissionsViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -184,7 +184,7 @@ struct GeneralView: View {
 
 
 struct ContinueButtonView: View {
-    @ObservedObject var viewModel: SettingsViewModel
+    @ObservedObject var viewModel: PermissionsViewModel
     let onContinue: () -> Void
 
     var body: some View {

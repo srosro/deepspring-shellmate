@@ -1,5 +1,5 @@
 //
-//  SettingsViewModel.swift
+//  PermissionsViewModel.swift
 //  ShellMate
 //
 //  Created by Daniel Delattre on 26/06/24.
@@ -15,7 +15,7 @@ enum ApiKeyValidationState: String {
     case invalid
 }
 
-class SettingsViewModel: ObservableObject {
+class PermissionsViewModel: ObservableObject {
     @Published var isAppTrusted = false
     @Published var apiKey: String {
         didSet {

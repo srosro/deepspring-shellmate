@@ -20,12 +20,12 @@ func retrieveOpenaiAPIKey() -> String {
     return apiKey
 }
     
-func showSettingsView() {
-    UserDefaults.standard.set(true, forKey: "showSettingsView")
+func showPermissionsView() {
+    UserDefaults.standard.set(true, forKey: "showPermissionsView")
 }
 
 func showContentView() {
-    UserDefaults.standard.set(false, forKey: "showSettingsView")
+    UserDefaults.standard.set(false, forKey: "showPermissionsView")
 }
 
 
