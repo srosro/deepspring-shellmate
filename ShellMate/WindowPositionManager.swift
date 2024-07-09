@@ -19,6 +19,8 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         print("Application did finish launching.")
         initializeFocusedWindowID() // Required in case app launches with terminal already open
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleWindowAttachmentPositionDidChange(_:)), name: .windowAttachmentPositionDidChange, object: nil)
     }
     
     func initializeFocusedWindowID() {
@@ -42,6 +44,10 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
                 "terminalWindow": focusedWindow
             ])
         }
+        // Set the attachment position to left for testing
+        let attachmentPosition = WindowAttachmentPosition.left
+
+        // Call the function with the updated parameters
         positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: true) // If terminal is open, already attach app window to terminal
     }
     
@@ -64,6 +70,16 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         removeTerminalObserver()
         miniaturizeAppWindow()
         isTerminalFocused = false  // Reset the focused state when Terminal is terminated
+    }
+    
+    @objc func handleWindowAttachmentPositionDidChange(_ notification: Notification) {
+        if let userInfo = notification.userInfo {
+            let position = userInfo["position"] as? String ?? "Unknown"
+            let source = userInfo["source"] as? String ?? "Unknown"
+            print("Window attachment position did change to \(position) from \(source).")
+        } else {
+            print("Window attachment position did change.")
+        }
     }
     
     func initializeObserverForRunningTerminal() {
@@ -221,7 +237,11 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             }
 
             let shouldAnimate = (notification == kAXWindowMovedNotification as CFString)
-            positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: shouldAnimate)
+            
+            let attachmentPosition = WindowAttachmentPosition.left
+            // Call the function with the updated parameters
+            positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: true)
+            
         } else {
             print("Failed to get windows for Terminal.")
             
@@ -323,9 +343,18 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
     }
 }
 
+
+
 func positionAndSizeWindow(terminalPosition: CGPoint, terminalSize: CGSize, shouldAnimate: Bool) {
     guard let screen = NSScreen.main, let window = NSApplication.shared.windows.first else {
         print("Failed to find the application window or screen.")
+        return
+    }
+    
+    // Get the saved window attachment position from UserDefaults
+    let savedPosition = UserDefaults.standard.string(forKey: "windowAttachmentPosition") ?? "right"
+    guard let attachmentPosition = WindowAttachmentPosition(rawValue: savedPosition) else {
+        print("Invalid attachment position saved in UserDefaults.")
         return
     }
     
@@ -333,8 +362,19 @@ func positionAndSizeWindow(terminalPosition: CGPoint, terminalSize: CGSize, shou
     let screenHeight = screen.frame.height
     let newYPosition = screenHeight - terminalPosition.y - terminalSize.height
     
+    // Calculate the new x position based on the attachmentPosition enum
+    let newXPosition: CGFloat
+    switch attachmentPosition {
+    case .left:
+        newXPosition = terminalPosition.x - window.frame.width
+    case .right:
+        newXPosition = terminalPosition.x + terminalSize.width
+    case .float:
+        return
+    }
+    
     // Calculate the new position
-    let newPosition = CGPoint(x: terminalPosition.x + terminalSize.width, y: newYPosition)
+    let newPosition = CGPoint(x: newXPosition, y: newYPosition)
     let newSize = CGSize(width: window.frame.width, height: terminalSize.height)
     
     if shouldAnimate {

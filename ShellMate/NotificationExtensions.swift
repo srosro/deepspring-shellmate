@@ -30,4 +30,10 @@ extension Notification.Name {
     /// userInfo dictionary should contain:
     /// - "activeLine": String (the last line of the terminal text)
     static let terminalActiveLineChanged = Notification.Name("terminalActiveLineChanged")
+    
+    /// Notification to indicate the window attachment position has changed.
+    /// userInfo dictionary should contain:
+    /// - "position": String (the new window attachment position, e.g., "left", "right", "float")
+    /// - "source": String (the source of the change, e.g., "dragging", "config")
+    static let windowAttachmentPositionDidChange = Notification.Name("windowAttachmentPositionDidChange")
 }

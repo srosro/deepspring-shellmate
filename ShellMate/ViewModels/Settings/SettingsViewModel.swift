@@ -21,3 +21,30 @@ class AboutViewModel: ObservableObject {
         }
     }
 }
+
+enum WindowAttachmentPosition: String {
+    case left
+    case right
+    case float
+}
+
+class GeneralViewModel: ObservableObject {
+    @Published var windowAttachmentPosition: WindowAttachmentPosition
+    
+    init() {
+        if let savedPosition = UserDefaults.standard.string(forKey: "windowAttachmentPosition"),
+           let position = WindowAttachmentPosition(rawValue: savedPosition) {
+            self.windowAttachmentPosition = position
+        } else {
+            self.windowAttachmentPosition = .right
+        }
+    }
+    
+    func updateWindowAttachmentPosition(source: String) {
+        UserDefaults.standard.set(windowAttachmentPosition.rawValue, forKey: "windowAttachmentPosition")
+        
+        // Post the notification
+        NotificationCenter.default.post(name: .windowAttachmentPositionDidChange, object: nil, userInfo: ["position": windowAttachmentPosition.rawValue, "source": source])
+    }
+}
+

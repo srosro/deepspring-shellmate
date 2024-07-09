@@ -25,52 +25,54 @@ struct SettingsView: View {
 }
 
 struct GeneralView: View {
-    @State private var selectedWindowPosition = 0
+    @StateObject private var viewModel = GeneralViewModel()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
                 Text("Startup")
                     .frame(width: 150, alignment: .trailing)
-                Toggle(isOn: .constant(true)) {
+                LaunchAtLogin.Toggle {
                     Text("Open ShellMate at login")
+                        .font(.subheadline)
                 }
                 .labelsHidden()
             }
             HStack {
                 Text("Window Position")
                     .frame(width: 150, alignment: .trailing)
-                Picker(selection: $selectedWindowPosition, label: HStack {
-                    switch selectedWindowPosition {
-                    case 0:
+                Picker(selection: $viewModel.windowAttachmentPosition, label: HStack {
+                    switch viewModel.windowAttachmentPosition {
+                    case .right:
                         Image(systemName: "arrow.right")
                         Text("Pin To The Right")
-                    case 1:
+                    case .left:
                         Image(systemName: "arrow.left")
                         Text("Pin To The Left")
-                    case 2:
+                    case .float:
                         Image(systemName: "arrow.up.and.down")
                         Text("Float")
-                    default:
-                        Text("")
                     }
                 }) {
                     HStack {
                         Image(systemName: "square.righthalf.fill")
                         Text("Pin To The Right")
-                    }.tag(0)
+                    }.tag(WindowAttachmentPosition.right)
                     HStack {
                         Image(systemName: "square.lefthalf.fill")
                         Text("Pin To The Left")
-                    }.tag(1)
+                    }.tag(WindowAttachmentPosition.left)
                     HStack {
                         Image(systemName: "square.fill")
                         Text("Float")
-                    }.tag(2)
+                    }.tag(WindowAttachmentPosition.float)
                 }
                 .labelsHidden()
                 .frame(maxWidth: .infinity)
                 .padding(.trailing, 60)
+                .onChange(of: viewModel.windowAttachmentPosition) { _ in
+                    viewModel.updateWindowAttachmentPosition(source: "config")
+                }
             }
             HStack {
                 Text("OpenAI API Key")
@@ -86,42 +88,6 @@ struct GeneralView: View {
     }
 }
 
-
-struct GeneralView2: View {
-    @ObservedObject var viewModel: PermissionsViewModel
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("General")
-                .font(.subheadline)
-                .bold()
-                .padding(.leading, 15)
-
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Login")
-                            .font(.subheadline)
-                            .bold()
-                            .padding(.bottom, 5)
-                        LaunchAtLogin.Toggle {
-                            Text("Open ShellMate at login")
-                                .font(.subheadline)
-                        }
-                    }
-                    Spacer()
-                }
-                .padding()
-            }
-            .cornerRadius(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(AppColors.gray400, lineWidth: 0.4)
-            )
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
 
 struct AboutView: View {
     @ObservedObject private var viewModel = AboutViewModel()
