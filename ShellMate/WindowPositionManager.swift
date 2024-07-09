@@ -24,31 +24,18 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
     }
     
     func initializeFocusedWindowID() {
-        guard let terminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) else {
-            print("Terminal application is not running.")
+        guard let windowData = getTerminalWindowPositionAndSize() else {
             return
         }
-
-        guard let focusedWindow = getFocusedWindow(for: terminalApp) else {
-            print("Failed to determine focused window for the Terminal application.")
-            return
-        }
-
-        let position = getWindowPosition(for: focusedWindow)
-        let size = getWindowSize(for: focusedWindow)
-
-        let currentWindowID = findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)
-        if let windowID = currentWindowID {
+        
+        if let windowID = windowData.windowID {
             NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
                 "terminalWindowID": windowID,
-                "terminalWindow": focusedWindow
+                "terminalWindow": windowData.focusedWindow!
             ])
         }
-        // Set the attachment position to left for testing
-        let attachmentPosition = WindowAttachmentPosition.left
-
-        // Call the function with the updated parameters
-        positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: true) // If terminal is open, already attach app window to terminal
+        
+        positionAndSizeWindow(terminalPosition: windowData.position, terminalSize: windowData.size, shouldAnimate: true)
     }
     
     @objc func handleTerminalLaunch(_ notification: Notification) {
@@ -80,7 +67,21 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         } else {
             print("Window attachment position did change.")
         }
+        
+        guard let windowData = getTerminalWindowPositionAndSize() else {
+            return
+        }
+        
+        if let windowID = windowData.windowID {
+            NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
+                "terminalWindowID": windowID,
+                "terminalWindow": windowData.focusedWindow!
+            ])
+        }
+        
+        positionAndSizeWindow(terminalPosition: windowData.position, terminalSize: windowData.size, shouldAnimate: true)
     }
+
     
     func initializeObserverForRunningTerminal() {
         if NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == "com.apple.Terminal" }) {
@@ -157,6 +158,32 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         }
     }
     
+    func getTerminalWindowPositionAndSize() -> (position: CGPoint, size: CGSize, windowID: CGWindowID?, focusedWindow: AXUIElement?)? {
+        guard let terminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) else {
+            print("Terminal application is not running.")
+            return nil
+        }
+
+        guard let focusedWindow = getFocusedWindow(for: terminalApp) else {
+            print("Failed to determine focused window for the Terminal application.")
+            return nil
+        }
+
+        guard let _ = getWindowTitle(for: focusedWindow) else {
+            // This check is necessary to avoid attaching ShellMate to non-terminal windows
+            // (e.g., the prompt where the user confirms if they want to close the terminal)
+            print("Unable to retrieve window title")
+            return nil
+        }
+        
+        let position = getWindowPosition(for: focusedWindow)
+        let size = getWindowSize(for: focusedWindow)
+
+        let currentWindowID = findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)
+        return (position, size, currentWindowID, focusedWindow)
+    }
+
+    
     func updateAppWindowPositionAndSize(notification: CFString) {
         print("Updating app window position and size.")
 
@@ -212,8 +239,6 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             let position = getWindowPosition(for: focusedWindow)
             let size = getWindowSize(for: focusedWindow)
             focusedTerminalWindowID = findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)
-
-            
             
             var shouldBringToFront = false
 
@@ -237,10 +262,8 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             }
 
             let shouldAnimate = (notification == kAXWindowMovedNotification as CFString)
-            
-            let attachmentPosition = WindowAttachmentPosition.left
             // Call the function with the updated parameters
-            positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: true)
+            positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: shouldAnimate)
             
         } else {
             print("Failed to get windows for Terminal.")
@@ -292,6 +315,20 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             print("Failed to find the application window.")
             return
         }
+        
+        // Retrieve the saved window attachment position from UserDefaults
+        let savedPosition = UserDefaults.standard.string(forKey: "windowAttachmentPosition") ?? WindowAttachmentPosition.float.rawValue
+        guard let attachmentPosition = WindowAttachmentPosition(rawValue: savedPosition) else {
+            print("Invalid attachment position saved in UserDefaults.")
+            return
+        }
+        
+        // Check the current state of the attachment position. If it is float, just return and don't miniaturize
+        if attachmentPosition == .float {
+            return
+        }
+        
+        // Miniaturize the window if it's not in float state
         window.miniaturize(nil)
     }
     

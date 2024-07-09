@@ -9,14 +9,52 @@ import Foundation
 import Combine
 import AppKit
 
+class PermissionsViewModel: ObservableObject {
+    @Published var isAppTrusted = false
+
+    private var timer: AnyCancellable?
+
+    init() {
+        checkAccessibilityPermissions()
+        startTimer()
+    }
+
+    deinit {
+        timer?.cancel()
+    }
+
+    func checkAccessibilityPermissions() {
+        isAppTrusted = AccessibilityChecker.isAppTrusted()
+    }
+
+    private func startTimer() {
+        timer = Timer.publish(every: 1.0, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.checkAccessibilityPermissions()
+            }
+    }
+    
+    func initializeApp() {
+        if let appDelegate = NSApplication.shared.delegate as? ApplicationDelegate {
+            appDelegate.initializeApp()
+        }
+    }
+    
+    func requestAccessibilityPermissions() {
+        let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
+        AXIsProcessTrustedWithOptions(options)
+    }
+}
+
+
 enum ApiKeyValidationState: String {
     case unverified
     case valid
     case invalid
 }
 
-class PermissionsViewModel: ObservableObject {
-    @Published var isAppTrusted = false
+class LicenseViewModel: ObservableObject {
     @Published var apiKey: String {
         didSet {
             let sanitizedApiKey = apiKey.replacingOccurrences(of: " ", with: "")
@@ -36,8 +74,6 @@ class PermissionsViewModel: ObservableObject {
         if !self.apiKey.isEmpty && self.apiKeyValidationState == .unverified {
             checkApiKey(self.apiKey)
         }
-        checkAccessibilityPermissions()
-        startTimer()
     }
 
     deinit {
@@ -45,18 +81,6 @@ class PermissionsViewModel: ObservableObject {
         apiKeyCheckTask?.cancel()
     }
 
-    func checkAccessibilityPermissions() {
-        isAppTrusted = AccessibilityChecker.isAppTrusted()
-    }
-
-    private func startTimer() {
-        timer = Timer.publish(every: 1.0, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.checkAccessibilityPermissions()
-            }
-    }
-    
     private func scheduleApiKeyCheck() {
         print("Scheduling API Key check")
         apiKeyCheckTask?.cancel() // Cancel any existing task
@@ -120,16 +144,5 @@ class PermissionsViewModel: ObservableObject {
     private func updateValidationState(_ state: ApiKeyValidationState) {
         self.apiKeyValidationState = state
         UserDefaults.standard.set(state.rawValue, forKey: "apiKeyValidationState")
-    }
-    
-    func initializeApp() {
-        if let appDelegate = NSApplication.shared.delegate as? ApplicationDelegate {
-            appDelegate.initializeApp()
-        }
-    }
-    
-    func requestAccessibilityPermissions() {
-        let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
-        AXIsProcessTrustedWithOptions(options)
     }
 }

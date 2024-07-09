@@ -9,6 +9,8 @@ import SwiftUI
 
 struct PermissionsWindowView: View {
     @ObservedObject var viewModel: PermissionsViewModel
+    @ObservedObject var licenseViewModel: LicenseViewModel
+
     let onContinue: () -> Void
 
     var body: some View {
@@ -18,11 +20,9 @@ struct PermissionsWindowView: View {
             Spacer()
             PermissionsView(viewModel: viewModel)
             Spacer()
-            LicenseView(apiKey: $viewModel.apiKey, apiKeyValidationState: viewModel.apiKeyValidationState)
+            LicenseView(viewModel: licenseViewModel)
             Spacer()
-            //GeneralView(viewModel: viewModel)
-            //Spacer()
-            ContinueButtonView(viewModel: viewModel, onContinue: onContinue)
+            ContinueButtonView(viewModel: viewModel, licenseViewModel: licenseViewModel, onContinue: onContinue)
             Spacer()
         }
         .padding()
@@ -102,8 +102,7 @@ struct PermissionsView: View {
 }
 
 struct LicenseView: View {
-    @Binding var apiKey: String
-    var apiKeyValidationState: ApiKeyValidationState
+    @ObservedObject var viewModel: LicenseViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -123,10 +122,10 @@ struct LicenseView: View {
                 }
                 .padding(.bottom, 10) // Adding some padding at the bottom of the text
 
-                TextField("sk-...", text: $apiKey)
+                TextField("sk-...", text: $viewModel.apiKey)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 // Conditionally show the feedback message if the API key is invalid
-                if apiKeyValidationState == .invalid {
+                if viewModel.apiKeyValidationState == .invalid {
                     Text("API Key is invalid")
                         .foregroundColor(.red)
                         .font(.footnote)
@@ -147,6 +146,8 @@ struct LicenseView: View {
 
 struct ContinueButtonView: View {
     @ObservedObject var viewModel: PermissionsViewModel
+    @ObservedObject var licenseViewModel: LicenseViewModel
+
     let onContinue: () -> Void
 
     var body: some View {
@@ -157,11 +158,11 @@ struct ContinueButtonView: View {
             Text("Continue")
                 .padding(.horizontal, 40)
                 .padding(.vertical, 8)
-                .background(viewModel.isAppTrusted && viewModel.apiKeyValidationState == .valid ? AppColors.black : AppColors.gray400)
+                .background(viewModel.isAppTrusted && licenseViewModel.apiKeyValidationState == .valid ? AppColors.black : AppColors.gray400)
                 .foregroundColor(.white)
                 .cornerRadius(8)
         }
-        .disabled(!(viewModel.isAppTrusted && viewModel.apiKeyValidationState == .valid))
+        .disabled(!(viewModel.isAppTrusted && licenseViewModel.apiKeyValidationState == .valid))
         .background(Color.clear) // Ensure background color is clear to avoid white corners
         .clipShape(RoundedRectangle(cornerRadius: 8)) // Clip the shape to remove background outside corners
         .buttonStyle(BorderlessButtonStyle())

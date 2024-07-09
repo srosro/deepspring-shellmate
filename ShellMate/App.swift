@@ -14,6 +14,7 @@ struct ShellMateApp: App {
     @NSApplicationDelegateAdaptor(ApplicationDelegate.self) var appDelegate
     @StateObject private var viewModel = AppViewModel()
     @StateObject private var permissionsViewModel = PermissionsViewModel()
+    @StateObject private var licenseViewModel = LicenseViewModel()
     @State private var showPermissionsView = UserDefaults.standard.bool(forKey: "showPermissionsView")
 
     private let updaterController: SPUStandardUpdaterController
@@ -25,7 +26,7 @@ struct ShellMateApp: App {
     var body: some Scene {
         WindowGroup {
             if showPermissionsView {
-                PermissionsWindowView(viewModel: permissionsViewModel, onContinue: {
+                PermissionsWindowView(viewModel: permissionsViewModel, licenseViewModel: licenseViewModel, onContinue: {
                     showPermissionsView = false
                     UserDefaults.standard.set(false, forKey: "showPermissionsView")
                 })
@@ -52,12 +53,11 @@ struct ShellMateApp: App {
                 Button("Permissions") {
                     ShellMate.showPermissionsView()
                 }
-                .keyboardShortcut(",", modifiers: .command)
             }
         }
         
         Settings {
-            SettingsView()
+            SettingsView(licenseViewModel: licenseViewModel)
         }
     }
 }

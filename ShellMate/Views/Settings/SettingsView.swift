@@ -9,9 +9,11 @@ import SwiftUI
 import LaunchAtLogin
 
 struct SettingsView: View {
+    @ObservedObject var licenseViewModel: LicenseViewModel
+
     var body: some View {
         TabView {
-            GeneralView()
+            GeneralView(licenseViewModel: licenseViewModel)
                 .tabItem {
                     Label("General", systemImage: "gear")
                 }
@@ -26,68 +28,103 @@ struct SettingsView: View {
 
 struct GeneralView: View {
     @StateObject private var viewModel = GeneralViewModel()
+    @ObservedObject var licenseViewModel: LicenseViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            HStack {
-                Text("Startup")
-                    .frame(width: 150, alignment: .trailing)
-                LaunchAtLogin.Toggle {
-                    Text("Open ShellMate at login")
-                        .font(.subheadline)
-                }
-                .labelsHidden()
-            }
-            HStack {
-                Text("Window Position")
-                    .frame(width: 150, alignment: .trailing)
-                Picker(selection: $viewModel.windowAttachmentPosition, label: HStack {
-                    switch viewModel.windowAttachmentPosition {
-                    case .right:
-                        Image(systemName: "arrow.right")
-                        Text("Pin To The Right")
-                    case .left:
-                        Image(systemName: "arrow.left")
-                        Text("Pin To The Left")
-                    case .float:
-                        Image(systemName: "arrow.up.and.down")
-                        Text("Float")
-                    }
-                }) {
-                    HStack {
-                        Image(systemName: "square.righthalf.fill")
-                        Text("Pin To The Right")
-                    }.tag(WindowAttachmentPosition.right)
-                    HStack {
-                        Image(systemName: "square.lefthalf.fill")
-                        Text("Pin To The Left")
-                    }.tag(WindowAttachmentPosition.left)
-                    HStack {
-                        Image(systemName: "square.fill")
-                        Text("Float")
-                    }.tag(WindowAttachmentPosition.float)
-                }
-                .labelsHidden()
-                .frame(maxWidth: .infinity)
-                .padding(.trailing, 60)
-                .onChange(of: viewModel.windowAttachmentPosition) { _ in
-                    viewModel.updateWindowAttachmentPosition(source: "config")
-                }
-            }
-            HStack {
-                Text("OpenAI API Key")
-                    .frame(width: 150, alignment: .trailing)
-                TextField("Enter OpenAI API Key", text: .constant(""))
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .frame(maxWidth: .infinity)
-                    .padding(.trailing, 60)
-            }
+            Spacer().frame(height: 10)
+            StartupView()
+            WindowPositionView(viewModel: viewModel)
+            ApiKeyView(licenseViewModel: licenseViewModel)
             Spacer()
         }
         .padding()
     }
 }
 
+struct StartupView: View {
+    var body: some View {
+        HStack {
+            Text("Startup")
+                .frame(width: 150, alignment: .trailing)
+            LaunchAtLogin.Toggle {
+                Text("Open ShellMate at login")
+                    .font(.subheadline)
+            }
+            .labelsHidden()
+        }
+    }
+}
+
+struct WindowPositionView: View {
+    @ObservedObject var viewModel: GeneralViewModel
+    
+    var body: some View {
+        HStack {
+            Text("Window Position")
+                .frame(width: 150, alignment: .trailing)
+            Picker(selection: $viewModel.windowAttachmentPosition, label: HStack {
+                switch viewModel.windowAttachmentPosition {
+                case .right:
+                    Image(systemName: "arrow.right")
+                    Text("Pin To The Right")
+                case .left:
+                    Image(systemName: "arrow.left")
+                    Text("Pin To The Left")
+                case .float:
+                    Image(systemName: "arrow.up.and.down")
+                    Text("Float")
+                }
+            }) {
+                HStack {
+                    Image(systemName: "square.righthalf.fill")
+                    Text("Pin To The Right")
+                }.tag(WindowAttachmentPosition.right)
+                HStack {
+                    Image(systemName: "square.lefthalf.fill")
+                    Text("Pin To The Left")
+                }.tag(WindowAttachmentPosition.left)
+                HStack {
+                    Image(systemName: "square.fill")
+                    Text("Float")
+                }.tag(WindowAttachmentPosition.float)
+            }
+            .labelsHidden()
+            .frame(maxWidth: .infinity)
+            .padding(.trailing, 60)
+            .onChange(of: viewModel.windowAttachmentPosition) {
+                viewModel.updateWindowAttachmentPosition(source: "config")
+            }
+        }
+    }
+}
+
+struct ApiKeyView: View {
+    @ObservedObject var licenseViewModel: LicenseViewModel
+
+    var body: some View {
+        VStack {
+            HStack {
+                Text("OpenAI API Key")
+                    .frame(width: 150, alignment: .trailing)
+                TextField("Enter OpenAI API Key", text: $licenseViewModel.apiKey)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(maxWidth: .infinity)
+                    .padding(.trailing, 60)
+            }
+            // Conditionally show the feedback message if the API key is invalid
+            if licenseViewModel.apiKeyValidationState == .invalid {
+                HStack {
+                    Spacer() // Pushes the text to the left
+                    Text("API Key is invalid")
+                        .foregroundColor(.red)
+                        .font(.footnote)
+                }
+                .padding(.trailing, 60)
+            }
+        }
+    }
+}
 
 struct AboutView: View {
     @ObservedObject private var viewModel = AboutViewModel()
@@ -126,7 +163,9 @@ struct AboutView: View {
                     
                     
                         Button(action: {
-                            //Do something
+                            if let url = URL(string: "https://www.deepspring.ai/shellmate") {
+                                NSWorkspace.shared.open(url)
+                            }
                         }) {
                             Text("Visit Website")
                                 .padding(.horizontal, 6)

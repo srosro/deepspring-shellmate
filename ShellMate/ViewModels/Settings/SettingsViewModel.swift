@@ -38,6 +38,9 @@ class GeneralViewModel: ObservableObject {
         } else {
             self.windowAttachmentPosition = .right
         }
+        
+        // Add the observer
+        NotificationCenter.default.addObserver(self, selector: #selector(handleWindowAttachmentPositionDidChange(_:)), name: .windowAttachmentPositionDidChange, object: nil)
     }
     
     func updateWindowAttachmentPosition(source: String) {
@@ -46,5 +49,22 @@ class GeneralViewModel: ObservableObject {
         // Post the notification
         NotificationCenter.default.post(name: .windowAttachmentPositionDidChange, object: nil, userInfo: ["position": windowAttachmentPosition.rawValue, "source": source])
     }
+    
+    @objc private func handleWindowAttachmentPositionDidChange(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let source = userInfo["source"] as? String,
+              source == "dragging",
+              let positionRawValue = userInfo["position"] as? String,
+              let newPosition = WindowAttachmentPosition(rawValue: positionRawValue) else {
+            return
+        }
+        
+        DispatchQueue.main.async {
+            self.windowAttachmentPosition = newPosition
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
 }
-
