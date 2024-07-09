@@ -11,6 +11,8 @@
 		DC00C0342C2F51210019BEB1 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = DC00C0332C2F51210019BEB1 /* Sparkle */; };
 		DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */; };
 		DC00C03C2C2F62100019BEB1 /* CheckForUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */; };
+		DC0D53F82C3C9728003FEBB1 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0D53F72C3C9728003FEBB1 /* SettingsView.swift */; };
+		DC0D53FA2C3C9CA0003FEBB1 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0D53F92C3C9CA0003FEBB1 /* SettingsViewModel.swift */; };
 		DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = DC15545E2C3336FF00F24C18 /* Mixpanel */; };
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
 		DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */; };
@@ -64,6 +66,8 @@
 		DC00C0382C2F5F2D0019BEB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesViewModel.swift; sourceTree = "<group>"; };
 		DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesView.swift; sourceTree = "<group>"; };
+		DC0D53F72C3C9728003FEBB1 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		DC0D53F92C3C9CA0003FEBB1 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
 		DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantCreator.swift; sourceTree = "<group>"; };
 		DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantInstructions.swift; sourceTree = "<group>"; };
@@ -119,9 +123,26 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		DC0D53FB2C3CA373003FEBB1 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				DC0D53F92C3C9CA0003FEBB1 /* SettingsViewModel.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		DC0D53FC2C3CA38C003FEBB1 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				DC0D53F72C3C9728003FEBB1 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
 		DC8FF0912C2CC2C300E5F0A7 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				DC0D53FB2C3CA373003FEBB1 /* Settings */,
 				DC9B38892C24FFEA006755AE /* AppViewModel.swift */,
 				DCA94B682C2CA726004A2BCE /* PermissionsViewModel.swift */,
 				DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */,
@@ -192,6 +213,7 @@
 		DCA94B652C2C98FA004A2BCE /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DC0D53FC2C3CA38C003FEBB1 /* Settings */,
 				DC9B388B2C24FFEA006755AE /* ContentView.swift */,
 				DCA94B662C2C9921004A2BCE /* PermissionsView.swift */,
 				DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */,
@@ -309,7 +331,9 @@
 				DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */,
 				DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */,
 				DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */,
+				DC0D53F82C3C9728003FEBB1 /* SettingsView.swift in Sources */,
 				DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */,
+				DC0D53FA2C3C9CA0003FEBB1 /* SettingsViewModel.swift in Sources */,
 				DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */,
 				DC53925E2C38CFEA003CB46D /* KeyPressDelegate.swift in Sources */,
 				DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */,

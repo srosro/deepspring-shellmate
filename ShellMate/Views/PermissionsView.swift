@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import LaunchAtLogin
 
 struct PermissionsWindowView: View {
     @ObservedObject var viewModel: PermissionsViewModel
@@ -21,8 +20,8 @@ struct PermissionsWindowView: View {
             Spacer()
             LicenseView(apiKey: $viewModel.apiKey, apiKeyValidationState: viewModel.apiKeyValidationState)
             Spacer()
-            GeneralView(viewModel: viewModel)
-            Spacer()
+            //GeneralView(viewModel: viewModel)
+            //Spacer()
             ContinueButtonView(viewModel: viewModel, onContinue: onContinue)
             Spacer()
         }
@@ -139,43 +138,6 @@ struct LicenseView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(AppColors.gray400, lineWidth: 0.4) // Consistent line width
-            )
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
-
-struct GeneralView: View {
-    @ObservedObject var viewModel: PermissionsViewModel
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("General")
-                .font(.subheadline)
-                .bold()
-                .padding(.leading, 15)
-
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Login")
-                            .font(.subheadline)
-                            .bold()
-                            .padding(.bottom, 5)
-                        LaunchAtLogin.Toggle {
-                            Text("Open ShellMate at login")
-                                .font(.subheadline)
-                        }
-                    }
-                    Spacer()
-                }
-                .padding()
-            }
-            .cornerRadius(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(AppColors.gray400, lineWidth: 0.4)
             )
         }
         .frame(maxWidth: .infinity)

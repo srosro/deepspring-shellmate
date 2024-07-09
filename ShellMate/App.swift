@@ -55,5 +55,9 @@ struct ShellMateApp: App {
                 .keyboardShortcut(",", modifiers: .command)
             }
         }
+        
+        Settings {
+            SettingsView()
+        }
     }
 }

@@ -87,15 +87,23 @@ enum AppInfoError: Error {
     case missingBuild
 }
 
-func getAppVersionAndBuild() throws -> String {
+func getAppVersion() throws -> String {
     guard let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else {
         throw AppInfoError.missingVersion
     }
-    
+    return version
+}
+
+func getAppBuild() throws -> String {
     guard let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String else {
         throw AppInfoError.missingBuild
     }
-    
+    return build
+}
+
+func getAppVersionAndBuild() throws -> String {
+    let version = try getAppVersion()
+    let build = try getAppBuild()
     return "Version\(version)Build\(build)"
 }
 
