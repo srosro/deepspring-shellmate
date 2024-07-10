@@ -15,10 +15,12 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     let terminalContentDelegate = TerminalContentManager()
     let windowPositionDelegate = WindowPositionManager()
+    let shellMateWindowTrackingDelegate = ShellMateWindowTrackingDelegate()
     let keyPressDelegate = KeyPressDelegate()
     var isAppInitialized = false // Add this property
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        setupMainWindow()
         resizeWindow(width: 400, height: 600)
         print("ApplicationDelegate - Application did finish launching.")
 
@@ -40,6 +42,13 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
             // Sample rate for profiling, applied on top of TracesSampleRate.
             // We recommend adjusting this value in production.
             options.profilesSampleRate = 1.0
+        }
+    }
+    
+    func setupMainWindow() {
+        if let mainWindow = NSApplication.shared.windows.first {
+            self.window = mainWindow
+            //self.window.delegate = shellMateWindowTrackingDelegate
         }
     }
     
