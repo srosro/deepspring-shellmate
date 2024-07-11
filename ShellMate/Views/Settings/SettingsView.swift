@@ -10,10 +10,11 @@ import LaunchAtLogin
 
 struct SettingsView: View {
     @ObservedObject var licenseViewModel: LicenseViewModel
-
+    @ObservedObject var generalViewModel: GeneralViewModel
+    
     var body: some View {
         TabView {
-            GeneralView(licenseViewModel: licenseViewModel)
+            GeneralView(licenseViewModel: licenseViewModel, viewModel: generalViewModel)
                 .tabItem {
                     Label("General", systemImage: "gear")
                 }
@@ -27,9 +28,9 @@ struct SettingsView: View {
 }
 
 struct GeneralView: View {
-    @StateObject private var viewModel = GeneralViewModel()
     @ObservedObject var licenseViewModel: LicenseViewModel
-
+    @ObservedObject var viewModel: GeneralViewModel
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Spacer().frame(height: 10)

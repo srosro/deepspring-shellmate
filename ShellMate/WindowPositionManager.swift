@@ -20,7 +20,8 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         print("Application did finish launching.")
         initializeFocusedWindowID() // Required in case app launches with terminal already open
         
-        NotificationCenter.default.addObserver(self, selector: #selector(handleWindowAttachmentPositionDidChange(_:)), name: .windowAttachmentPositionDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdatedAppPositionAfterWindowAttachmentChange(_:)), name: .updatedAppPositionAfterWindowAttachmentChange, object: nil)
+
     }
     
     func initializeFocusedWindowID() {
@@ -59,29 +60,12 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         isTerminalFocused = false  // Reset the focused state when Terminal is terminated
     }
     
-    @objc func handleWindowAttachmentPositionDidChange(_ notification: Notification) {
-        if let userInfo = notification.userInfo {
-            let position = userInfo["position"] as? String ?? "Unknown"
-            let source = userInfo["source"] as? String ?? "Unknown"
-            print("Window attachment position did change to \(position) from \(source).")
-        } else {
-            print("Window attachment position did change.")
-        }
-        
+    @objc func handleUpdatedAppPositionAfterWindowAttachmentChange(_ notification: Notification) {
         guard let windowData = getTerminalWindowPositionAndSize() else {
             return
         }
-        
-        if let windowID = windowData.windowID {
-            NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
-                "terminalWindowID": windowID,
-                "terminalWindow": windowData.focusedWindow!
-            ])
-        }
-        
         positionAndSizeWindow(terminalPosition: windowData.position, terminalSize: windowData.size, shouldAnimate: true)
     }
-
     
     func initializeObserverForRunningTerminal() {
         if NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == "com.apple.Terminal" }) {
@@ -394,6 +378,7 @@ func positionAndSizeWindow(terminalPosition: CGPoint, terminalSize: CGSize, shou
         print("Invalid attachment position saved in UserDefaults.")
         return
     }
+    print("Saved position: \(savedPosition)")
     
     // Calculate the new y position
     let screenHeight = screen.frame.height

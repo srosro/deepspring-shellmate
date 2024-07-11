@@ -36,4 +36,6 @@ extension Notification.Name {
     /// - "position": String (the new window attachment position, e.g., "left", "right", "float")
     /// - "source": String (the source of the change, e.g., "dragging", "config")
     static let windowAttachmentPositionDidChange = Notification.Name("windowAttachmentPositionDidChange")
+    static let updatedAppPositionAfterWindowAttachmentChange = Notification.Name("updatedAppPositionAfterWindowAttachmentChange")
+
 }

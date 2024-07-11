@@ -15,6 +15,7 @@ struct ShellMateApp: App {
     @StateObject private var viewModel = AppViewModel()
     @StateObject private var permissionsViewModel = PermissionsViewModel()
     @StateObject private var licenseViewModel = LicenseViewModel()
+    @StateObject private var generalViewModel = GeneralViewModel()
     @State private var showPermissionsView = UserDefaults.standard.bool(forKey: "showPermissionsView")
 
     private let updaterController: SPUStandardUpdaterController
@@ -57,7 +58,7 @@ struct ShellMateApp: App {
         }
         
         Settings {
-            SettingsView(licenseViewModel: licenseViewModel)
+            SettingsView(licenseViewModel: licenseViewModel, generalViewModel: generalViewModel)
         }
     }
 }

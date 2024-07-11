@@ -29,6 +29,9 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         trackFirstLaunchAfterInstall()
         MixpanelHelper.shared.trackEvent(name: "applicationLaunch")
         checkAccessibilityPermissionsAndApiKey()
+        
+        shellMateWindowTrackingDelegate.setWindowPositionDelegate(windowPositionDelegate)
+        shellMateWindowTrackingDelegate.startTracking()
     }
     
     func setupSentry() {        // Initialize Sentry SDK
@@ -135,5 +138,10 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return true
+    }
+    
+    func applicationWillTerminate(_ notification: Notification) {
+        // Stop tracking
+        shellMateWindowTrackingDelegate.stopTracking()
     }
 }
