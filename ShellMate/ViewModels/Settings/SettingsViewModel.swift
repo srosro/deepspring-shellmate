@@ -48,8 +48,7 @@ class GeneralViewModel: ObservableObject {
     func updateWindowAttachmentPosition(source: String) {
         UserDefaults.standard.set(windowAttachmentPosition.rawValue, forKey: "windowAttachmentPosition")
         
-        // Post the notification
-        NotificationCenter.default.post(name: .windowAttachmentPositionDidChange, object: nil, userInfo: ["position": windowAttachmentPosition.rawValue, "source": source])
+        NotificationCenter.default.post(name: .updatedAppPositionAfterWindowAttachmentChange, object: nil)
     }
     
     @objc private func handleWindowAttachmentPositionDidChange(_ notification: Notification) {
