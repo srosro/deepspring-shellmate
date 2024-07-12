@@ -6,14 +6,12 @@
 //
 
 import Cocoa
+import AXSwift
 
 class ShellMateWindowTrackingDelegate: NSObject {
     private var localMouseEventMonitor: Any?
-    private var trackingTimer: Timer?
     private var windowPositionDelegate: WindowPositionManager?
-    private var windowAttachmentChangeDebouncer: Timer?
-    private let windowAttachmentChangeDebounceInterval: TimeInterval = 0.1 // Debounce interval for window attachment change events
-
+    private var terminalObserver: AXObserver?
 
     func setWindowPositionDelegate(_ delegate: WindowPositionManager) {
         self.windowPositionDelegate = delegate
@@ -32,7 +30,6 @@ class ShellMateWindowTrackingDelegate: NSObject {
 
     func stopTracking() {
         stopMonitoringLocalMouseEvents()
-        stopTrackingWindowPosition()
     }
 
     private func stopMonitoringLocalMouseEvents() {
@@ -58,14 +55,14 @@ class ShellMateWindowTrackingDelegate: NSObject {
 
     private func handleMouseDown(_ event: NSEvent) {
         print("Mouse button pressed.")
-        startTrackingWindowPosition()
+        setupObserverForShellMate()
     }
 
     private func handleMouseUp(_ event: NSEvent) {
         print("Mouse button released.")
-        printWindowPosition() // Print the window position here
+        printWindowPosition()
         checkAndPrintWindowPositionRelativeToTerminal()
-        stopTrackingWindowPosition()
+        removeObserverForShellMate()
     }
 
     private func checkAndPrintWindowPositionRelativeToTerminal() {
@@ -83,7 +80,6 @@ class ShellMateWindowTrackingDelegate: NSObject {
         }
     }
 
-
     private func checkWindowPositionRelativeToTerminal(appWindowPosition: NSRect?, terminalWindowPosition: (position: CGPoint, size: CGSize, windowID: CGWindowID?, focusedWindow: AXUIElement?)) -> String {
         guard let appWindowPosition = appWindowPosition else { return "Unknown" }
 
@@ -97,19 +93,6 @@ class ShellMateWindowTrackingDelegate: NSObject {
         }
     }
 
-    private func startTrackingWindowPosition() {
-        guard trackingTimer == nil else { return }
-
-        trackingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
-            self?.printWindowPosition()
-        }
-    }
-
-    private func stopTrackingWindowPosition() {
-        trackingTimer?.invalidate()
-        trackingTimer = nil
-    }
-
     private func printWindowPosition() {
         if let window = NSApplication.shared.windows.first {
             let position = window.frame.origin
@@ -117,17 +100,76 @@ class ShellMateWindowTrackingDelegate: NSObject {
             print("Current window position: \(position), Size: \(size)")
         }
     }
-    
+
     private func postWindowAttachmentPositionDidChangeNotification(position: String) {
-        // Avoid posting duplicated events
-        windowAttachmentChangeDebouncer?.invalidate()
-        windowAttachmentChangeDebouncer = Timer.scheduledTimer(withTimeInterval: windowAttachmentChangeDebounceInterval, repeats: false) { _ in
-            print("POSTING BY DRAG DID CHANGE")
-            let userInfo: [String: String] = [
-                "position": position,
-                "source": "dragging"
-            ]
-            NotificationCenter.default.post(name: .windowAttachmentPositionDidChange, object: nil, userInfo: userInfo)
+        print("POSTING BY DRAG DID CHANGE")
+        let userInfo: [String: String] = [
+            "position": position,
+            "source": "dragging"
+        ]
+        NotificationCenter.default.post(name: .windowAttachmentPositionDidChange, object: nil, userInfo: userInfo)
+    }
+
+    private func setupObserverForShellMate() {
+        guard let shellMateApp = NSWorkspace.shared.runningApplications.first(where: { $0.localizedName == "ShellMate" }) else {
+            print("ShellMate application is not running.")
+            return
         }
+
+        var observer: AXObserver?
+        let pid = shellMateApp.processIdentifier
+        let callback: AXObserverCallback = { (observer, element, notification, refcon) in
+            print("Observer callback triggered for ShellMate: \(notification).")
+            let delegate = Unmanaged<ShellMateWindowTrackingDelegate>.fromOpaque(refcon!).takeUnretainedValue()
+            delegate.handleWindowPositionChange(notification: notification as CFString)
+        }
+
+        let result = AXObserverCreate(pid_t(pid), callback, &observer)
+
+        if result != .success {
+            print("Failed to create AXObserver for ShellMate. Error: \(result.rawValue)")
+            return
+        }
+
+        self.terminalObserver = observer
+
+        guard let observer = observer else {
+            print("Failed to create AXObserver.")
+            return
+        }
+
+        let shellMateElement = AXUIElementCreateApplication(pid_t(pid))
+        let runLoopSource = AXObserverGetRunLoopSource(observer)
+        CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .defaultMode)
+        print("Observer added to run loop for ShellMate.")
+
+        let refcon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
+        addNotifications(to: observer, element: shellMateElement, refcon: refcon)
+    }
+
+    private func removeObserverForShellMate() {
+        guard let observer = terminalObserver else { return }
+        let runLoopSource = AXObserverGetRunLoopSource(observer)
+        CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runLoopSource, .defaultMode)
+        terminalObserver = nil
+        print("Observer removed for ShellMate.")
+    }
+
+    private func addNotifications(to observer: AXObserver, element: AXUIElement, refcon: UnsafeMutableRawPointer) {
+        let notifications = [
+            kAXMovedNotification as CFString,
+            kAXResizedNotification as CFString
+        ]
+
+        for notification in notifications {
+            let result = AXObserverAddNotification(observer, element, notification, refcon)
+            if result != .success {
+                print("Failed to add \(notification) notification to observer. Error: \(result.rawValue)")
+            }
+        }
+    }
+
+    private func handleWindowPositionChange(notification: CFString) {
+        printWindowPosition()
     }
 }
