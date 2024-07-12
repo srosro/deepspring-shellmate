@@ -8,10 +8,31 @@
 import Cocoa
 import AXSwift
 
+
+class GhostWindow: NSWindow {
+    init(contentRect: NSRect) {
+        super.init(contentRect: contentRect, styleMask: .borderless, backing: .buffered, defer: false)
+        self.isOpaque = false
+        self.backgroundColor = NSColor.blue.withAlphaComponent(0.5)
+        self.level = .floating
+        self.hasShadow = false
+    }
+
+    override var canBecomeKey: Bool {
+        return false
+    }
+
+    override var canBecomeMain: Bool {
+        return false
+    }
+}
+
+
 class ShellMateWindowTrackingDelegate: NSObject {
     private var localMouseEventMonitor: Any?
     private var windowPositionDelegate: WindowPositionManager?
     private var terminalObserver: AXObserver?
+    private var ghostWindow: GhostWindow?  // Add this line
 
     func setWindowPositionDelegate(_ delegate: WindowPositionManager) {
         self.windowPositionDelegate = delegate
@@ -55,6 +76,7 @@ class ShellMateWindowTrackingDelegate: NSObject {
 
     private func handleMouseDown(_ event: NSEvent) {
         print("Mouse button pressed.")
+        showGhostWindow(for: event.window)
         setupObserverForShellMate()
     }
 
@@ -63,6 +85,7 @@ class ShellMateWindowTrackingDelegate: NSObject {
         printWindowPosition()
         checkAndPrintWindowPositionRelativeToTerminal()
         removeObserverForShellMate()
+        hideGhostWindow()
     }
 
     private func checkAndPrintWindowPositionRelativeToTerminal() {
@@ -98,6 +121,7 @@ class ShellMateWindowTrackingDelegate: NSObject {
             let position = window.frame.origin
             let size = window.frame.size
             print("Current window position: \(position), Size: \(size)")
+            updateGhostWindowPosition(to: window.frame)
         }
     }
 
@@ -172,4 +196,22 @@ class ShellMateWindowTrackingDelegate: NSObject {
     private func handleWindowPositionChange(notification: CFString) {
         printWindowPosition()
     }
+
+    private func showGhostWindow(for window: NSWindow?) {
+        guard let window = window else { return }
+        let ghostRect = NSRect(x: window.frame.origin.x - 20, y: window.frame.origin.y, width: 20, height: window.frame.size.height)
+        ghostWindow = GhostWindow(contentRect: ghostRect)
+        ghostWindow?.makeKeyAndOrderFront(nil)
+    }
+
+    private func updateGhostWindowPosition(to frame: NSRect) {
+        let ghostRect = NSRect(x: frame.origin.x - 20, y: frame.origin.y, width: 20, height: frame.size.height)
+        ghostWindow?.setFrame(ghostRect, display: true)
+    }
+
+    private func hideGhostWindow() {
+        ghostWindow?.orderOut(nil)
+        ghostWindow = nil
+    }
+
 }
