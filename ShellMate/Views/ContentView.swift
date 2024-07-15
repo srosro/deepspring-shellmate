@@ -107,6 +107,7 @@ struct SuggestionBatchView: View {
     }
 }
 
+
 struct SmButtonIdxView: View {
     var batchIndex: Int
     var index: Int
@@ -114,12 +115,24 @@ struct SmButtonIdxView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            Text(buttonText)
-                .font(.footnote)
-                .fontWeight(.regular)
-                .foregroundColor(AppColors.black)
+            if buttonText == "copied" {
+                Text(buttonText)
+                    .font(.system(.footnote, design: .monospaced))
+                    .fontWeight(.regular)
+                    .foregroundColor(AppColors.black)
+            } else {
+                Text("sm \(batchIndex + 1)")
+                    .font(.system(.footnote, design: .monospaced))
+                    .fontWeight(.regular)
+                    .foregroundColor(AppColors.black)
+                Text(".\(index + 1)")
+                    .font(.system(.footnote, design: .monospaced))
+                    .fontWeight(.regular)
+                    .foregroundColor(AppColors.black)
+                    .opacity(index == 0 ? 0.4 : 1.0) // Updated opacity logic
+            }
         }
-        .padding(.horizontal, 8)
+        .padding(6)
         .background(AppColors.gray600.opacity(0.05))
         .cornerRadius(4)
         .overlay(
@@ -128,6 +141,7 @@ struct SmButtonIdxView: View {
         )
     }
 }
+
 
 struct SuggestionView: View {
     var resultDict: [String: String]
