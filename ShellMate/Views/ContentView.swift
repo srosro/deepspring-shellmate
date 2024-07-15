@@ -133,7 +133,7 @@ struct SmButtonIdxView: View {
             }
         }
         .padding(6)
-        .background(AppColors.gray600.opacity(0.05))
+        .background(buttonText == "copied" ? AppColors.smButtonBackground.opacity(0.15) : AppColors.smButtonBackground.opacity(0.05))
         .cornerRadius(4)
         .overlay(
             RoundedRectangle(cornerRadius: 4)
@@ -183,6 +183,7 @@ struct SuggestionView: View {
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(borderColor, lineWidth: borderWidth)
                     )
+                    .padding(1) // Ensure padding is uniform around the button to avoid thicker bottom border
                 }
                 .buttonStyle(PlainButtonStyle())
                 .onHover { hovering in
