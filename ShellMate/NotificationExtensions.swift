@@ -38,4 +38,15 @@ extension Notification.Name {
     static let windowAttachmentPositionDidChange = Notification.Name("windowAttachmentPositionDidChange")
     static let updatedAppPositionAfterWindowAttachmentChange = Notification.Name("updatedAppPositionAfterWindowAttachmentChange")
 
+    // Required for GhostWindow logic
+    /// Notification to update the ghost window state.
+    /// userInfo dictionary should contain:
+    /// - "action": String (the action to perform, e.g., "update", "show", "hide")
+    /// - "terminalPosition": NSRect (the new position of the ghost window, required if action is "update")
+    static let ghostWindowStateDidChange = Notification.Name("ghostWindowStateDidChange")
+    /// Notification to indicate the mouse position is close to a terminal window border.
+    /// userInfo dictionary should contain:
+    /// - "isCloseToTerminalBorder": Bool (indicates if the mouse is close to any terminal window border)
+    /// - "terminalBorder": String? (the terminal window border the mouse is close to, e.g., "left", "right", or nil if not close to any border)
+    static let mousePositionCloseToTerminalBorder = Notification.Name("mousePositionCloseToTerminalBorder")
 }

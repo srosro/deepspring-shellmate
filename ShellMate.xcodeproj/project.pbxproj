@@ -174,8 +174,8 @@
 		DC9B38882C24FFEA006755AE /* ShellMate */ = {
 			isa = PBXGroup;
 			children = (
-				DC00C0382C2F5F2D0019BEB1 /* Info.plist */,
 				DC8FF0912C2CC2C300E5F0A7 /* ViewModels */,
+				DC00C0382C2F5F2D0019BEB1 /* Info.plist */,
 				DCA94B652C2C98FA004A2BCE /* Views */,
 				DC8FF0922C2CC30300E5F0A7 /* App.swift */,
 				DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */,
