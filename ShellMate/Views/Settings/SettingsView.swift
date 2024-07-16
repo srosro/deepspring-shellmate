@@ -150,7 +150,7 @@ struct AboutView: View {
                         .opacity(0.8)
                     HStack {
                         Button(action: {
-                            // Do something
+                            sendFeedbackEmail()
                         }) {
                             Text("Send Feedback")
                                 .padding(.horizontal, 6)
