@@ -21,4 +21,6 @@ struct AppColors {
     static let veryLightGray = Color(red: 0.92, green: 0.92, blue: 0.92)
     static let extraLightGray = Color(red: 0.98, green: 0.98, blue: 0.98)
     static let smButtonBackground = Color(red: 17/255, green: 24/255, blue: 39/255)
+    static let gradientLightBlue = Color(red: 130/255, green: 193/255, blue: 255/255)
+    static let gradientPurple = Color(red: 151/255, green: 71/255, blue: 255/255)
 }

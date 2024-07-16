@@ -7,6 +7,51 @@
 
 import SwiftUI
 
+struct ActivateShellMateView: View {
+    @State private var apiKey: String = ""
+
+    var body: some View {
+        Button(action: {
+        }) {
+            // this here is a dummy button just to make the style work
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Activate ShellMate")
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .allowsHitTesting(false)  // Disable interaction for this text
+
+                Text("You've run out of free AI responses. Add your own OpenAI API key to keep using.")
+                    .font(.body)
+                    .fontWeight(.regular)
+                    .multilineTextAlignment(.leading)
+                    .allowsHitTesting(false)  // Disable interaction for this text
+
+                SettingsLink {
+                    Text("Add API key")
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 7)
+                        .background(Color.black)
+                        .foregroundColor(.white)
+                        .cornerRadius(4)
+                        .font(.subheadline)
+                }
+                .buttonStyle(BorderlessButtonStyle())  // Ensure no default button styling
+            }
+            .padding(.horizontal, 16)  // Inner padding for the VStack inside the border
+            .padding(.vertical, 12)  // Inner padding for the VStack inside the border
+            .frame(maxWidth: .infinity, alignment: .leading)  // Make VStack take full width
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(LinearGradient(
+                        gradient: Gradient(colors: [AppColors.gradientLightBlue, AppColors.gradientPurple]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ), lineWidth: 2)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())  // Ensure no button styling
+    }
+}
 
 
 struct ContentView: View {
@@ -41,6 +86,9 @@ struct SuggestionsView: View {
                     }
                 }
             }
+            
+            ActivateShellMateView()
+                .padding(10)
 
             Divider().padding(.top, 5)
 
