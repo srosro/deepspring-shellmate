@@ -87,8 +87,10 @@ struct SuggestionsView: View {
                 }
             }
             
-            ActivateShellMateView()
-                .padding(10)
+            if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit {
+                ActivateShellMateView()
+                    .padding(10)
+            }
 
             Divider().padding(.top, 5)
 

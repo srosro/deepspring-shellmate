@@ -15,8 +15,31 @@ class AppViewModel: ObservableObject {
     private lazy var gptAssistantManager: GPTAssistantManager = {
         return GPTAssistantManager()
     }()
+    
+    // UserDefaults keys
+    private let GPTSuggestionsFreeTierCountKey = "GPTSuggestionsFreeTierCount"
+    private let hasGPTSuggestionsFreeTierCountReachedLimitKey = "hasGPTSuggestionsFreeTierCountReachedLimit"
 
+    // Limit for free tier suggestions
+    private let GPTSuggestionsFreeTierLimit = 1
+
+    @Published var GPTSuggestionsFreeTierCount: Int {
+        didSet {
+            UserDefaults.standard.set(GPTSuggestionsFreeTierCount, forKey: GPTSuggestionsFreeTierCountKey)
+            updateHasGPTSuggestionsFreeTierCountReachedLimit()
+        }
+    }
+    @Published var hasGPTSuggestionsFreeTierCountReachedLimit: Bool {
+        didSet {
+            UserDefaults.standard.set(hasGPTSuggestionsFreeTierCountReachedLimit, forKey: hasGPTSuggestionsFreeTierCountReachedLimitKey)
+        }
+    }
+    
     init() {
+        // Initialize properties from UserDefaults
+        self.GPTSuggestionsFreeTierCount = UserDefaults.standard.integer(forKey: GPTSuggestionsFreeTierCountKey)
+        self.hasGPTSuggestionsFreeTierCountReachedLimit = UserDefaults.standard.bool(forKey: hasGPTSuggestionsFreeTierCountReachedLimitKey)
+        updateHasGPTSuggestionsFreeTierCountReachedLimit()
         setupNotificationObservers()
     }
     
@@ -57,7 +80,6 @@ class AppViewModel: ObservableObject {
         analyzeTerminalContent(text: text, windowID: windowID, source: source, changeIdentifiedAt: changeIdentifiedAt)
     }
 
-    
     @objc private func handleSuggestionGenerationStatusChanged(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let identifier = userInfo["identifier"] as? String,
@@ -219,7 +241,14 @@ class AppViewModel: ObservableObject {
             ])
         }
     }
-
+        
+    private func incrementGPTSuggestionsFreeTierCount(by count: Int) {
+        GPTSuggestionsFreeTierCount += count
+    }
+    private func updateHasGPTSuggestionsFreeTierCountReachedLimit() {
+        hasGPTSuggestionsFreeTierCountReachedLimit = GPTSuggestionsFreeTierCount >= GPTSuggestionsFreeTierLimit
+    }
+    
     @MainActor
     private func appendResult(identifier: String, terminalStateID: UUID, response: String?, command: String?, explanation: String?) {
         guard let response = response, !response.isEmpty,
@@ -251,6 +280,7 @@ class AppViewModel: ObservableObject {
 
             self.updateCounter += 1
             self.writeResultsToFile()
+            self.incrementGPTSuggestionsFreeTierCount(by: 1)
         }
     }
 
