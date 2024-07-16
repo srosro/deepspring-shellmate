@@ -225,12 +225,36 @@ class ShellMateWindowTrackingDelegate: NSObject {
         isDraggingWindow = false
         initialWindowPosition = getAppWindowPosition()
         
+        // Get the mouse click location
+        let clickLocation = event.locationInWindow
+        print("Mouse click y-coordinate: \(clickLocation.y)")
+
+        if isClickInTitleBar(event, clickLocation: clickLocation) {
+            print("Mouse click was in the top window bar.")
+        } else {
+            print("Mouse click was outside the top window bar.")
+            return
+        }
+        
         // Initialize ghost window if needed
         if let appWindowPosition = initialWindowPosition {
             initializeGhostWindowIfNeeded(appWindowPosition: appWindowPosition)
         }
         
         setupObserverForShellMate()
+    }
+
+    private func isClickInTitleBar(_ event: NSEvent, clickLocation: NSPoint) -> Bool {
+        // Assuming the title bar height is 22 points + some extra
+        let titleBarHeight: CGFloat = 35.0
+
+        // Get the window height
+        guard let windowHeight = event.window?.frame.size.height else {
+            return false
+        }
+        // Check if the click is within the title bar area
+        // This check prevents a bug where clicks on buttons don't trigger mouse up events, causing the tracking process to start and never end.
+        return clickLocation.y >= windowHeight - titleBarHeight
     }
 
     private func handleMouseUp(_ event: NSEvent) {
