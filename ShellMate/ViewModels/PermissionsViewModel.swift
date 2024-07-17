@@ -57,10 +57,24 @@ enum ApiKeyValidationState: String {
 class LicenseViewModel: ObservableObject {
     @Published var apiKey: String {
         didSet {
+            // Sanitize the API key by removing spaces
             let sanitizedApiKey = apiKey.replacingOccurrences(of: " ", with: "")
+            
+            // Check if the sanitized API key is empty
+            if sanitizedApiKey.isEmpty {
+                // If it is empty, update UserDefaults with an empty string
+                UserDefaults.standard.set("", forKey: "apiKey")
+                // Update the validation state to unverified
+                self.updateValidationState(.unverified)
+                self.userValidatedOwnOpenAIAPIKey(isValid: false)
+            } else {
+                // Otherwise, update UserDefaults with the sanitized API key
+                UserDefaults.standard.set(sanitizedApiKey, forKey: "apiKey")
+                // Schedule the API key check
+                scheduleApiKeyCheck()
+            }
+            
             print("API Key updated: \(sanitizedApiKey)")
-            UserDefaults.standard.set(sanitizedApiKey, forKey: "apiKey")
-            scheduleApiKeyCheck()
         }
     }
     @Published var apiKeyValidationState: ApiKeyValidationState = .unverified
@@ -71,7 +85,7 @@ class LicenseViewModel: ObservableObject {
     init() {
         self.apiKey = UserDefaults.standard.string(forKey: "apiKey") ?? ""
         self.apiKeyValidationState = ApiKeyValidationState(rawValue: UserDefaults.standard.string(forKey: "apiKeyValidationState") ?? ApiKeyValidationState.unverified.rawValue) ?? .unverified
-        if !self.apiKey.isEmpty && self.apiKeyValidationState == .unverified {
+        if !self.apiKey.isEmpty {
             checkApiKey(self.apiKey)
         }
     }
@@ -94,51 +108,51 @@ class LicenseViewModel: ObservableObject {
     }
     
     private func checkApiKey(_ key: String) {
-        print("Checking API Key: \(key)")
+        print("Checking API Key")
 
-        // Create the URL for the request
-        guard let url = URL(string: "https://api.openai.com/v1/models") else {
-            print("Invalid URL")
-            updateValidationState(.invalid)
+        let assistantCreator = GPTAssistantCreator()
+        let assistantBaseName = "ShellMateSuggestCommands"
+        let assistantCurrentVersion: String
+        do {
+            assistantCurrentVersion = try getAppVersionAndBuild()
+        } catch {
+            print("Error retrieving app version and build: \(error)")
+            DispatchQueue.main.async {
+                self.updateValidationState(.invalid)
+                self.userValidatedOwnOpenAIAPIKey(isValid: false)
+            }
             return
         }
+        let assistantInstructions = GPTAssistantInstructions.getInstructions()
 
-        // Create the request
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        Task {
+            do {
+                let assistantId = try await assistantCreator.getOrUpdateAssistant(
+                    assistantBaseName: assistantBaseName,
+                    assistantCurrentVersion: assistantCurrentVersion,
+                    assistantInstructions: assistantInstructions
+                )
+                print("Assistant ID: \(assistantId)")
 
-        // Perform the request
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("Error making request: \(error)")
-                DispatchQueue.main.async {
-                    self.updateValidationState(.invalid)
-                }
-                return
-            }
-
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("Invalid response")
-                DispatchQueue.main.async {
-                    self.updateValidationState(.invalid)
-                }
-                return
-            }
-
-            if httpResponse.statusCode == 200 {
-                print("API key is valid")
                 DispatchQueue.main.async {
                     self.updateValidationState(.valid)
+                    if key != getHardcodedOpenAIAPIKey() {
+                        self.userValidatedOwnOpenAIAPIKey(isValid: true)
+                    }
                 }
-            } else {
-                print("API key is invalid")
+            } catch {
+                print("Error occurred while setting up GPT Assistant: \(error)")
                 DispatchQueue.main.async {
                     self.updateValidationState(.invalid)
+                    self.userValidatedOwnOpenAIAPIKey(isValid: false)
                 }
             }
         }
-        task.resume()
+    }
+
+    private func userValidatedOwnOpenAIAPIKey(isValid: Bool) {
+        print("User has validated their own OpenAI API Key. Valid: \(isValid)")
+        NotificationCenter.default.post(name: .userValidatedOwnOpenAIAPIKey, object: nil, userInfo: ["isValid": isValid])
     }
     
     private func updateValidationState(_ state: ApiKeyValidationState) {

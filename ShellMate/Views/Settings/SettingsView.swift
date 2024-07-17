@@ -9,12 +9,13 @@ import SwiftUI
 import LaunchAtLogin
 
 struct SettingsView: View {
+    @ObservedObject var appViewModel: AppViewModel
     @ObservedObject var licenseViewModel: LicenseViewModel
     @ObservedObject var generalViewModel: GeneralViewModel
     
     var body: some View {
         TabView {
-            GeneralView(licenseViewModel: licenseViewModel, viewModel: generalViewModel)
+            GeneralView(appViewModel: appViewModel, licenseViewModel: licenseViewModel, generalViewModel: generalViewModel)
                 .tabItem {
                     Label("General", systemImage: "gear")
                 }
@@ -28,15 +29,16 @@ struct SettingsView: View {
 }
 
 struct GeneralView: View {
+    @ObservedObject var appViewModel: AppViewModel
     @ObservedObject var licenseViewModel: LicenseViewModel
-    @ObservedObject var viewModel: GeneralViewModel
-    
+    @ObservedObject var generalViewModel: GeneralViewModel
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Spacer().frame(height: 10)
             StartupView()
-            WindowPositionView(viewModel: viewModel)
-            ApiKeyView(licenseViewModel: licenseViewModel)
+            WindowPositionView(generalViewModel: generalViewModel)
+            ApiKeyView(appViewModel: appViewModel, licenseViewModel: licenseViewModel)
             Spacer()
         }
         .padding()
@@ -58,14 +60,14 @@ struct StartupView: View {
 }
 
 struct WindowPositionView: View {
-    @ObservedObject var viewModel: GeneralViewModel
+    @ObservedObject var generalViewModel: GeneralViewModel
     
     var body: some View {
         HStack {
             Text("Window Position")
                 .frame(width: 150, alignment: .trailing)
-            Picker(selection: $viewModel.windowAttachmentPosition, label: HStack {
-                switch viewModel.windowAttachmentPosition {
+            Picker(selection: $generalViewModel.windowAttachmentPosition, label: HStack {
+                switch generalViewModel.windowAttachmentPosition {
                 case .right:
                     Image(systemName: "arrow.right")
                     Text("Pin To The Right")
@@ -93,14 +95,15 @@ struct WindowPositionView: View {
             .labelsHidden()
             .frame(maxWidth: .infinity)
             .padding(.trailing, 60)
-            .onChange(of: viewModel.windowAttachmentPosition) {
-                viewModel.updateWindowAttachmentPosition(source: "config")
+            .onChange(of: generalViewModel.windowAttachmentPosition) {
+                generalViewModel.updateWindowAttachmentPosition(source: "config")
             }
         }
     }
 }
 
 struct ApiKeyView: View {
+    @ObservedObject var appViewModel: AppViewModel
     @ObservedObject var licenseViewModel: LicenseViewModel
 
     var body: some View {
@@ -113,7 +116,7 @@ struct ApiKeyView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.trailing, 60)
             }
-            // Conditionally show the feedback message if the API key is invalid
+            // Conditionally show the feedback message if the API key is invalid or unverified
             if licenseViewModel.apiKeyValidationState == .invalid {
                 HStack {
                     Spacer() // Pushes the text to the left
@@ -122,13 +125,22 @@ struct ApiKeyView: View {
                         .font(.footnote)
                 }
                 .padding(.trailing, 60)
+            } else if licenseViewModel.apiKeyValidationState == .unverified {
+                HStack {
+                    Spacer() // Pushes the text to the left
+                    Text("\(appViewModel.GPTSuggestionsFreeTierCount)/\(appViewModel.GPTSuggestionsFreeTierLimit) complimentary AI responses used")
+                        .font(.footnote)
+                        .foregroundColor(AppColors.grayVisibleInDarkAndLightModes)
+                }
+                .padding(.trailing, 60)
             }
         }
     }
 }
 
+
 struct AboutView: View {
-    @ObservedObject private var viewModel = AboutViewModel()
+    @ObservedObject private var aboutViewModel = AboutViewModel()
     
     var body: some View {
         VStack {
@@ -144,7 +156,7 @@ struct AboutView: View {
                 VStack(alignment: .leading) {
                     Text("ShellMate")
                         .font(.title)
-                    Text("Version \(viewModel.appVersion)")
+                    Text("Version \(aboutViewModel.appVersion)")
                         .font(.subheadline)
                         .padding(.bottom, 8)
                         .opacity(0.8)

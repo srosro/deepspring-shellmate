@@ -49,4 +49,9 @@ extension Notification.Name {
     /// - "isCloseToTerminalBorder": Bool (indicates if the mouse is close to any terminal window border)
     /// - "terminalBorder": String? (the terminal window border the mouse is close to, e.g., "left", "right", or nil if not close to any border)
     static let mousePositionCloseToTerminalBorder = Notification.Name("mousePositionCloseToTerminalBorder")
+    
+    /// Notification to indicate the user has validated their own OpenAI API Key.
+    /// userInfo dictionary should contain:
+    /// - "isValid": Bool (indicates if the API key validation was successful)
+    static let userValidatedOwnOpenAIAPIKey = Notification.Name("userValidatedOwnOpenAIAPIKey")
 }

@@ -29,9 +29,6 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         trackFirstLaunchAfterInstall()
         MixpanelHelper.shared.trackEvent(name: "applicationLaunch")
         checkAccessibilityPermissionsAndApiKey()
-        
-        shellMateWindowTrackingDelegate.setWindowPositionDelegate(windowPositionDelegate)
-        shellMateWindowTrackingDelegate.startTracking()
     }
     
     func setupSentry() {        // Initialize Sentry SDK
@@ -53,7 +50,6 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     func setupMainWindow() {
         if let mainWindow = NSApplication.shared.windows.first {
             self.window = mainWindow
-            //self.window.delegate = shellMateWindowTrackingDelegate
         }
     }
     
@@ -79,8 +75,10 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
 
         if isAppTrusted && isApiKeyValid {
             initializeApp()
+            print("ApplicationDelegate - \(isApiKeyValid) (valid api)")
         } else {
             showPermissionsView()
+            print("ApplicationDelegate - \(isApiKeyValid) (valid api) (show permissions view)")
         }
     }
 
@@ -90,6 +88,9 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
 
         isAppInitialized = true // Set the flag to true
         print("ApplicationDelegate - initializeApp called.")
+               
+        shellMateWindowTrackingDelegate.setWindowPositionDelegate(windowPositionDelegate)
+        shellMateWindowTrackingDelegate.startTracking() 
         
         observeTerminalLifecycle()
         terminalContentDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))

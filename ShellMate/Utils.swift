@@ -13,12 +13,18 @@ import AppKit
 import CoreGraphics
 
 /// Retrieve the API key from UserDefaults
-func retrieveOpenaiAPIKey() -> String {
-    guard let apiKey = UserDefaults.standard.string(forKey: "apiKey"), !apiKey.isEmpty else {
-        fatalError("API key not found in UserDefaults or is empty")
-    }
-    return apiKey
+func getHardcodedOpenAIAPIKey() -> String {
+    return "sk-proj-QJTEXwwbbp2LhwahZ2F3T3BlbkFJeLNulBYi20omTgB7wk3l"
 }
+
+func retrieveOpenaiAPIKey() -> String {
+    if let apiKey = UserDefaults.standard.string(forKey: "apiKey"), !apiKey.isEmpty {
+        return apiKey
+    } else {
+        return getHardcodedOpenAIAPIKey()
+    }
+}
+
     
 func showPermissionsView() {
     UserDefaults.standard.set(true, forKey: "showPermissionsView")

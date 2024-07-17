@@ -7,7 +7,8 @@ class AppViewModel: ObservableObject {
     @Published var updateCounter: Int = 1
     @Published var results: [String: (suggestionsCount: Int, suggestionsHistory: [(UUID, [[String: String]])], updatedAt: Date)] = [:]
     @Published var isGeneratingSuggestion: [String: Bool] = [:]
-    
+    @Published var hasUserValidatedOwnOpenAIAPIKey: Bool = false
+
     private var threadIdDict: [String: String] = [:]
     private var currentTerminalStateID: UUID?
     private let additionalSuggestionDelaySeconds: TimeInterval = 2.0
@@ -21,7 +22,7 @@ class AppViewModel: ObservableObject {
     private let hasGPTSuggestionsFreeTierCountReachedLimitKey = "hasGPTSuggestionsFreeTierCountReachedLimit"
 
     // Limit for free tier suggestions
-    private let GPTSuggestionsFreeTierLimit = 1
+    let GPTSuggestionsFreeTierLimit = 3
 
     @Published var GPTSuggestionsFreeTierCount: Int {
         didSet {
@@ -49,9 +50,13 @@ class AppViewModel: ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalWindowIdDidChange(_:)), name: .terminalWindowIdDidChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleRequestTerminalContentAnalysis(_:)), name: .requestTerminalContentAnalysis, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleSuggestionGenerationStatusChanged(_:)), name: .suggestionGenerationStatusChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUserValidatedOwnOpenAIAPIKey), name: .userValidatedOwnOpenAIAPIKey, object: nil)
     }
     
     @objc private func handleTerminalChangeStarted() {
+        if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
+            return
+        }
         self.currentStateText = "Detecting changes..."
     }
     
@@ -77,6 +82,9 @@ class AppViewModel: ObservableObject {
               let changeIdentifiedAt = userInfo["changeIdentifiedAt"] as? Double else {
             return
         }
+        if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
+            return
+        }
         analyzeTerminalContent(text: text, windowID: windowID, source: source, changeIdentifiedAt: changeIdentifiedAt)
     }
 
@@ -91,6 +99,21 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    @objc private func handleUserValidatedOwnOpenAIAPIKey(_ notification: Notification) {
+        if let userInfo = notification.userInfo, let isValid = userInfo["isValid"] as? Bool, isValid == true {
+            self.hasUserValidatedOwnOpenAIAPIKey = true
+            
+            // Clear the entire threadIdDict
+            threadIdDict.removeAll()
+
+            // Create a new instance of gptAssistantManager
+            gptAssistantManager = GPTAssistantManager()
+        } else {
+            self.hasUserValidatedOwnOpenAIAPIKey = false
+        }
+    }
+
+
     private func analyzeTerminalContent(text: String, windowID: CGWindowID, source: String, changeIdentifiedAt: Double) {
         guard let currentTerminalId = self.currentTerminalID else {
             return
@@ -137,6 +160,10 @@ class AppViewModel: ObservableObject {
 
 
     private func generateAdditionalSuggestions(identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double, source: String) {
+        if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
+            return
+        }
+        
         guard let currentTerminalID = self.currentTerminalID,
               let currentTerminalStateID = self.currentTerminalStateID,
               currentTerminalID == identifier,
@@ -280,7 +307,9 @@ class AppViewModel: ObservableObject {
 
             self.updateCounter += 1
             self.writeResultsToFile()
-            self.incrementGPTSuggestionsFreeTierCount(by: 1)
+            if !self.hasUserValidatedOwnOpenAIAPIKey {
+                self.incrementGPTSuggestionsFreeTierCount(by: 1)
+            }
         }
     }
 

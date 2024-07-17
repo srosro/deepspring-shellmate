@@ -87,7 +87,7 @@ struct SuggestionsView: View {
                 }
             }
             
-            if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit {
+            if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit && !viewModel.hasUserValidatedOwnOpenAIAPIKey {
                 ActivateShellMateView()
                     .padding(10)
             }

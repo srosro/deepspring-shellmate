@@ -27,7 +27,7 @@ struct ShellMateApp: App {
     var body: some Scene {
         WindowGroup {
             if showPermissionsView {
-                PermissionsWindowView(viewModel: permissionsViewModel, licenseViewModel: licenseViewModel, onContinue: {
+                PermissionsWindowView(appViewModel: viewModel, permissionsViewModel: permissionsViewModel, licenseViewModel: licenseViewModel, onContinue: {
                     showPermissionsView = false
                     UserDefaults.standard.set(false, forKey: "showPermissionsView")
                 })
@@ -58,7 +58,7 @@ struct ShellMateApp: App {
         }
         
         Settings {
-            SettingsView(licenseViewModel: licenseViewModel, generalViewModel: generalViewModel)
+            SettingsView(appViewModel: viewModel, licenseViewModel: licenseViewModel, generalViewModel: generalViewModel)
         }
     }
 }

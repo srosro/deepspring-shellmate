@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import Sentry
 
 struct PermissionsWindowView: View {
-    @ObservedObject var viewModel: PermissionsViewModel
+    @ObservedObject var appViewModel: AppViewModel
+    @ObservedObject var permissionsViewModel: PermissionsViewModel
     @ObservedObject var licenseViewModel: LicenseViewModel
 
     let onContinue: () -> Void
@@ -18,17 +20,17 @@ struct PermissionsWindowView: View {
             Spacer()
             WelcomeView()
             Spacer()
-            PermissionsView(viewModel: viewModel)
+            PermissionsView(permissionsViewModel: permissionsViewModel)
             Spacer()
-            LicenseView(viewModel: licenseViewModel)
+            LicenseView(licenseViewModel: licenseViewModel, appViewModel: appViewModel)
             Spacer()
-            ContinueButtonView(viewModel: viewModel, licenseViewModel: licenseViewModel, onContinue: onContinue)
+            ContinueButtonView(permissionsViewModel: permissionsViewModel, licenseViewModel: licenseViewModel, appViewModel: appViewModel, onContinue: onContinue)
             Spacer()
         }
         .padding()
     }
 }
-import Sentry
+
 struct WelcomeView: View {
     var body: some View {
         VStack {
@@ -45,7 +47,9 @@ struct WelcomeView: View {
             Button("Raise Uncaught Exception") {
                 raiseUncaughtException()
             }
-
+            Button("Simulate Fresh Install") {
+                simulateFreshInstall()
+            }
             Text("We need a couple of things before we can get started.")
                 .font(.subheadline)
                 .padding(.bottom, 20)
@@ -76,10 +80,24 @@ struct WelcomeView: View {
         }
         throw SampleError.exampleError
     }
+    
+    func simulateFreshInstall() {
+        resetUserDefaults()
+        // Add any other initialization logic if needed
+    }
+
+    func resetUserDefaults() {
+        let defaults = UserDefaults.standard
+        if let appDomain = Bundle.main.bundleIdentifier {
+            defaults.removePersistentDomain(forName: appDomain)
+        }
+        defaults.synchronize()
+    }
 }
 
+
 struct PermissionsView: View {
-    @ObservedObject var viewModel: PermissionsViewModel
+    @ObservedObject var permissionsViewModel: PermissionsViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -98,7 +116,7 @@ struct PermissionsView: View {
                             .font(.caption)
                     }
                     Spacer()
-                    if viewModel.isAppTrusted {
+                    if permissionsViewModel.isAppTrusted {
                         HStack {
                             Image(systemName: "checkmark")
                                 .foregroundColor(AppColors.green)
@@ -109,7 +127,7 @@ struct PermissionsView: View {
                         }
                     } else {
                         Button(action: {
-                            viewModel.requestAccessibilityPermissions()
+                            permissionsViewModel.requestAccessibilityPermissions()
                         }) {
                             Text("Grant Access")
                                 .padding(.horizontal, 6)
@@ -135,42 +153,50 @@ struct PermissionsView: View {
 }
 
 struct LicenseView: View {
-    @ObservedObject var viewModel: LicenseViewModel
+    @ObservedObject var licenseViewModel: LicenseViewModel
+    @ObservedObject var appViewModel: AppViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("License")
-                .font(.subheadline)
-                .bold() // Ensure the text is bold
-                .padding(.leading, 15)
-            
-            VStack(alignment: .leading, spacing: 0) {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("OpenAI API Key")
-                        .font(.subheadline)
-                        .bold()
-                    Text("Add your Secret API key from OpenAI. How do I get an API key?")
-                        .font(.footnote)
-                        .foregroundColor(.gray)
-                }
-                .padding(.bottom, 10) // Adding some padding at the bottom of the text
+            if appViewModel.hasGPTSuggestionsFreeTierCountReachedLimit {
+                Text("License")
+                    .font(.subheadline)
+                    .bold() // Ensure the text is bold
+                    .padding(.leading, 15)
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("OpenAI API Key")
+                            .font(.subheadline)
+                            .bold()
+                        Text("Add your Secret API key from OpenAI. How do I get an API key?")
+                            .font(.footnote)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.bottom, 10) // Adding some padding at the bottom of the text
 
-                TextField("sk-...", text: $viewModel.apiKey)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                // Conditionally show the feedback message if the API key is invalid
-                if viewModel.apiKeyValidationState == .invalid {
-                    Text("API Key is invalid")
-                        .foregroundColor(.red)
-                        .font(.footnote)
-                        .padding(.top, 5)
+                    TextField("Enter OpenAI API Key", text: $licenseViewModel.apiKey)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    // Conditionally show the feedback message if the API key is invalid
+                    if licenseViewModel.apiKeyValidationState == .invalid {
+                        Text("API Key is invalid")
+                            .foregroundColor(.red)
+                            .font(.footnote)
+                            .padding(.top, 5)
+                    } else if licenseViewModel.apiKeyValidationState == .unverified {
+                        Text("\(appViewModel.GPTSuggestionsFreeTierCount)/\(appViewModel.GPTSuggestionsFreeTierLimit) complimentary AI responses used")
+                            .font(.footnote)
+                            .foregroundColor(AppColors.grayVisibleInDarkAndLightModes)
+                            .padding(.top, 5)
+                    }
                 }
+                .padding()
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(AppColors.gray400, lineWidth: 0.4) // Consistent line width
+                )
             }
-            .padding()
-            .cornerRadius(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(AppColors.gray400, lineWidth: 0.4) // Consistent line width
-            )
         }
         .frame(maxWidth: .infinity)
     }
@@ -178,26 +204,43 @@ struct LicenseView: View {
 
 
 struct ContinueButtonView: View {
-    @ObservedObject var viewModel: PermissionsViewModel
+    @ObservedObject var permissionsViewModel: PermissionsViewModel
     @ObservedObject var licenseViewModel: LicenseViewModel
+    @ObservedObject var appViewModel: AppViewModel
 
     let onContinue: () -> Void
 
     var body: some View {
         Button(action: {
-            viewModel.initializeApp()
+            permissionsViewModel.initializeApp()
             onContinue()
         }) {
             Text("Continue")
                 .padding(.horizontal, 40)
                 .padding(.vertical, 8)
-                .background(viewModel.isAppTrusted && licenseViewModel.apiKeyValidationState == .valid ? AppColors.black : AppColors.gray400)
+                .background(buttonBackgroundColor)
                 .foregroundColor(.white)
                 .cornerRadius(8)
         }
-        .disabled(!(viewModel.isAppTrusted && licenseViewModel.apiKeyValidationState == .valid))
+        .disabled(!isButtonEnabled)
         .background(Color.clear) // Ensure background color is clear to avoid white corners
         .clipShape(RoundedRectangle(cornerRadius: 8)) // Clip the shape to remove background outside corners
         .buttonStyle(BorderlessButtonStyle())
+    }
+    
+    private var isButtonEnabled: Bool {
+        if !appViewModel.hasGPTSuggestionsFreeTierCountReachedLimit {
+            return permissionsViewModel.isAppTrusted
+        } else {
+            return permissionsViewModel.isAppTrusted && licenseViewModel.apiKeyValidationState == .valid
+        }
+    }
+    
+    private var buttonBackgroundColor: Color {
+        if isButtonEnabled {
+            return AppColors.black
+        } else {
+            return AppColors.gray400
+        }
     }
 }
