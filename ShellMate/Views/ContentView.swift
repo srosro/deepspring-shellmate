@@ -97,7 +97,7 @@ struct SuggestionsView: View {
             HStack {
                 Text(viewModel.currentStateText)
                     .font(.footnote)
-                    .foregroundColor(viewModel.currentStateText == "Detecting changes..." ? AppColors.green : AppColors.gray700.opacity(0.9))
+                    .foregroundColor(viewModel.currentStateText == "Detecting changes..." ? AppColors.green : AppColors.grayVisibleInDarkAndLightModes)
                     .padding(.leading)
                 Spacer()
                 if let currentTerminalID = viewModel.currentTerminalID, viewModel.isGeneratingSuggestion[currentTerminalID] == true {
@@ -225,7 +225,7 @@ struct SuggestionView: View {
                         SmButtonIdxView(batchIndex: batchIndex, index: index, buttonText: $buttonText)
                     }
                     .padding(10)
-                    .background(isHovered ? AppColors.gray600.opacity(0.05) : AppColors.white)
+                    .background(isHovered ? AppColors.grayBackgroundVisibleInDarkAndLightModes.opacity(0.5) : AppColors.white)
                     .foregroundColor(AppColors.black)
                     .cornerRadius(8)
                     .overlay(
@@ -244,7 +244,7 @@ struct SuggestionView: View {
                 Text(explanation)
                     .font(.footnote)
                     .fontWeight(.regular)
-                    .foregroundColor(AppColors.gray600)
+                    .foregroundColor(AppColors.grayVisibleInDarkAndLightModes)
                     .padding(.horizontal, 10)
                     .padding(.top, 2)
             }

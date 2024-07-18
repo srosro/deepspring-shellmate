@@ -24,4 +24,5 @@ struct AppColors {
     static let gradientLightBlue = Color(red: 130/255, green: 193/255, blue: 255/255)
     static let gradientPurple = Color(red: 151/255, green: 71/255, blue: 255/255)
     static let grayVisibleInDarkAndLightModes = Color(red: 143/255, green: 143/255, blue: 143/255)
+    static let grayBackgroundVisibleInDarkAndLightModes = Color(red: 140/255, green: 140/255, blue: 140/255)
 }
