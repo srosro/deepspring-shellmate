@@ -38,6 +38,8 @@
 		DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */; };
 		DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86492C2A22E40047AE3D /* Utils.swift */; };
 		DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */; };
+		DCF6D7322C49AE08004728C1 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */; };
+		DCF6D7342C49AE1C004728C1 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF6D7332C49AE1C004728C1 /* OnboardingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +97,8 @@
 		DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantManager.swift; sourceTree = "<group>"; };
 		DCAA86492C2A22E40047AE3D /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDelegate.swift; sourceTree = "<group>"; };
+		DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
+		DCF6D7332C49AE1C004728C1 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +150,7 @@
 		DC8FF0912C2CC2C300E5F0A7 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				DCF6D7302C49ADF1004728C1 /* Onboarding */,
 				DC0D53FB2C3CA373003FEBB1 /* Settings */,
 				DC9B38892C24FFEA006755AE /* AppViewModel.swift */,
 				DCA94B682C2CA726004A2BCE /* PermissionsViewModel.swift */,
@@ -219,6 +224,7 @@
 		DCA94B652C2C98FA004A2BCE /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DCF6D72F2C49ADC5004728C1 /* Onboarding */,
 				DC0D53FC2C3CA38C003FEBB1 /* Settings */,
 				DC9B388B2C24FFEA006755AE /* ContentView.swift */,
 				DCA94B662C2C9921004A2BCE /* PermissionsView.swift */,
@@ -226,6 +232,22 @@
 				DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		DCF6D72F2C49ADC5004728C1 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				DCF6D7332C49AE1C004728C1 /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		DCF6D7302C49ADF1004728C1 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -353,7 +375,9 @@
 				DCA94B672C2C9921004A2BCE /* PermissionsView.swift in Sources */,
 				DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */,
 				DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */,
+				DCF6D7322C49AE08004728C1 /* OnboardingViewModel.swift in Sources */,
 				DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */,
+				DCF6D7342C49AE1C004728C1 /* OnboardingView.swift in Sources */,
 				DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

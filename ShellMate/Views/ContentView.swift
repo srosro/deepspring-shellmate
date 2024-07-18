@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct ActivateShellMateView: View {
     @State private var apiKey: String = ""
 
@@ -66,6 +67,7 @@ struct SuggestionsView: View {
     @ObservedObject var viewModel: AppViewModel
 
     var body: some View {
+        OnboardingView()
         VStack(alignment: .leading, spacing: 0) {
             ScrollViewReader { scrollView in
                 ScrollView {
