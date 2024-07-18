@@ -240,8 +240,9 @@ class AppViewModel: ObservableObject {
         do {
             let response = try await gptAssistantManager.processMessageInThread(threadId: threadId, messageContent: messageContent)
             if let command = response["command"] as? String,
+               let commandExplanation = response["commandExplanation"] as? String,
                let intention = response["intention"] as? String {
-                await appendResult(identifier: identifier, terminalStateID: terminalStateID, response: intention, command: command, explanation: "explanation")
+                await appendResult(identifier: identifier, terminalStateID: terminalStateID, response: intention, command: command, explanation: commandExplanation)
             }
         } catch {
             print("Error processing message in thread: \(error.localizedDescription)")
