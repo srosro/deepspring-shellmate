@@ -22,7 +22,7 @@ class AppViewModel: ObservableObject {
     private let hasGPTSuggestionsFreeTierCountReachedLimitKey = "hasGPTSuggestionsFreeTierCountReachedLimit"
 
     // Limit for free tier suggestions
-    let GPTSuggestionsFreeTierLimit = 3
+    let GPTSuggestionsFreeTierLimit = 200
 
     @Published var GPTSuggestionsFreeTierCount: Int {
         didSet {

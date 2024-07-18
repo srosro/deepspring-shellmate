@@ -29,6 +29,12 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         trackFirstLaunchAfterInstall()
         MixpanelHelper.shared.trackEvent(name: "applicationLaunch")
         checkAccessibilityPermissionsAndApiKey()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleStartAppInitialization), name: .startAppInitialization, object: nil)
+    }
+    
+    @objc func handleStartAppInitialization() {
+        initializeApp()
     }
     
     func setupSentry() {        // Initialize Sentry SDK

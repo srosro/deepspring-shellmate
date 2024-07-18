@@ -54,4 +54,6 @@ extension Notification.Name {
     /// userInfo dictionary should contain:
     /// - "isValid": Bool (indicates if the API key validation was successful)
     static let userValidatedOwnOpenAIAPIKey = Notification.Name("userValidatedOwnOpenAIAPIKey")
+    /// Notification to start the app initialization process (continue button from permissionsView -> change to SuggestionsView
+    static let startAppInitialization = Notification.Name("startAppInitialization")
 }

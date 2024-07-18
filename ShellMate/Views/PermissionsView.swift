@@ -213,7 +213,6 @@ struct ContinueButtonView: View {
     var body: some View {
         Button(action: {
             permissionsViewModel.initializeApp()
-            onContinue()
         }) {
             Text("Continue")
                 .padding(.horizontal, 40)

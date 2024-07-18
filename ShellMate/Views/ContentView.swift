@@ -118,7 +118,6 @@ struct SuggestionsView: View {
         }
     }
 
-
     private func copyToClipboard(command: String) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()

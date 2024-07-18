@@ -42,7 +42,6 @@ struct ShellMateApp: App {
                     NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { _ in
                         showPermissionsView = UserDefaults.standard.bool(forKey: "showPermissionsView")
                     }
-                    appDelegate.initializeApp()
                 }
             }
         }

@@ -36,11 +36,9 @@ class PermissionsViewModel: ObservableObject {
     }
     
     func initializeApp() {
-        if let appDelegate = NSApplication.shared.delegate as? ApplicationDelegate {
-            appDelegate.initializeApp()
-        }
+        NotificationCenter.default.post(name: .startAppInitialization, object: nil)
     }
-    
+
     func requestAccessibilityPermissions() {
         let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
