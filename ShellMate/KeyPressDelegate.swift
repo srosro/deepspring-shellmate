@@ -62,7 +62,7 @@ class KeyPressDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: debounceWorkItem!)
     }
 
-    func isValidSMCommand(line: String) -> Bool {
+    func isValidSMIndexCommand(line: String) -> Bool {
         // Regular expression pattern to match "sm" followed by a space and a single number (integer or float)
         let pattern = #"^.*\bsm\s+(\d+(\.\d+)?)\s*$"#
         
@@ -106,44 +106,80 @@ class KeyPressDelegate {
         // Return nil if no valid `sm` command index is found
         return nil
     }
+    
+    // Function to check for valid `sm` question
+    func isValidSMQuestion(line: String) -> Bool {
+        // Regular expression to match `sm` followed by a space and a quoted string
+        let regex = try! NSRegularExpression(pattern: #"sm\s+["'](.+?)["']"#, options: [])
+        let nsString = line as NSString
+        let results = regex.matches(in: line, options: [], range: NSRange(location: 0, length: nsString.length))
+        
+        // Check if there's at least one match
+        return !results.isEmpty
+    }
 
     // Updated processEnterKey function
     private func processEnterKey() {
         print("Enter key pressed in Terminal")
         if let activeLine = currentActiveLine {
             print("Current active line: \(activeLine)")
-            let isValidSMCommand = isValidSMCommand(line: activeLine)
-            print("Is valid 'sm' command: \(isValidSMCommand)")
-            
-            if isValidSMCommand {
+            let isValidSMIndexCommand = isValidSMIndexCommand(line: activeLine)
+            print("Is valid 'sm' index command: \(isValidSMIndexCommand)")
+
+            if isValidSMIndexCommand {
                 // Extract the `sm` command index
                 if let smCommandIndex = extractSMCommandIndex(line: activeLine) {
                     print("Extracted 'sm' command index: \(smCommandIndex)")
-                    
+
                     // Get the file path to shellMateCommandSuggestions.json
                     let filePath = getShellMateCommandSuggestionsFilePath()
-                    
+
                     // Load the command from JSON file using the extracted index
                     if let command = loadCommandFromJSON(filePath: filePath, key: smCommandIndex) {
                         print("Loaded command: \(command)")
-                        
+
                         // Set the desired text into the clipboard
                         setClipboardContent(text: command)
-                        
+
                         // Paste the clipboard content
                         pasteClipboardContent()
+                        
+                        if OnboardingStateManager.shared.showOnboarding && OnboardingStateManager.shared.currentStep == 2 {
+                            OnboardingStateManager.shared.setStep(to: 3)
+                        }
                     } else {
                         print("No command found for index \(smCommandIndex)")
                     }
                 } else {
                     print("No valid 'sm' command index found.")
                 }
+            } else if OnboardingStateManager.shared.showOnboarding
+                        && OnboardingStateManager.shared.currentStep == 1
+                        && isValidSMQuestion(line: activeLine) {
+                print("DANBUG: Valid 'sm' question detected: \(activeLine)")
+                if doesCurrentLineContainOnboardingCommand(line: activeLine) {
+                    print("DANBUG: Current line contains the onboarding command")
+                    OnboardingStateManager.shared.setStep(to: 2)
+                }
             }
         } else {
             print("No active line available.")
         }
     }
+    
+    // Function to sanitize text
+    private func sanitizeText(_ text: String) -> String {
+        let alphanumericText = text.components(separatedBy: CharacterSet.alphanumerics.inverted).joined(separator: " ")
+        let reducedSpacesText = alphanumericText.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression, range: nil)
+        return reducedSpacesText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
 
+    // Function to check if current line contains the onboarding command
+    func doesCurrentLineContainOnboardingCommand(line: String) -> Bool {
+        let sanitizedLine = sanitizeText(line)
+        let sanitizedCommand = sanitizeText(getOnboardingSmCommand())
+        return sanitizedLine.contains(sanitizedCommand)
+    }
 
     @objc private func handleTerminalActiveLineChanged(_ notification: Notification) {
         if let userInfo = notification.userInfo, let activeLine = userInfo["activeLine"] as? String {

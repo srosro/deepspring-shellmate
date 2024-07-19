@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 
 class AppViewModel: ObservableObject {
@@ -8,7 +9,7 @@ class AppViewModel: ObservableObject {
     @Published var results: [String: (suggestionsCount: Int, suggestionsHistory: [(UUID, [[String: String]])], updatedAt: Date)] = [:]
     @Published var isGeneratingSuggestion: [String: Bool] = [:]
     @Published var hasUserValidatedOwnOpenAIAPIKey: Bool = false
-
+    
     private var threadIdDict: [String: String] = [:]
     private var currentTerminalStateID: UUID?
     private let additionalSuggestionDelaySeconds: TimeInterval = 2.0
@@ -20,10 +21,10 @@ class AppViewModel: ObservableObject {
     // UserDefaults keys
     private let GPTSuggestionsFreeTierCountKey = "GPTSuggestionsFreeTierCount"
     private let hasGPTSuggestionsFreeTierCountReachedLimitKey = "hasGPTSuggestionsFreeTierCountReachedLimit"
-
+    
     // Limit for free tier suggestions
     let GPTSuggestionsFreeTierLimit = 200
-
+    
     @Published var GPTSuggestionsFreeTierCount: Int {
         didSet {
             UserDefaults.standard.set(GPTSuggestionsFreeTierCount, forKey: GPTSuggestionsFreeTierCountKey)
@@ -65,13 +66,13 @@ class AppViewModel: ObservableObject {
         // Process trigger the generation of a suggestion.
     }
     
-    @objc private func handleTerminalWindowIdDidChange(_ notification: Notification) {
+    @MainActor @objc private func handleTerminalWindowIdDidChange(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let windowID = userInfo["terminalWindowID"] as? CGWindowID else {
             return
         }
-        
         self.currentTerminalID = String(windowID)
+        initializeSampleCommandForOnboardingIfNeeded(for: String(windowID))
     }
     
     @objc private func handleRequestTerminalContentAnalysis(_ notification: Notification) {
@@ -87,7 +88,7 @@ class AppViewModel: ObservableObject {
         }
         analyzeTerminalContent(text: text, windowID: windowID, source: source, changeIdentifiedAt: changeIdentifiedAt)
     }
-
+    
     @objc private func handleSuggestionGenerationStatusChanged(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let identifier = userInfo["identifier"] as? String,
@@ -105,15 +106,15 @@ class AppViewModel: ObservableObject {
             
             // Clear the entire threadIdDict
             threadIdDict.removeAll()
-
+            
             // Create a new instance of gptAssistantManager
             gptAssistantManager = GPTAssistantManager()
         } else {
             self.hasUserValidatedOwnOpenAIAPIKey = false
         }
     }
-
-
+    
+    
     private func analyzeTerminalContent(text: String, windowID: CGWindowID, source: String, changeIdentifiedAt: Double) {
         guard let currentTerminalId = self.currentTerminalID else {
             return
@@ -122,7 +123,7 @@ class AppViewModel: ObservableObject {
         guard let terminalStateID = self.currentTerminalStateID else {
             return
         }
-
+        
         // Log the event when terminal content analysis is requested
         let changedTerminalContentSentToGptAt = Date().timeIntervalSince1970
         MixpanelHelper.shared.trackEvent(name: "terminalContentAnalysisRequested", properties: [
@@ -132,11 +133,11 @@ class AppViewModel: ObservableObject {
             "changedTerminalContentSentToGptAt": changedTerminalContentSentToGptAt,
             "triggerSource": source
         ])
-
+        
         Task.detached { [weak self] in
             guard let strongSelf = self else { return }
             guard let threadId = await strongSelf.getOrCreateThreadId(for: currentTerminalId) else { return }
-
+            
             await strongSelf.processGPTResponse(
                 identifier: currentTerminalId,
                 terminalStateID: terminalStateID,
@@ -145,7 +146,7 @@ class AppViewModel: ObservableObject {
                 changeIdentifiedAt: changeIdentifiedAt,
                 changedTerminalContentSentToGptAt: changedTerminalContentSentToGptAt,
                 source: source)
-
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + strongSelf.additionalSuggestionDelaySeconds) {
                 strongSelf.generateAdditionalSuggestions(
                     identifier: currentTerminalId,
@@ -157,8 +158,8 @@ class AppViewModel: ObservableObject {
             }
         }
     }
-
-
+    
+    
     private func generateAdditionalSuggestions(identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double, source: String) {
         if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
             return
@@ -170,17 +171,17 @@ class AppViewModel: ObservableObject {
               currentTerminalStateID == terminalStateID else {
             return
         }
-
+        
         if self.currentStateText != "No changes on Terminal" {
             return
         }
-
+        
         if let suggestionsHistory = results[currentTerminalID]?.suggestionsHistory,
            let lastSuggestions = suggestionsHistory.last?.1,
            lastSuggestions.count >= self.maxSuggestionsPerEvent {
             return
         }
-
+        
         // Log the event when terminal content analysis is requested
         let changedTerminalContentSentToGptAt = Date().timeIntervalSince1970
         MixpanelHelper.shared.trackEvent(name: "terminalContentAnalysisRequested", properties: [
@@ -190,7 +191,7 @@ class AppViewModel: ObservableObject {
             "changedTerminalContentSentToGptAt": changedTerminalContentSentToGptAt,
             "triggerSource": source
         ])
-
+        
         Task.detached { [weak self] in
             guard let strongSelf = self else { return }
             
@@ -215,8 +216,8 @@ class AppViewModel: ObservableObject {
             }
         }
     }
-
-
+    
+    
     
     @MainActor
     private func getOrCreateThreadId(for identifier: String) async -> String? {
@@ -255,7 +256,7 @@ class AppViewModel: ObservableObject {
             let delayToProcessChange = changedTerminalContentSentToGptAt - changeIdentifiedAt
             let delayToGetResponseFromGpt = responseReceivedFromGptAt - changedTerminalContentSentToGptAt
             let totalDelayToProcessChange = responseReceivedFromGptAt - changeIdentifiedAt
-
+            
             MixpanelHelper.shared.trackEvent(name: "terminalContentAnalysisCompleted", properties: [
                 "currentTerminalId": identifier,
                 "currentTerminalStateID": terminalStateID.uuidString,
@@ -269,7 +270,7 @@ class AppViewModel: ObservableObject {
             ])
         }
     }
-        
+    
     private func incrementGPTSuggestionsFreeTierCount(by count: Int) {
         GPTSuggestionsFreeTierCount += count
     }
@@ -284,10 +285,10 @@ class AppViewModel: ObservableObject {
               let explanation = explanation, !explanation.isEmpty else {
             return
         }
-
+        
         let newEntry = ["gptResponse": response, "suggestedCommand": command, "commandExplanation": explanation]
         let currentTime = Date()
-
+        
         DispatchQueue.main.async {
             if var windowInfo = self.results[identifier] {
                 var batchFound = false
@@ -305,7 +306,7 @@ class AppViewModel: ObservableObject {
             } else {
                 self.results[identifier] = (suggestionsCount: 1, suggestionsHistory: [(terminalStateID, [newEntry])], updatedAt: currentTime)
             }
-
+            
             self.updateCounter += 1
             self.writeResultsToFile()
             if !self.hasUserValidatedOwnOpenAIAPIKey {
@@ -313,7 +314,7 @@ class AppViewModel: ObservableObject {
             }
         }
     }
-
+    
     private func getSharedTemporaryDirectory() -> URL {
         let sharedTempDirectory = URL(fileURLWithPath: "/tmp/shellMateShared")
         
@@ -328,7 +329,7 @@ class AppViewModel: ObservableObject {
         
         return sharedTempDirectory
     }
-
+    
     private func writeResultsToFile() {
         DispatchQueue.global(qos: .background).async { // Moved file writing to a background thread
             guard let currentTerminalID = self.currentTerminalID,
@@ -336,7 +337,7 @@ class AppViewModel: ObservableObject {
                 return
             }
             let filePath = getShellMateCommandSuggestionsFilePath()
-
+            
             var jsonOutput: [String: String] = [:]
             for (batchIndex, batch) in terminalResults.suggestionsHistory.enumerated() {
                 for (suggestionIndex, gptResponse) in batch.1.enumerated() {
@@ -346,13 +347,30 @@ class AppViewModel: ObservableObject {
                     }
                 }
             }
-
+            
             do {
                 let jsonData = try JSONEncoder().encode(jsonOutput)
                 try jsonData.write(to: filePath, options: .atomic)
             } catch {
                 print("Failed to write JSON data to file: \(error.localizedDescription)")
             }
+        }
+    }
+    
+    @MainActor
+    func initializeSampleCommandForOnboardingIfNeeded(for terminalID: String?) {
+        guard let terminalID = terminalID else {
+            return
+        }
+        
+        let showOnboarding = UserDefaults.standard.object(forKey: "showOnboarding") as? Bool ?? true
+        
+        guard showOnboarding else {
+            return
+        }
+        
+        if self.results[terminalID]?.suggestionsHistory.isEmpty ?? true {
+            self.appendResult(identifier: terminalID, terminalStateID: UUID(), response: "Complete the task", command: "sm \"\(getOnboardingSmCommand())\"", explanation: "This is a sample command to show you how to use ShellMate.")
         }
     }
 }

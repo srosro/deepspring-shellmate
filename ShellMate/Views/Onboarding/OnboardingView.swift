@@ -5,6 +5,7 @@
 //  Created by Daniel Delattre on 18/07/24.
 //
 
+
 import SwiftUI
 
 struct CloseButton: View {
@@ -13,13 +14,17 @@ struct CloseButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: "xmark")
-                .font(.subheadline)
-                .foregroundColor(.black)
+                .font(.body)
+                .foregroundColor(.primary)
                 .padding(5)
-                .cornerRadius(5)
+                .frame(width: 26, height: 26, alignment: .center)
+                .background(
+                    Color(NSColor.controlBackgroundColor)
+                        .cornerRadius(6)
+                )
                 .overlay(
                     RoundedRectangle(cornerRadius: 6)
-                        .stroke(AppColors.grayVisibleInDarkAndLightModes, lineWidth: 1)
+                        .stroke(Color.primary, lineWidth: 0.5)
                 )
         }
         .buttonStyle(BorderlessButtonStyle())
@@ -67,24 +72,29 @@ struct OnboardingStep1View: View {
 
             VStack(alignment: .leading) {
                 Text("Complete the task:")
-                    .font(.subheadline)
+                    .font(.body)
                     .fontWeight(.bold)
                     .lineLimit(5)
                     .fixedSize(horizontal: false, vertical: true)
                 
-                HStack(alignment: .top) {
+                HStack(alignment: .top, spacing: 1) {
                     Text("1.")
+                        .font(.system(.body, design: .monospaced))
+                    (Text("Type: '")
+                        .font(.body) +
+                    Text("sm \"\(getOnboardingSmCommand())\"")
                         .font(.body)
-                    Text("Type 'sm \"how do I search for the app ShellMate\" into your terminal command line. You can also hit the command below to copy the text.")
-                        .font(.body)
+                        .fontWeight(.bold) +
+                    Text("' into your terminal command line. You can also hit the command below to copy the text.")
+                        .font(.body))
                         .lineLimit(5)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.leading, 4)
                 
-                HStack(alignment: .top) {
+                HStack(alignment: .top, spacing: 1) {
                     Text("2.")
-                        .font(.body)
+                        .font(.system(.body, design: .monospaced))
                     Text("Execute the command line")
                         .font(.body)
                         .lineLimit(5)
@@ -94,7 +104,7 @@ struct OnboardingStep1View: View {
             }
         }
         .padding()
-        .background(Color.white)
+        .background(Color(NSColor.controlBackgroundColor))
     }
 }
 
@@ -122,24 +132,34 @@ struct OnboardingStep2View: View {
 
             VStack(alignment: .leading) {
                 Text("Complete the task:")
-                    .font(.subheadline)
+                    .font(.body)
                     .fontWeight(.bold)
                     .lineLimit(5)
                     .fixedSize(horizontal: false, vertical: true)
                 
-                HStack(alignment: .top) {
+                HStack(alignment: .top, spacing: 1) {
                     Text("1.")
+                        .font(.system(.body, design: .monospaced))
+                    (Text("Type the following command into your terminal: '")
+                        .font(.body) +
+                     Text("sm 2")
                         .font(.body)
-                    Text("Type the following command into your terminal: 'sm 2' or 'sm 2.1'")
+                        .fontWeight(.bold) +
+                     Text("' or '")
+                        .font(.body) +
+                     Text("sm 2.1")
                         .font(.body)
+                        .fontWeight(.bold) +
+                     Text("'")
+                        .font(.body))
                         .lineLimit(5)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.leading, 4)
                 
-                HStack(alignment: .top) {
+                HStack(alignment: .top, spacing: 1) {
                     Text("2.")
-                        .font(.body)
+                        .font(.system(.body, design: .monospaced))
                     Text("Execute the command to paste the suggestion")
                         .font(.body)
                         .lineLimit(5)
@@ -149,7 +169,7 @@ struct OnboardingStep2View: View {
             }
         }
         .padding()
-        .background(Color.white)
+        .background(Color(NSColor.controlBackgroundColor))
     }
 }
 
@@ -177,14 +197,14 @@ struct OnboardingStep3View: View {
 
             VStack(alignment: .leading) {
                 Text("Complete the task:")
-                    .font(.subheadline)
+                    .font(.body)
                     .fontWeight(.bold)
                     .lineLimit(5)
                     .fixedSize(horizontal: false, vertical: true)
                 
-                HStack(alignment: .top) {
+                HStack(alignment: .top, spacing: 1) {
                     Text("1.")
-                        .font(.body)
+                        .font(.system(.body, design: .monospaced))
                     Text("Review the inserted command")
                         .font(.body)
                         .lineLimit(5)
@@ -192,9 +212,9 @@ struct OnboardingStep3View: View {
                 }
                 .padding(.leading, 4)
                 
-                HStack(alignment: .top) {
+                HStack(alignment: .top, spacing: 1) {
                     Text("2.")
-                        .font(.body)
+                        .font(.system(.body, design: .monospaced))
                     Text("Execute the command line")
                         .font(.body)
                         .lineLimit(5)
@@ -204,7 +224,7 @@ struct OnboardingStep3View: View {
             }
         }
         .padding()
-        .background(Color.white)
+        .background(Color(NSColor.controlBackgroundColor))
     }
 }
 
@@ -232,57 +252,50 @@ struct OnboardingCompleteView: View {
 
             VStack(alignment: .leading) {
                 Text("Bonus tip:")
-                    .font(.subheadline)
+                    .font(.body)
                     .fontWeight(.bold)
                     .lineLimit(5)
                     .fixedSize(horizontal: false, vertical: true)
                 
-                HStack(alignment: .top) {
-                    Text("1.")
-                        .font(.body)
-                    Text("You can highlight any text in your terminal to focus your suggestions.")
-                        .font(.body)
-                        .lineLimit(5)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.leading, 4)
+                Text("You can highlight any text in your terminal to focus your suggestions.")
+                    .font(.body)
+                    .lineLimit(5)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding()
-        .background(Color.white)
+        .background(Color(NSColor.controlBackgroundColor))
     }
 }
 
 struct OnboardingView: View {
-    @State private var currentStep = 1
-    @State private var showOnboarding = true
+    @ObservedObject private var stateManager = OnboardingStateManager.shared
 
     var body: some View {
-        if showOnboarding {
+        if stateManager.showOnboarding {
             VStack {
-                if currentStep == 1 {
-                    OnboardingStep1View(showOnboarding: $showOnboarding)
-                } else if currentStep == 2 {
-                    OnboardingStep2View(showOnboarding: $showOnboarding)
-                } else if currentStep == 3 {
-                    OnboardingStep3View(showOnboarding: $showOnboarding)
+                if stateManager.currentStep == 1 {
+                    OnboardingStep1View(showOnboarding: $stateManager.showOnboarding)
+                } else if stateManager.currentStep == 2 {
+                    OnboardingStep2View(showOnboarding: $stateManager.showOnboarding)
+                } else if stateManager.currentStep == 3 {
+                    OnboardingStep3View(showOnboarding: $stateManager.showOnboarding)
                 } else {
-                    OnboardingCompleteView(showOnboarding: $showOnboarding)
+                    OnboardingCompleteView(showOnboarding: $stateManager.showOnboarding)
                 }
-                HStack {
-                    if currentStep > 1 {
-                        Button("Back") {
-                            currentStep -= 1
-                        }
-                    }
-                    Spacer()
-                    if currentStep < 4 {
-                        Button("Next") {
-                            currentStep += 1
-                        }
+            }
+            HStack {
+                if stateManager.currentStep > 1 {
+                    Button("Back") {
+                        stateManager.goToPreviousStep()
                     }
                 }
-                .padding()
+                Spacer()
+                if stateManager.currentStep < 4 {
+                    Button("Next") {
+                        stateManager.goToNextStep()
+                    }
+                }
             }
         }
     }
