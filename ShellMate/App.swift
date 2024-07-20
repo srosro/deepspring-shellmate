@@ -54,6 +54,12 @@ struct ShellMateApp: App {
                     ShellMate.showPermissionsView()
                 }
             }
+            CommandGroup(after: .appSettings) {
+                Button("Send Feedback") {
+                    sendFeedbackEmail()
+                }
+                .keyboardShortcut("F", modifiers: .command)
+            }
         }
         
         Settings {
