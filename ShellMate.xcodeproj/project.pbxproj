@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		49D68AD52C35B830000AB5AF /* sm in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38C72C2502FA006755AE /* sm */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		49D68AD52C35B830000AB5AF /* sm in Copy Files: Make sm command available in user terminal */ = {isa = PBXBuildFile; fileRef = DC9B38C72C2502FA006755AE /* sm */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		DC00C0342C2F51210019BEB1 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = DC00C0332C2F51210019BEB1 /* Sparkle */; };
 		DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */; };
 		DC00C03C2C2F62100019BEB1 /* CheckForUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */; };
@@ -20,7 +20,7 @@
 		DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */; };
 		DC53925E2C38CFEA003CB46D /* KeyPressDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */; };
 		DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */; };
-		DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
+		DC5C7B5A2C2E0C000044E0B3 /* install.sh in Copy Files: Make sm command available in user terminal */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
 		DC60BD912C3AF8A10027048D /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = DC60BD902C3AF8A10027048D /* LaunchAtLogin */; };
 		DC6A78252C46E8F700FFC785 /* SendFeedbackEmail.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6A78242C46E8F700FFC785 /* SendFeedbackEmail.swift */; };
 		DC7DD61D2C36DEF80034E6ED /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = DC7DD61C2C36DEF80034E6ED /* Sentry */; };
@@ -54,15 +54,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		DC5C7B4B2C2E068F0044E0B3 /* CopyFiles */ = {
+		DC5C7B4B2C2E068F0044E0B3 /* Copy Files: Make sm command available in user terminal */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				49D68AD52C35B830000AB5AF /* sm in CopyFiles */,
-				DC5C7B5A2C2E0C000044E0B3 /* install.sh in CopyFiles */,
+				49D68AD52C35B830000AB5AF /* sm in Copy Files: Make sm command available in user terminal */,
+				DC5C7B5A2C2E0C000044E0B3 /* install.sh in Copy Files: Make sm command available in user terminal */,
 			);
+			name = "Copy Files: Make sm command available in user terminal";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -271,7 +272,8 @@
 				DC9B38822C24FFEA006755AE /* Sources */,
 				DC9B38832C24FFEA006755AE /* Frameworks */,
 				DC9B38842C24FFEA006755AE /* Resources */,
-				DC5C7B4B2C2E068F0044E0B3 /* CopyFiles */,
+				DC5C7B4B2C2E068F0044E0B3 /* Copy Files: Make sm command available in user terminal */,
+				DC20D0912C4C4A6F00F80AE1 /* Run Script: Sentry upload debug symbols */,
 			);
 			buildRules = (
 			);
@@ -362,6 +364,28 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		DC20D0912C4C4A6F00F80AE1 /* Run Script: Sentry upload debug symbols */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+			);
+			name = "Run Script: Sentry upload debug symbols";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which sentry-cli >/dev/null; then\nexport SENTRY_ORG=deepspring\nexport SENTRY_PROJECT=shellmate\nexport SENTRY_AUTH_TOKEN=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\nERROR=$(sentry-cli debug-files upload --include-sources \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		DC9B38822C24FFEA006755AE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -450,7 +474,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -513,7 +537,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -541,6 +565,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 0.4;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"ShellMate/Preview Content\"";
 				DEVELOPMENT_TEAM = LQ6XSZ6LRK;
 				ENABLE_HARDENED_RUNTIME = YES;
