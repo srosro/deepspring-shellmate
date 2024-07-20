@@ -14,6 +14,7 @@ class AppViewModel: ObservableObject {
     private var currentTerminalStateID: UUID?
     private let additionalSuggestionDelaySeconds: TimeInterval = 2.0
     private let maxSuggestionsPerEvent: Int = 4
+    private var shouldGenerateFollowUpSuggestionsFlag: Bool = true
     private lazy var gptAssistantManager: GPTAssistantManager = {
         return GPTAssistantManager()
     }()
@@ -147,20 +148,23 @@ class AppViewModel: ObservableObject {
                 changedTerminalContentSentToGptAt: changedTerminalContentSentToGptAt,
                 source: source)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + strongSelf.additionalSuggestionDelaySeconds) {
-                strongSelf.generateAdditionalSuggestions(
-                    identifier: currentTerminalId,
-                    terminalStateID: terminalStateID,
-                    threadId: threadId,
-                    changeIdentifiedAt: Date().timeIntervalSince1970,
-                    source: "automaticFollowUpSuggestion"
-                )
+            if strongSelf.shouldGenerateFollowUpSuggestionsFlag {
+                DispatchQueue.main.asyncAfter(deadline: .now() + strongSelf.additionalSuggestionDelaySeconds) {
+                    strongSelf.generateAdditionalSuggestions(
+                        identifier: currentTerminalId,
+                        terminalStateID: terminalStateID,
+                        threadId: threadId,
+                        changeIdentifiedAt: Date().timeIntervalSince1970,
+                        source: "automaticFollowUpSuggestion"
+                    )
+                }
             }
         }
     }
     
     
     private func generateAdditionalSuggestions(identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double, source: String) {
+        print("DANBUG: should generate additional sug.: \(shouldGenerateFollowUpSuggestionsFlag) <---")
         if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
             return
         }
@@ -205,19 +209,19 @@ class AppViewModel: ObservableObject {
                 source: source
             )
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + strongSelf.additionalSuggestionDelaySeconds) {
-                strongSelf.generateAdditionalSuggestions(
-                    identifier: identifier,
-                    terminalStateID: terminalStateID,
-                    threadId: threadId,
-                    changeIdentifiedAt: Date().timeIntervalSince1970,
-                    source: "automaticFollowUpSuggestion"
-                )
+            if strongSelf.shouldGenerateFollowUpSuggestionsFlag {
+                DispatchQueue.main.asyncAfter(deadline: .now() + strongSelf.additionalSuggestionDelaySeconds) {
+                    strongSelf.generateAdditionalSuggestions(
+                        identifier: identifier,
+                        terminalStateID: terminalStateID,
+                        threadId: threadId,
+                        changeIdentifiedAt: Date().timeIntervalSince1970,
+                        source: "automaticFollowUpSuggestion"
+                    )
+                }
             }
         }
     }
-    
-    
     
     @MainActor
     private func getOrCreateThreadId(for identifier: String) async -> String? {
@@ -242,8 +246,10 @@ class AppViewModel: ObservableObject {
             let response = try await gptAssistantManager.processMessageInThread(threadId: threadId, messageContent: messageContent)
             if let command = response["command"] as? String,
                let commandExplanation = response["commandExplanation"] as? String,
-               let intention = response["intention"] as? String {
+               let intention = response["intention"] as? String,
+               let shouldGenerateFollowUpSuggestions = response["shouldGenerateFollowUpSuggestions"] as? Bool {
                 await appendResult(identifier: identifier, terminalStateID: terminalStateID, response: intention, command: command, explanation: commandExplanation)
+                shouldGenerateFollowUpSuggestionsFlag = shouldGenerateFollowUpSuggestions
             }
         } catch {
             print("Error processing message in thread: \(error.localizedDescription)")

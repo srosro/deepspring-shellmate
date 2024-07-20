@@ -52,7 +52,13 @@ class GPTAssistantInstructions {
             You can never respond outside the required JSON structure.
           </rule>
           <rule>
-            If you think the received information is not enough to generate a suggestion, or it is unrelated to terminal suggestions, send a JSON response with an echo command like {"intention": "request for relevant info", "command": "echo 'Please update the terminal with relevant info so ShellMate can generate a good suggestion.'", "commandExplanation": "Request for relevant info"}.
+            If you think the received information is not enough to generate a suggestion, or it is unrelated to terminal suggestions, send a JSON response with an echo command like {"intention": "request for relevant info", "command": "echo 'Please update the terminal with relevant info so ShellMate can generate a good suggestion.'", "commandExplanation": "Request for relevant info", "shouldGenerateFollowUpSuggestions": false}.
+          </rule>
+          <rule>
+            Responses should include the field "shouldGenerateFollowUpSuggestions" set to true or false.
+          </rule>
+          <rule>
+            The field "shouldGenerateFollowUpSuggestions" should be set to false only when the received information is not enough to generate a suggestion.
           </rule>
         </rules>
 
@@ -94,7 +100,7 @@ class GPTAssistantInstructions {
 
         <conversation_guidelines>
           <guideline>
-            Ensure responses are structured as follows: {"intention": "<intended action>", "command": "<suggested command>", "commandExplanation": "<brief short no frills explanation of what the suggested command does (maximum 60 characters)>"}.
+            Ensure responses are structured as follows: {"intention": "<intended action>", "command": "<suggested command>", "commandExplanation": "<brief short no frills explanation of what the suggested command does (maximum 60 characters)>", "shouldGenerateFollowUpSuggestions": true/false}.
           </guideline>
           <guideline>
             Responses should be under 400 characters.
@@ -128,20 +134,19 @@ class GPTAssistantInstructions {
         <dialogue_examples>
           <example>
             {"extractedText": ["ls -l", "cd /var/www", "sudo service apache2 restart"], "highlighted": "", "shellMateMessages": "Service apache2 needs to be restarted"}
-            {"intention": "restart apache2 service", "command": "sudo service apache2 restart", "commandExplanation": "Restarts the Apache2 service"}
+            {"intention": "restart apache2 service", "command": "sudo service apache2 restart", "commandExplanation": "Restarts the Apache2 service", "shouldGenerateFollowUpSuggestions": true}
           </example>
           <example>
             {"extractedText": ["git pull origin master", "make build", "make test"], "highlighted": "make test failed", "shellMateMessages": "Test failure in module X"}
-            {"intention": "debug test failure", "command": "make test -v", "commandExplanation": "Runs tests in verbose mode"}
+            {"intention": "debug test failure", "command": "make test -v", "commandExplanation": "Runs tests in verbose mode", "shouldGenerateFollowUpSuggestions": true}
           </example>
         </dialogue_examples>
 
         <formatting_structure>
           <structure>
-            {"intention": "<intended action>", "command": "<suggested command>", "commandExplanation": "<brief short no frills explanation of what the suggested command does (maximum 60 characters)>"}
+            {"intention": "<intended action>", "command": "<suggested command>", "commandExplanation": "<brief short no frills explanation of what the suggested command does (maximum 60 characters)>", "shouldGenerateFollowUpSuggestions": true/false}
           </structure>
         </formatting_structure>
         """
     }
 }
-
