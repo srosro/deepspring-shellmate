@@ -61,21 +61,15 @@ struct OnboardingStep1View: View {
                 .font(.title2)
                 .fontWeight(.semibold)
                 .padding(.bottom, 6)
-                .lineLimit(4)
-                .fixedSize(horizontal: false, vertical: true)
 
             Text("Use the ShellMate shortcut 'sm' directly in your terminal to ask questions with natural text.")
                 .font(.body)
                 .padding(.bottom, 6)
-                .lineLimit(4)
-                .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading) {
                 Text("Complete the task:")
                     .font(.body)
                     .fontWeight(.bold)
-                    .lineLimit(5)
-                    .fixedSize(horizontal: false, vertical: true)
                 
                 HStack(alignment: .top, spacing: 1) {
                     Text("1.")
@@ -87,8 +81,6 @@ struct OnboardingStep1View: View {
                         .fontWeight(.bold) +
                     Text("' into your terminal command line. You can also hit the command below to copy the text.")
                         .font(.body))
-                        .lineLimit(5)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.leading, 4)
                 
@@ -97,8 +89,6 @@ struct OnboardingStep1View: View {
                         .font(.system(.body, design: .monospaced))
                     Text("Execute the command line")
                         .font(.body)
-                        .lineLimit(5)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.leading, 4)
             }
@@ -121,21 +111,15 @@ struct OnboardingStep2View: View {
                 .font(.title2)
                 .fontWeight(.semibold)
                 .padding(.bottom, 6)
-                .lineLimit(4)
-                .fixedSize(horizontal: false, vertical: true)
 
             Text("Insert any suggestion with the shortcut 'sm x.x'")
                 .font(.body)
                 .padding(.bottom, 6)
-                .lineLimit(4)
-                .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading) {
                 Text("Complete the task:")
                     .font(.body)
                     .fontWeight(.bold)
-                    .lineLimit(5)
-                    .fixedSize(horizontal: false, vertical: true)
                 
                 HStack(alignment: .top, spacing: 1) {
                     Text("1.")
@@ -152,8 +136,6 @@ struct OnboardingStep2View: View {
                         .fontWeight(.bold) +
                      Text("'")
                         .font(.body))
-                        .lineLimit(5)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.leading, 4)
                 
@@ -162,8 +144,6 @@ struct OnboardingStep2View: View {
                         .font(.system(.body, design: .monospaced))
                     Text("Execute the command to paste the suggestion")
                         .font(.body)
-                        .lineLimit(5)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.leading, 4)
             }
@@ -186,29 +166,21 @@ struct OnboardingStep3View: View {
                 .font(.title2)
                 .fontWeight(.semibold)
                 .padding(.bottom, 6)
-                .lineLimit(4)
-                .fixedSize(horizontal: false, vertical: true)
 
             Text("Review and edit inserted suggestions. You should never run commands you don’t know.")
                 .font(.body)
                 .padding(.bottom, 6)
-                .lineLimit(4)
-                .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading) {
                 Text("Complete the task:")
                     .font(.body)
                     .fontWeight(.bold)
-                    .lineLimit(5)
-                    .fixedSize(horizontal: false, vertical: true)
                 
                 HStack(alignment: .top, spacing: 1) {
                     Text("1.")
                         .font(.system(.body, design: .monospaced))
                     Text("Review the inserted command")
                         .font(.body)
-                        .lineLimit(5)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.leading, 4)
                 
@@ -217,8 +189,6 @@ struct OnboardingStep3View: View {
                         .font(.system(.body, design: .monospaced))
                     Text("Execute the command line")
                         .font(.body)
-                        .lineLimit(5)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.leading, 4)
             }
@@ -241,26 +211,18 @@ struct OnboardingCompleteView: View {
                 .font(.title2)
                 .fontWeight(.semibold)
                 .padding(.bottom, 6)
-                .lineLimit(4)
-                .fixedSize(horizontal: false, vertical: true)
 
             Text("Let us know if you run into any issues by sending us feedback-- you can find a contact link in the menu bar. Otherwise, enjoy!")
                 .font(.body)
                 .padding(.bottom, 6)
-                .lineLimit(4)
-                .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading) {
                 Text("Bonus tip:")
                     .font(.body)
                     .fontWeight(.bold)
-                    .lineLimit(5)
-                    .fixedSize(horizontal: false, vertical: true)
                 
                 Text("You can highlight any text in your terminal to focus your suggestions.")
                     .font(.body)
-                    .lineLimit(5)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding()
