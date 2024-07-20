@@ -95,6 +95,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         isAppInitialized = true // Set the flag to true
         print("ApplicationDelegate - initializeApp called.")
                
+        StartupTerminalWindowHandler.handleTerminalApp()
         shellMateWindowTrackingDelegate.setWindowPositionDelegate(windowPositionDelegate)
         shellMateWindowTrackingDelegate.startTracking() 
         
@@ -103,6 +104,16 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         windowPositionDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))
         windowPositionDelegate.initializeObserverForRunningTerminal()
         keyPressDelegate.applicationDidFinishLaunching(Notification(name: Notification.Name("AppDidFinishLaunching")))
+    }
+   
+    func getURLForTerminal() -> URL? {
+        let terminalBundleIdentifier = "com.apple.Terminal"
+        if let urls = LSCopyApplicationURLsForBundleIdentifier(terminalBundleIdentifier as CFString, nil)?.takeRetainedValue() as? [URL],
+           let terminalURL = urls.first {
+            return terminalURL
+        } else {
+            return nil
+        }
     }
     
     func observeTerminalLifecycle() {

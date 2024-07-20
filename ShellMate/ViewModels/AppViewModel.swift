@@ -164,7 +164,6 @@ class AppViewModel: ObservableObject {
     
     
     private func generateAdditionalSuggestions(identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double, source: String) {
-        print("DANBUG: should generate additional sug.: \(shouldGenerateFollowUpSuggestionsFlag) <---")
         if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
             return
         }

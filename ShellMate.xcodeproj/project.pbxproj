@@ -15,6 +15,7 @@
 		DC0D53FA2C3C9CA0003FEBB1 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0D53F92C3C9CA0003FEBB1 /* SettingsViewModel.swift */; };
 		DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = DC15545E2C3336FF00F24C18 /* Mixpanel */; };
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
+		DC20D0902C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC20D08F2C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift */; };
 		DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */; };
 		DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */; };
 		DC53925E2C38CFEA003CB46D /* KeyPressDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */; };
@@ -73,6 +74,7 @@
 		DC0D53F72C3C9728003FEBB1 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		DC0D53F92C3C9CA0003FEBB1 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
+		DC20D08F2C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupTerminalWindowHandler.swift; sourceTree = "<group>"; };
 		DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantCreator.swift; sourceTree = "<group>"; };
 		DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantInstructions.swift; sourceTree = "<group>"; };
 		DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressDelegate.swift; sourceTree = "<group>"; };
@@ -147,6 +149,16 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
+		DC20D08E2C4C108B00F80AE1 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				DCAA86492C2A22E40047AE3D /* Utils.swift */,
+				DC6A78242C46E8F700FFC785 /* SendFeedbackEmail.swift */,
+				DC20D08F2C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		DC8FF0912C2CC2C300E5F0A7 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -197,8 +209,7 @@
 				DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */,
 				DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */,
 				DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */,
-				DCAA86492C2A22E40047AE3D /* Utils.swift */,
-				DC6A78242C46E8F700FFC785 /* SendFeedbackEmail.swift */,
+				DC20D08E2C4C108B00F80AE1 /* Helpers */,
 			);
 			path = ShellMate;
 			sourceTree = "<group>";
@@ -358,6 +369,7 @@
 			files = (
 				DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */,
 				DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */,
+				DC20D0902C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift in Sources */,
 				DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */,
 				DC0D53F82C3C9728003FEBB1 /* SettingsView.swift in Sources */,
 				DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */,
