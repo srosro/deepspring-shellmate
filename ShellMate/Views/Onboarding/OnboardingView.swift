@@ -268,6 +268,10 @@ struct OnboardingCompleteView: View {
     }
 }
 
+
+
+import SwiftUI
+
 struct OnboardingView: View {
     @ObservedObject private var stateManager = OnboardingStateManager.shared
 
@@ -276,27 +280,20 @@ struct OnboardingView: View {
             VStack {
                 if stateManager.currentStep == 1 {
                     OnboardingStep1View(showOnboarding: $stateManager.showOnboarding)
+                        .transition(.opacity)
                 } else if stateManager.currentStep == 2 {
                     OnboardingStep2View(showOnboarding: $stateManager.showOnboarding)
+                        .transition(.opacity)
                 } else if stateManager.currentStep == 3 {
                     OnboardingStep3View(showOnboarding: $stateManager.showOnboarding)
+                        .transition(.opacity)
                 } else {
                     OnboardingCompleteView(showOnboarding: $stateManager.showOnboarding)
+                        .transition(.opacity)
                 }
             }
-            HStack {
-                if stateManager.currentStep > 1 {
-                    Button("Back") {
-                        stateManager.goToPreviousStep()
-                    }
-                }
-                Spacer()
-                if stateManager.currentStep < 4 {
-                    Button("Next") {
-                        stateManager.goToNextStep()
-                    }
-                }
-            }
+            .transition(.opacity)
+            .animation(.easeInOut(duration: 0.4), value: stateManager.currentStep)
         }
     }
 }

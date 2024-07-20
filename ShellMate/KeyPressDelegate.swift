@@ -118,52 +118,79 @@ class KeyPressDelegate {
         return !results.isEmpty
     }
 
-    // Updated processEnterKey function
+    // Main function to process the Enter key press
     private func processEnterKey() {
         print("Enter key pressed in Terminal")
-        if let activeLine = currentActiveLine {
-            print("Current active line: \(activeLine)")
-            let isValidSMIndexCommand = isValidSMIndexCommand(line: activeLine)
-            print("Is valid 'sm' index command: \(isValidSMIndexCommand)")
 
-            if isValidSMIndexCommand {
-                // Extract the `sm` command index
-                if let smCommandIndex = extractSMCommandIndex(line: activeLine) {
-                    print("Extracted 'sm' command index: \(smCommandIndex)")
+        handleOnboardingStep3()
 
-                    // Get the file path to shellMateCommandSuggestions.json
-                    let filePath = getShellMateCommandSuggestionsFilePath()
-
-                    // Load the command from JSON file using the extracted index
-                    if let command = loadCommandFromJSON(filePath: filePath, key: smCommandIndex) {
-                        print("Loaded command: \(command)")
-
-                        // Set the desired text into the clipboard
-                        setClipboardContent(text: command)
-
-                        // Paste the clipboard content
-                        pasteClipboardContent()
-                        
-                        if OnboardingStateManager.shared.showOnboarding && OnboardingStateManager.shared.currentStep == 2 {
-                            OnboardingStateManager.shared.setStep(to: 3)
-                        }
-                    } else {
-                        print("No command found for index \(smCommandIndex)")
-                    }
-                } else {
-                    print("No valid 'sm' command index found.")
-                }
-            } else if OnboardingStateManager.shared.showOnboarding
-                        && OnboardingStateManager.shared.currentStep == 1
-                        && isValidSMQuestion(line: activeLine) {
-                print("DANBUG: Valid 'sm' question detected: \(activeLine)")
-                if doesCurrentLineContainOnboardingCommand(line: activeLine) {
-                    print("DANBUG: Current line contains the onboarding command")
-                    OnboardingStateManager.shared.setStep(to: 2)
-                }
-            }
-        } else {
+        guard let activeLine = currentActiveLine else {
             print("No active line available.")
+            return
+        }
+
+        print("Current active line: \(activeLine)")
+        handleSMCommand(for: activeLine)
+    }
+
+    // Function to handle the onboarding step 3
+    private func handleOnboardingStep3() {
+        if OnboardingStateManager.shared.showOnboarding && OnboardingStateManager.shared.currentStep == 3 {
+            OnboardingStateManager.shared.setStep(to: 4)
+        }
+    }
+
+    // Function to handle SM commands in the active line
+    private func handleSMCommand(for line: String) {
+        let isValidSMIndexCommand = isValidSMIndexCommand(line: line)
+        print("Is valid 'sm' index command: \(isValidSMIndexCommand)")
+
+        if isValidSMIndexCommand {
+            processSMIndexCommand(for: line)
+        } else {
+            checkAndHandleOnboardingStep1(line: line)
+        }
+    }
+
+    // Function to process SM index commands
+    private func processSMIndexCommand(for line: String) {
+        if let smCommandIndex = extractSMCommandIndex(line: line) {
+            print("Extracted 'sm' command index: \(smCommandIndex)")
+
+            // Get the file path to shellMateCommandSuggestions.json
+            let filePath = getShellMateCommandSuggestionsFilePath()
+
+            // Load the command from JSON file using the extracted index
+            if let command = loadCommandFromJSON(filePath: filePath, key: smCommandIndex) {
+                print("Loaded command: \(command)")
+
+                // Set the desired text into the clipboard
+                setClipboardContent(text: command)
+
+                // Paste the clipboard content
+                pasteClipboardContent()
+
+                handleOnboardingStep2()
+            } else {
+                print("No command found for index \(smCommandIndex)")
+            }
+        }
+    }
+
+    // Function to handle onboarding step 2
+    private func handleOnboardingStep2() {
+        if OnboardingStateManager.shared.showOnboarding && OnboardingStateManager.shared.currentStep == 2 {
+            OnboardingStateManager.shared.setStep(to: 3)
+        }
+    }
+
+    // Function to check and handle onboarding step 1
+    private func checkAndHandleOnboardingStep1(line: String) {
+        if OnboardingStateManager.shared.showOnboarding
+            && OnboardingStateManager.shared.currentStep == 1
+            && isValidSMQuestion(line: line)
+            && doesCurrentLineContainOnboardingCommand(line: line) {
+            OnboardingStateManager.shared.setStep(to: 2)
         }
     }
     
