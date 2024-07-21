@@ -38,63 +38,13 @@ struct WelcomeView: View {
                 .font(.title)
                 .bold()
                 .padding(.bottom, 2)
-            Button("Crash App") {
-                raiseFatalError()
-            }
-            Button("Capture Error") {
-                captureError()
-            }
-            Button("Raise Uncaught Exception") {
-                raiseUncaughtException()
-            }
-            Button("Simulate Fresh Install") {
-                simulateFreshInstall()
-            }
             Text("We need a couple of things before we can get started.")
                 .font(.subheadline)
                 .padding(.bottom, 20)
         }
         .frame(maxWidth: .infinity, alignment: .center) // Center align the header text
     }
-
-    func raiseFatalError() {
-        fatalError("This is a test crash")
-    }
-
-    func captureError() {
-        do {
-            try aMethodThatMightFail()
-        } catch {
-            SentrySDK.capture(error: error)
-        }
-    }
-
-    func raiseUncaughtException() {
-        let exception = NSException(name: NSExceptionName("TestException"), reason: "This is a test uncaught exception", userInfo: nil)
-        exception.raise()
-    }
-
-    func aMethodThatMightFail() throws {
-        enum SampleError: Error {
-            case exampleError
-        }
-        throw SampleError.exampleError
-    }
-    
-    func simulateFreshInstall() {
-        resetUserDefaults()
-        // Add any other initialization logic if needed
-    }
-
-    func resetUserDefaults() {
-        let defaults = UserDefaults.standard
-        if let appDomain = Bundle.main.bundleIdentifier {
-            defaults.removePersistentDomain(forName: appDomain)
-        }
-        defaults.synchronize()
-    }
 }
-
 
 struct PermissionsView: View {
     @ObservedObject var permissionsViewModel: PermissionsViewModel
