@@ -86,4 +86,7 @@ extension Color {
         static var gray: Color { ColorManager.shared.color(light: ("#555558", 1.0), dark: ("#D2D2D4", 1.0)) }
         static var green: Color { ColorManager.shared.color(light: ("#2A9F47", 1.0), dark: ("#5DD27A", 1.0)) }
     }
+    struct Other {
+        static var lightGray: Color { ColorManager.shared.color(light: ("#F3F4F6", 1.0), dark: ("#F3F4F6", 1.0)) }
+    }
 }

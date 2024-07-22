@@ -142,7 +142,7 @@ struct SuggestionBatchView: View {
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.black)
-                    .foregroundColor(Color.white)
+                    .foregroundColor(Color.Other.lightGray)
                     .cornerRadius(8)
             }
 
