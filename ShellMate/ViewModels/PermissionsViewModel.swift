@@ -55,6 +55,8 @@ enum ApiKeyValidationState: String {
 class LicenseViewModel: ObservableObject {
     @Published var apiKey: String {
         didSet {
+            // Cancel any ongoing validation
+            apiKeyCheckTask?.cancel()
             // Sanitize the API key by removing spaces
             let sanitizedApiKey = apiKey.replacingOccurrences(of: " ", with: "")
             
