@@ -49,11 +49,6 @@ struct ShellMateApp: App {
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesView(updater: updaterController.updater)
             }
-            CommandGroup(replacing: .appSettings) {
-                Button("Permissions") {
-                    ShellMate.showPermissionsView()
-                }
-            }
             CommandGroup(after: .appSettings) {
                 Button("Send Feedback") {
                     sendFeedbackEmail()
@@ -61,7 +56,7 @@ struct ShellMateApp: App {
                 .keyboardShortcut("F", modifiers: .command)
             }
         }
-        
+
         Settings {
             SettingsView(appViewModel: viewModel, licenseViewModel: licenseViewModel, generalViewModel: generalViewModel)
         }
