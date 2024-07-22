@@ -130,7 +130,7 @@ struct ApiKeyView: View {
                     Spacer() // Pushes the text to the left
                     Text("\(appViewModel.GPTSuggestionsFreeTierCount)/\(appViewModel.GPTSuggestionsFreeTierLimit) complimentary AI responses used")
                         .font(.footnote)
-                        .foregroundColor(AppColors.grayVisibleInDarkAndLightModes)
+                        .foregroundColor(Color.Text.gray)
                 }
                 .padding(.trailing, 60)
             }
@@ -167,8 +167,8 @@ struct AboutView: View {
                             Text("Send Feedback")
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2.5)
-                                .background(AppColors.black)
-                                .foregroundColor(.white)
+                                .background(Color.black)
+                                .foregroundColor(Color.white)
                                 .cornerRadius(3)
                                 .font(.subheadline)
                         }
@@ -183,8 +183,8 @@ struct AboutView: View {
                             Text("Visit Website")
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2.5)
-                                .background(AppColors.black)
-                                .foregroundColor(.white)
+                                .background(Color.black)
+                                .foregroundColor(Color.white)
                                 .cornerRadius(3)
                                 .font(.subheadline)
                         }

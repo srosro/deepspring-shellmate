@@ -99,13 +99,13 @@ struct SuggestionsView: View {
             HStack {
                 Text(viewModel.currentStateText)
                     .font(.footnote)
-                    .foregroundColor(viewModel.currentStateText == "Detecting changes..." ? AppColors.green : AppColors.grayVisibleInDarkAndLightModes)
+                    .foregroundColor(viewModel.currentStateText == "Detecting changes..." ? Color.Text.green : Color.Text.gray)
                     .padding(.leading)
                 Spacer()
                 if let currentTerminalID = viewModel.currentTerminalID, viewModel.isGeneratingSuggestion[currentTerminalID] == true {
                     Text("Generating suggestion...")
                         .font(.footnote)
-                        .foregroundColor(AppColors.green)
+                        .foregroundColor(Color.Text.green)
                         .padding(.trailing)
                 }
             }
@@ -141,8 +141,8 @@ struct SuggestionBatchView: View {
                     .fontWeight(.semibold)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(AppColors.black)
-                    .foregroundColor(AppColors.white)
+                    .background(Color.black)
+                    .foregroundColor(Color.white)
                     .cornerRadius(8)
             }
 
@@ -170,26 +170,22 @@ struct SmButtonIdxView: View {
                 Text(buttonText)
                     .font(.system(.footnote, design: .monospaced))
                     .fontWeight(.regular)
-                    .foregroundColor(AppColors.black)
+                    .foregroundColor(Color.Text.primary)
             } else {
                 Text("sm \(batchIndex + 1)")
                     .font(.system(.footnote, design: .monospaced))
                     .fontWeight(.regular)
-                    .foregroundColor(AppColors.black)
+                    .foregroundColor(Color.Text.primary)
                 Text(".\(index + 1)")
                     .font(.system(.footnote, design: .monospaced))
                     .fontWeight(.regular)
-                    .foregroundColor(AppColors.black)
-                    .opacity(index == 0 ? 0.4 : 1.0) // Updated opacity logic
+                    .foregroundColor(index == 0 ? Color.Text.secondary : Color.Text.primary)
             }
         }
         .padding(6)
-        .background(buttonText == "copied" ? AppColors.smButtonBackground.opacity(0.15) : AppColors.smButtonBackground.opacity(0.05))
+        .background(buttonText == "copied" ? Color.BG.Cells.tertiaryFocused : Color.BG.Cells.tertiary)
+        .background(Color.BG.Cells.tertiary)
         .cornerRadius(4)
-        .overlay(
-            RoundedRectangle(cornerRadius: 4)
-                .stroke(AppColors.gray600.opacity(0.05), lineWidth: 1)
-        )
     }
 }
 
@@ -200,7 +196,7 @@ struct SuggestionView: View {
     var index: Int
 
     @State private var isHovered: Bool = false
-    @State private var borderColor: Color = AppColors.gray600.opacity(0.2)
+    @State private var borderColor: Color = Color.Stroke.Cells.secondary
     @State private var borderWidth: CGFloat = 1
     @State private var buttonText: String
 
@@ -227,8 +223,8 @@ struct SuggestionView: View {
                         SmButtonIdxView(batchIndex: batchIndex, index: index, buttonText: $buttonText)
                     }
                     .padding(10)
-                    .background(isHovered ? AppColors.grayBackgroundVisibleInDarkAndLightModes.opacity(0.5) : AppColors.white)
-                    .foregroundColor(AppColors.black)
+                    .background(isHovered ? Color.BG.Cells.secondaryFocused : Color.BG.Cells.secondary)
+                    .foregroundColor(Color.Text.primary)
                     .cornerRadius(8)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
@@ -246,7 +242,7 @@ struct SuggestionView: View {
                 Text(explanation)
                     .font(.footnote)
                     .fontWeight(.regular)
-                    .foregroundColor(AppColors.grayVisibleInDarkAndLightModes)
+                    .foregroundColor(Color.Text.gray)
                     .padding(.horizontal, 10)
                     .padding(.top, 2)
             }
@@ -254,7 +250,6 @@ struct SuggestionView: View {
         .background(Color.clear)
         .cornerRadius(8)
     }
-
 
     private func copyToClipboard(command: String) {
         let pasteboard = NSPasteboard.general
@@ -265,13 +260,13 @@ struct SuggestionView: View {
 
     private func provideFeedback() {
         withAnimation(Animation.easeInOut(duration: 0.02)) {
-            borderColor = AppColors.black
+            borderColor = Color.Stroke.Cells.secondaryClicked
             borderWidth = 2
             buttonText = "copied"
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             withAnimation {
-                borderColor = AppColors.gray600.opacity(0.2)
+                borderColor = Color.Stroke.Cells.secondary
                 borderWidth = 1
                 buttonText = "sm \(batchIndex + 1).\(index + 1)"
             }

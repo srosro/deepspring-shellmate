@@ -69,10 +69,10 @@ struct PermissionsView: View {
                     if permissionsViewModel.isAppTrusted {
                         HStack {
                             Image(systemName: "checkmark")
-                                .foregroundColor(AppColors.green)
+                                .foregroundColor(Color.Text.green)
                                 .font(.subheadline)
                             Text("Granted")
-                                .foregroundColor(AppColors.green)
+                                .foregroundColor(Color.Text.green)
                                 .font(.subheadline)
                         }
                     } else {
@@ -82,8 +82,8 @@ struct PermissionsView: View {
                             Text("Grant Access")
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2.5)
-                                .background(AppColors.black)
-                                .foregroundColor(.white)
+                                .background(Color.black)
+                                .foregroundColor(Color.white)
                                 .cornerRadius(3)
                                 .font(.footnote)
                         }
@@ -136,7 +136,7 @@ struct LicenseView: View {
                     } else if licenseViewModel.apiKeyValidationState == .unverified {
                         Text("\(appViewModel.GPTSuggestionsFreeTierCount)/\(appViewModel.GPTSuggestionsFreeTierLimit) complimentary AI responses used")
                             .font(.footnote)
-                            .foregroundColor(AppColors.grayVisibleInDarkAndLightModes)
+                            .foregroundColor(Color.Text.gray)
                             .padding(.top, 5)
                     }
                 }
@@ -187,7 +187,7 @@ struct ContinueButtonView: View {
     
     private var buttonBackgroundColor: Color {
         if isButtonEnabled {
-            return AppColors.black
+            return Color.black
         } else {
             return AppColors.gray400
         }
