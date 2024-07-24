@@ -131,7 +131,8 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             kAXWindowMiniaturizedNotification as CFString,
             kAXWindowDeminiaturizedNotification as CFString,
             kAXUIElementDestroyedNotification as CFString,  // Close event substitute
-            kAXResizedNotification as CFString  // Added for resize event
+            kAXResizedNotification as CFString,
+            kAXFocusedUIElementChangedNotification as CFString  // To detect tab changes from the same terminal.
         ]
         
         for notification in notifications {
