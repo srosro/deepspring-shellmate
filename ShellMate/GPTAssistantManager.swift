@@ -22,35 +22,35 @@ class GPTAssistantManager {
             "Authorization": "Bearer \(apiKey)",
             "OpenAI-Beta": "assistants=v2",
         ]
-        setupAssistant()
     }
     
-    private func setupAssistant() {
+    func setupAssistant() async -> Bool {
         let assistantCreator = GPTAssistantCreator()
         let assistantBaseName = "ShellMateSuggestCommands"
         let assistantCurrentVersion: String
         do {
             assistantCurrentVersion = try getAppVersionAndBuild()
         } catch {
-            fatalError("Error retrieving app version and build: \(error)")
+            print("Error retrieving app version and build: \(error)")
+            return false
         }
         let assistantInstructions = GPTAssistantInstructions.getInstructions()
 
-        Task {
-            do {
-                let assistantId = try await assistantCreator.getOrUpdateAssistant(
-                    assistantBaseName: assistantBaseName,
-                    assistantCurrentVersion: assistantCurrentVersion,
-                    assistantInstructions: assistantInstructions
-                )
-                print("Assistant ID: \(assistantId)")
-                self.assistantId = assistantId
-            } catch {
-                fatalError("Error occurred while setting up GPT Assistant: \(error)")
-            }
+        do {
+            let assistantId = try await assistantCreator.getOrUpdateAssistant(
+                assistantBaseName: assistantBaseName,
+                assistantCurrentVersion: assistantCurrentVersion,
+                assistantInstructions: assistantInstructions
+            )
+            print("Assistant ID: \(assistantId)")
+            self.assistantId = assistantId
+            return true
+        } catch {
+            print("Error occurred while setting up GPT Assistant: \(error.localizedDescription)")
+            return false
         }
     }
-    
+
     func createThread() async throws -> String {
         let url = URL(string: "https://api.openai.com/v1/threads")!
         var request = URLRequest(url: url)

@@ -9,7 +9,8 @@ class AppViewModel: ObservableObject {
     @Published var results: [String: (suggestionsCount: Int, suggestionsHistory: [(UUID, [[String: String]])], updatedAt: Date)] = [:]
     @Published var isGeneratingSuggestion: [String: Bool] = [:]
     @Published var hasUserValidatedOwnOpenAIAPIKey: Bool = false
-    
+    @Published var isAssistantSetupSuccessful: Bool = false
+
     private var threadIdDict: [String: String] = [:]
     private var currentTerminalStateID: UUID?
     private let additionalSuggestionDelaySeconds: TimeInterval = 2.0
@@ -38,12 +39,55 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    @Published var hasInternetConnection: Bool = true {
+        didSet {
+            if hasInternetConnection == false {
+                print("Internet connection lost. Starting check loop.")
+                startInternetCheckLoop()
+            }
+        }
+    }
+    
     init() {
-        // Initialize properties from UserDefaults
         self.GPTSuggestionsFreeTierCount = UserDefaults.standard.integer(forKey: GPTSuggestionsFreeTierCountKey)
         self.hasGPTSuggestionsFreeTierCountReachedLimit = UserDefaults.standard.bool(forKey: hasGPTSuggestionsFreeTierCountReachedLimitKey)
         updateHasGPTSuggestionsFreeTierCountReachedLimit()
-        setupNotificationObservers()
+        
+        Task {
+            await initializeAssistant()
+        }
+    }
+    
+    func startInternetCheckLoop() {
+        DispatchQueue.global().async {
+            while !self.hasInternetConnection {
+                Task {
+                    let isConnected = await checkInternetConnection()
+                    if isConnected {
+                        DispatchQueue.main.async {
+                            self.hasInternetConnection = true
+                        }
+                        return
+                    }
+                }
+                sleep(1) // 1 second delay
+            }
+        }
+    }
+    
+    func initializeAssistant() async {
+        print("Starting assistant setup...")
+        let success = await gptAssistantManager.setupAssistant()
+        DispatchQueue.main.async {
+            self.isAssistantSetupSuccessful = success
+            if success {
+                print("Assistant setup successful.")
+                self.setupNotificationObservers()
+            } else {
+                print("Assistant setup failed.")
+                self.hasInternetConnection = false
+            }
+        }
     }
     
     private func setupNotificationObservers() { // New method for setting up notification observers
@@ -85,6 +129,9 @@ class AppViewModel: ObservableObject {
             return
         }
         if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
+            return
+        }
+        if !hasInternetConnection {
             return
         }
         analyzeTerminalContent(text: text, windowID: windowID, source: source, changeIdentifiedAt: changeIdentifiedAt)
@@ -162,9 +209,12 @@ class AppViewModel: ObservableObject {
         }
     }
     
-    
     private func generateAdditionalSuggestions(identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double, source: String) {
         if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
+            return
+        }
+        
+        if !hasInternetConnection {
             return
         }
         
@@ -252,6 +302,12 @@ class AppViewModel: ObservableObject {
             }
         } catch {
             print("Error processing message in thread: \(error.localizedDescription)")
+            if error.localizedDescription.contains("The network connection was lost") || error.localizedDescription.contains("The request timed out") {
+                DispatchQueue.main.async {
+                    self.hasInternetConnection = false
+                    self.isGeneratingSuggestion[identifier] = false
+                }
+            }
         }
         Task { @MainActor in
             NotificationCenter.default.post(name: .suggestionGenerationStatusChanged, object: nil, userInfo: ["identifier": identifier, "isGeneratingSuggestion": false])

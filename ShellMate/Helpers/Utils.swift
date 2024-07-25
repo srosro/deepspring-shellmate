@@ -196,3 +196,20 @@ func testObfuscateAuthTokens() {
     //print("All tests passed.")
 }
 
+// Method to check internet connection
+func checkInternetConnection() async -> Bool {
+    let url = URL(string: "https://www.google.com")! // Replace with a reliable URL
+    var request = URLRequest(url: url)
+    request.timeoutInterval = 5.0 // 5 seconds timeout
+
+    do {
+        let (_, response) = try await URLSession.shared.data(for: request)
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+            return true
+        } else {
+            return false
+        }
+    } catch {
+        return false
+    }
+}

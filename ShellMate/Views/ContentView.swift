@@ -54,6 +54,42 @@ struct ActivateShellMateView: View {
     }
 }
 
+struct NetworkIssueView: View {
+    @State private var apiKey: String = ""
+
+    var body: some View {
+        Button(action: {
+        }) {
+            // this here is a dummy button just to make the style work
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Network Error")
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .allowsHitTesting(false)  // Disable interaction for this text
+
+                Text("Please check your internet connection. If you believe this is an error, feel free to send us feedback.")
+                    .font(.body)
+                    .fontWeight(.regular)
+                    .multilineTextAlignment(.leading)
+                    .allowsHitTesting(false)  // Disable interaction for this text
+            }
+            .padding(.horizontal, 16)  // Inner padding for the VStack inside the border
+            .padding(.vertical, 12)  // Inner padding for the VStack inside the border
+            .frame(maxWidth: .infinity, alignment: .leading)  // Make VStack take full width
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(LinearGradient(
+                        gradient: Gradient(colors: [AppColors.gradientLightBlue, AppColors.gradientPurple]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ), lineWidth: 2)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())  // Ensure no button styling
+    }
+}
+
+
 
 struct ContentView: View {
     @ObservedObject var viewModel: AppViewModel
@@ -91,6 +127,11 @@ struct SuggestionsView: View {
             
             if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit && !viewModel.hasUserValidatedOwnOpenAIAPIKey {
                 ActivateShellMateView()
+                    .padding(10)
+            }
+            
+            if !viewModel.hasInternetConnection {
+                NetworkIssueView()
                     .padding(10)
             }
 
