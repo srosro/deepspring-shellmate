@@ -21,7 +21,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         initializeFocusedWindowID() // Required in case app launches with terminal already open
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdatedAppPositionAfterWindowAttachmentChange(_:)), name: .updatedAppPositionAfterWindowAttachmentChange, object: nil)
-
+        NotificationCenter.default.addObserver(self, selector: #selector(handleReinitializeTerminalWindowID), name: .reinitializeTerminalWindowID, object: nil)
     }
     
     func initializeFocusedWindowID() {
@@ -30,6 +30,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         }
         
         if let windowID = windowData.windowID {
+            print("DANBUG: terminal window initialized")
             NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
                 "terminalWindowID": windowID,
                 "terminalWindow": windowData.focusedWindow!
@@ -37,6 +38,10 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         }
         
         positionAndSizeWindow(terminalPosition: windowData.position, terminalSize: windowData.size, shouldAnimate: true)
+    }
+    
+    @objc func handleReinitializeTerminalWindowID(_ notification: Notification) {
+        initializeFocusedWindowID()
     }
     
     @objc func handleTerminalLaunch(_ notification: Notification) {
@@ -236,6 +241,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             if let currentWindowID = focusedTerminalWindowID, let previousWindowID = previousFocusedWindowID, currentWindowID != previousWindowID {
                 print("The focused terminal window changed from \(String(describing: previousFocusedWindowID)) to \(String(describing: currentWindowID)).")
                 shouldBringToFront = true
+                print("DANBUG: terminal window changed")
                 NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
                     "terminalWindowID": currentWindowID,
                     "terminalWindow": focusedWindow

@@ -8,6 +8,8 @@
 import Foundation
 
 class GPTAssistantManager {
+    static let shared = GPTAssistantManager()
+    
     let apiKey: String
     var assistantId: String
     let headers: [String: String]
@@ -75,6 +77,11 @@ class GPTAssistantManager {
     }
     
     func startRun(threadId: String) async throws -> String {
+        // Check if assistantId is not empty
+        guard !assistantId.isEmpty else {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "startRun - Assistant ID is empty"])
+        }
+        
         let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/runs")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -190,14 +197,43 @@ class GPTAssistantManager {
     }
 
     private func handleResponse(data: Data, response: URLResponse) async throws -> String {
-        guard let response = response as? HTTPURLResponse,
-            response.statusCode == 200,
-              let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let id = jsonObject["id"] as? String else {
-            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to parse JSON or bad response"])
+        // Log the raw response
+        if let httpResponse = response as? HTTPURLResponse {
+            print("HTTP Status Code: \(httpResponse.statusCode)")
+            print("Headers: \(httpResponse.allHeaderFields)")
+        } else {
+            print("Unexpected response type: \(response)")
         }
-        return id
+
+        // Log the raw data received
+        let responseDataString = String(data: data, encoding: .utf8) ?? "Unable to convert data to string"
+        print("Response Data: \(responseDataString)")
+
+        // Attempt to parse the JSON
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "HandleResponse - Non-200 HTTP response"])
+        }
+
+        do {
+            guard let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "HandleResponse - Failed to parse JSON"])
+            }
+
+            // Log the parsed JSON object
+            print("Parsed JSON: \(jsonObject)")
+
+            guard let id = jsonObject["id"] as? String else {
+                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "HandleResponse - 'id' key not found in JSON"])
+            }
+
+            return id
+        } catch {
+            print("JSON Parsing Error: \(error.localizedDescription)")
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "HandleResponse - JSON Parsing Error: \(error.localizedDescription)"])
+        }
     }
+
     
     func processMessageInThread(threadId: String, messageContent: String) async throws -> [String: Any] {
         let messageId = try await createMessage(threadId: threadId, messageContent: messageContent)

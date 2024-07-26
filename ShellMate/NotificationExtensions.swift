@@ -62,4 +62,7 @@ extension Notification.Name {
     /// userInfo dictionary should contain:
     /// - "newStep": Int (the new step to set in the onboarding process)
     static let onboardingStepChanged = Notification.Name("onboardingStepChanged")
+    
+    /// Notification to indicate that the terminal window ID should be reinitialized.
+    static let reinitializeTerminalWindowID = Notification.Name("reinitializeTerminalWindowID")
 }

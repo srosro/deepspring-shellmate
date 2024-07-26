@@ -72,7 +72,7 @@ class GPTAssistantCreator {
         print("createAssistant - Request: \(request)")
         print("createAssistant - Instructions: \(instructions)")
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.dataWithTimeout(for: request)
         
         print("createAssistant - Response: \(response)")
         print("createAssistant - Data: \(String(data: data, encoding: .utf8) ?? "No data")")
@@ -80,7 +80,7 @@ class GPTAssistantCreator {
         guard let response = response as? HTTPURLResponse, response.statusCode == 200,
               let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let assistantId = jsonObject["id"] as? String else {
-            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to parse JSON or bad response"])
+            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Create Assistant - Failed to parse JSON or bad response"])
         }
 
         return assistantId
@@ -94,7 +94,7 @@ class GPTAssistantCreator {
 
         print("deleteAssistant - Request: \(request)")
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.dataWithTimeout(for: request)
         
         print("deleteAssistant - Response: \(response)")
         print("deleteAssistant - Data: \(String(data: data, encoding: .utf8) ?? "No data")")
@@ -113,7 +113,7 @@ class GPTAssistantCreator {
 
         print("listAssistants - Request: \(request)")
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.dataWithTimeout(for: request)
         
         print("listAssistants - Response: \(response)")
         print("listAssistants - Data: \(String(data: data, encoding: .utf8) ?? "No data")")
