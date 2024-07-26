@@ -93,21 +93,9 @@ struct ContentView: View {
     @ObservedObject var viewModel: AppViewModel
 
     var body: some View {
-        Button("Simulate Fresh Install") {
-            resetUserDefaults()
-        }
         SuggestionsView(viewModel: viewModel)
     }
 }
-
-func resetUserDefaults() {
-    let defaults = UserDefaults.standard
-    if let appDomain = Bundle.main.bundleIdentifier {
-        defaults.removePersistentDomain(forName: appDomain)
-    }
-    defaults.synchronize()
-}
-
 
 struct SuggestionsView: View {
     @ObservedObject var viewModel: AppViewModel
