@@ -213,3 +213,13 @@ func checkInternetConnection() async -> Bool {
         return false
     }
 }
+
+extension URLSession {
+    func dataWithTimeout(for request: URLRequest, timeout: TimeInterval = 10.0) async throws -> (Data, URLResponse) {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = timeout
+        configuration.timeoutIntervalForResource = timeout
+        let session = URLSession(configuration: configuration)
+        return try await session.data(for: request)
+    }
+}

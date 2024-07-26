@@ -58,7 +58,7 @@ class GPTAssistantManager {
         request.allHTTPHeaderFields = headers
         request.httpBody = "{}".data(using: .utf8)
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.dataWithTimeout(for: request)
         return try await handleResponse(data: data, response: response)
     }
     
@@ -70,7 +70,7 @@ class GPTAssistantManager {
         let payload = ["role": "user", "content": messageContent]
         request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.dataWithTimeout(for: request)
         return try await handleResponse(data: data, response: response)
     }
     
@@ -82,7 +82,7 @@ class GPTAssistantManager {
         let payload = ["assistant_id": assistantId]
         request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.dataWithTimeout(for: request)
         return try await handleResponse(data: data, response: response)
     }
     
@@ -105,9 +105,15 @@ class GPTAssistantManager {
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
         
+        // Create a URLSession with a custom timeout configuration
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 15.0 // 15 seconds timeout
+        configuration.timeoutIntervalForResource = 15.0 // 15 seconds timeout
+        let session = URLSession(configuration: configuration)
+
         func checkStatus() {
             let interval = pollingInterval
-            URLSession.shared.dataTask(with: request) { data, response, error in
+            session.dataTask(with: request) { data, response, error in
                 if let error = error {
                     completion(.failure(error))
                     return
@@ -115,7 +121,7 @@ class GPTAssistantManager {
                 guard let data = data,
                       let jsonData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                       let status = jsonData["status"] as? String else {
-                    completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to parse JSON or bad response"])))
+                    completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "PollRunStatus - Failed to parse JSON or bad response"])))
                     return
                 }
                 print("Checking run status: \(status)")
@@ -123,7 +129,7 @@ class GPTAssistantManager {
                     print("Run completed successfully.")
                     completion(.success(()))
                 } else if status == "failed" || status == "cancelled" || status == "expired" {
-                    completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Run did not complete successfully: \(status)"])))
+                    completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "PollRunStatus - Run did not complete successfully: \(status)"])))
                 } else {
                     DispatchQueue.global().asyncAfter(deadline: .now() + interval) {
                         checkStatus() // Recursively check after delay
@@ -141,7 +147,7 @@ class GPTAssistantManager {
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
 
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, _) = try await URLSession.shared.dataWithTimeout(for: request)
         guard let jsonData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw  NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to receive or parse data"])
         }

@@ -13,7 +13,7 @@ class AppViewModel: ObservableObject {
 
     private var threadIdDict: [String: String] = [:]
     private var currentTerminalStateID: UUID?
-    private let additionalSuggestionDelaySeconds: TimeInterval = 2.0
+    private let additionalSuggestionDelaySeconds: TimeInterval = 3.0
     private let maxSuggestionsPerEvent: Int = 4
     private var shouldGenerateFollowUpSuggestionsFlag: Bool = true
     private lazy var gptAssistantManager: GPTAssistantManager = {
