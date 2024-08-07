@@ -22,12 +22,30 @@ struct PermissionsWindowView: View {
             Spacer()
             PermissionsView(permissionsViewModel: permissionsViewModel)
             Spacer()
-            LicenseView(licenseViewModel: licenseViewModel, appViewModel: appViewModel)
-            Spacer()
+            
+            if appViewModel.hasGPTSuggestionsFreeTierCountReachedLimit {
+                LicenseView(licenseViewModel: licenseViewModel, appViewModel: appViewModel)
+                Spacer()
+            }
+            DisclaimerView().padding(.bottom, 16)
             ContinueButtonView(permissionsViewModel: permissionsViewModel, licenseViewModel: licenseViewModel, appViewModel: appViewModel, onContinue: onContinue)
             Spacer()
         }
         .padding()
+    }
+}
+
+struct DisclaimerView: View {
+    var body: some View {
+        VStack {
+            Text("This application uses OpenAI API to process text from your Terminal application and generate commands. After a limited free use, you will be asked to supply your own.")
+                .font(.footnote)
+                .multilineTextAlignment(.center) // Center the text
+            
+            Text("You should never run commands you do not know.")
+                .font(.footnote)
+                .bold()
+        }
     }
 }
 
@@ -108,45 +126,43 @@ struct LicenseView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if appViewModel.hasGPTSuggestionsFreeTierCountReachedLimit {
-                Text("License")
-                    .font(.subheadline)
-                    .bold() // Ensure the text is bold
-                    .padding(.leading, 15)
-                
-                VStack(alignment: .leading, spacing: 0) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("OpenAI API Key")
-                            .font(.subheadline)
-                            .bold()
-                        Text("Add your Secret API key from OpenAI. How do I get an API key?")
-                            .font(.footnote)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.bottom, 10) // Adding some padding at the bottom of the text
-
-                    TextField("Enter OpenAI API Key", text: $licenseViewModel.apiKey)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    // Conditionally show the feedback message if the API key is invalid
-                    if licenseViewModel.apiKeyValidationState == .invalid {
-                        Text("API Key is invalid")
-                            .foregroundColor(.red)
-                            .font(.footnote)
-                            .padding(.top, 5)
-                    } else if licenseViewModel.apiKeyValidationState == .unverified {
-                        Text("\(appViewModel.GPTSuggestionsFreeTierCount)/\(appViewModel.GPTSuggestionsFreeTierLimit) complimentary AI responses used")
-                            .font(.footnote)
-                            .foregroundColor(Color.Text.gray)
-                            .padding(.top, 5)
-                    }
+            Text("License")
+                .font(.subheadline)
+                .bold() // Ensure the text is bold
+                .padding(.leading, 15)
+            
+            VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("OpenAI API Key")
+                        .font(.subheadline)
+                        .bold()
+                    Text("Add your Secret API key from OpenAI. How do I get an API key?")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
                 }
-                .padding()
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(AppColors.gray400, lineWidth: 0.4) // Consistent line width
-                )
+                .padding(.bottom, 10) // Adding some padding at the bottom of the text
+
+                TextField("Enter OpenAI API Key", text: $licenseViewModel.apiKey)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                // Conditionally show the feedback message if the API key is invalid
+                if licenseViewModel.apiKeyValidationState == .invalid {
+                    Text("API Key is invalid")
+                        .foregroundColor(.red)
+                        .font(.footnote)
+                        .padding(.top, 5)
+                } else if licenseViewModel.apiKeyValidationState == .unverified {
+                    Text("\(appViewModel.GPTSuggestionsFreeTierCount)/\(appViewModel.GPTSuggestionsFreeTierLimit) complimentary AI responses used")
+                        .font(.footnote)
+                        .foregroundColor(Color.Text.gray)
+                        .padding(.top, 5)
+                }
             }
+            .padding()
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(AppColors.gray400, lineWidth: 0.4) // Consistent line width
+            )
         }
         .frame(maxWidth: .infinity)
     }

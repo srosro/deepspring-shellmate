@@ -22,7 +22,8 @@ class AppViewModel: ObservableObject {
     // UserDefaults keys
     private let GPTSuggestionsFreeTierCountKey = "GPTSuggestionsFreeTierCount"
     private let hasGPTSuggestionsFreeTierCountReachedLimitKey = "hasGPTSuggestionsFreeTierCountReachedLimit"
-    
+    private var terminalIDCheckTimer: Timer?
+
     // Limit for free tier suggestions
     let GPTSuggestionsFreeTierLimit = 150
     
@@ -95,12 +96,24 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    func startCheckingTerminalID() {
+        terminalIDCheckTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.ensureCurrentTerminalIDHasValue()
+        }
+    }
+
+    func stopCheckingTerminalID() {
+        terminalIDCheckTimer?.invalidate()
+        terminalIDCheckTimer = nil
+    }
+    
     func ensureCurrentTerminalIDHasValue() {
         if currentTerminalID == nil || currentTerminalID?.isEmpty == true {
             print("DANBUG: currentTerminalID is nil or empty. Posting reinitializeTerminalWindowID notification.")
             NotificationCenter.default.post(name: .reinitializeTerminalWindowID, object: nil)
         } else {
             print("DANBUG: currentTerminalID has a value: \(currentTerminalID!)")
+            stopCheckingTerminalID() // Stop the timer once a valid ID is found
         }
     }
     
@@ -117,7 +130,7 @@ class AppViewModel: ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleSuggestionGenerationStatusChanged(_:)), name: .suggestionGenerationStatusChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleUserValidatedOwnOpenAIAPIKey), name: .userValidatedOwnOpenAIAPIKey, object: nil)
         areNotificationObserversSetup = true
-        ensureCurrentTerminalIDHasValue() // Necessary as sometimes the AppViewModel will only setup the observer for handleTerminalWindowIdDidChange after the first setup was run, so the currentTerminalID would be empty, causing errors
+        startCheckingTerminalID() // Necessary as sometimes the AppViewModel will only setup the observer for handleTerminalWindowIdDidChange after the first setup was run, so the currentTerminalID would be empty, causing errors
     }
     
     @objc private func handleTerminalChangeStarted() {

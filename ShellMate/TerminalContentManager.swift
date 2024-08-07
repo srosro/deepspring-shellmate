@@ -69,7 +69,7 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
 
             if alphanumericText != previousTerminalText && !alphanumericText.isEmpty {
                 previousTerminalText = alphanumericText
-                printTerminalText(sanitizedText, windowID: currentTerminalWindowID)
+                //printTerminalText(sanitizedText, windowID: currentTerminalWindowID)
 
                 // Log the event when terminal change is identified
                 MixpanelHelper.shared.trackEvent(name: "terminalTextChangeIdentified")
