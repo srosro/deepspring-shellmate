@@ -316,6 +316,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         
         // Check the current state of the attachment position. If it is float, just return and don't miniaturize
         if attachmentPosition == .float {
+            print("Attachment position is 'float'. Will not miniaturize")
             return
         }
         

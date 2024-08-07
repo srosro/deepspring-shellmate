@@ -40,6 +40,7 @@ class GeneralViewModel: ObservableObject {
             self.windowAttachmentPosition = position
         } else {
             self.windowAttachmentPosition = .right
+            UserDefaults.standard.set(self.windowAttachmentPosition.rawValue, forKey: "windowAttachmentPosition")
         }
         // Add the observer
         NotificationCenter.default.addObserver(self, selector: #selector(handleWindowAttachmentPositionDidChange(_:)), name: .windowAttachmentPositionDidChange, object: nil)
