@@ -119,24 +119,46 @@ struct ApiKeyView: View {
             // Conditionally show the feedback message if the API key is invalid or unverified
             if licenseViewModel.apiKeyValidationState == .invalid {
                 HStack {
-                    Spacer() // Pushes the text to the left
+                    Text(" ")
+                        .frame(width: 150, alignment: .trailing) // Adds the same width as "OpenAI API Key"
                     Text("API Key is invalid")
                         .foregroundColor(.red)
                         .font(.footnote)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.trailing, 60)
                 }
-                .padding(.trailing, 60)
             } else if licenseViewModel.apiKeyValidationState == .unverified {
                 HStack {
-                    Spacer() // Pushes the text to the left
+                    Text(" ")
+                        .frame(width: 150, alignment: .trailing) // Adds the same width as "OpenAI API Key"
                     Text("\(appViewModel.GPTSuggestionsFreeTierCount)/\(appViewModel.GPTSuggestionsFreeTierLimit) complimentary AI responses used")
                         .font(.footnote)
+                        .fontWeight(.medium)
+                        .foregroundColor(Color.Text.gray)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.trailing, 60)
+                        .bold()
+                }
+            }
+            Spacer().frame(height: 1)
+            HStack(alignment: .top) {
+                Text(" ")
+                    .frame(width: 150, alignment: .trailing) // Adds the same width as "OpenAI API Key"
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("If you don't have an API key yet, you can sign up for one at")
+                        .font(.footnote)
+                        .foregroundColor(Color.Text.gray)
+                    Link("OpenAI - API Keys", destination: URL(string: "https://platform.openai.com/api-keys")!)
+                        .font(.footnote)
+                        .underline()
                         .foregroundColor(Color.Text.gray)
                 }
-                .padding(.trailing, 60)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
 }
+
 
 
 struct AboutView: View {

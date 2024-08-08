@@ -38,7 +38,7 @@ struct PermissionsWindowView: View {
 struct DisclaimerView: View {
     var body: some View {
         VStack {
-            Text("This application uses OpenAI API to process text from your Terminal application and generate commands. After a limited free use, you will be asked to supply your own.")
+            Text("This application uses OpenAI API to process text from your Terminal application and generate suggestions.  We disclaim any liability for damages resulting in using this free application.")
                 .font(.footnote)
                 .multilineTextAlignment(.center) // Center the text
             
@@ -136,9 +136,6 @@ struct LicenseView: View {
                     Text("OpenAI API Key")
                         .font(.subheadline)
                         .bold()
-                    Text("Add your Secret API key from OpenAI. How do I get an API key?")
-                        .font(.footnote)
-                        .foregroundColor(.gray)
                 }
                 .padding(.bottom, 10) // Adding some padding at the bottom of the text
 
@@ -153,9 +150,18 @@ struct LicenseView: View {
                 } else if licenseViewModel.apiKeyValidationState == .unverified {
                     Text("\(appViewModel.GPTSuggestionsFreeTierCount)/\(appViewModel.GPTSuggestionsFreeTierLimit) complimentary AI responses used")
                         .font(.footnote)
+                        .fontWeight(.medium)
                         .foregroundColor(Color.Text.gray)
                         .padding(.top, 5)
                 }
+                Text("If you don't have an API key yet, you can sign up for one at")
+                    .font(.footnote)
+                    .foregroundColor(Color.Text.gray)
+                    .padding(.top, 3)
+                Link("OpenAI - API Keys", destination: URL(string: "https://platform.openai.com/api-keys")!)
+                    .font(.footnote)
+                    .underline()
+                    .foregroundColor(Color.Text.gray)
             }
             .padding()
             .cornerRadius(8)
