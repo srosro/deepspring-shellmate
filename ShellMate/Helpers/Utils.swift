@@ -14,7 +14,7 @@ import CoreGraphics
 
 /// Retrieve the API key from UserDefaults
 func getHardcodedOpenAIAPIKey() -> String {
-    return "sk-proj-QJTEXwwbbp2LhwahZ2F3T3BlbkFJeLNulBYi20omTgB7wk3l"
+    return "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"
 }
 
 func retrieveOpenaiAPIKey() -> String {
@@ -198,24 +198,28 @@ func testObfuscateAuthTokens() {
     //print("All tests passed.")
 }
 
-
-// Method to check internet connection
 func checkInternetConnection() async -> Bool {
     let url = URL(string: "https://www.google.com")! // Replace with a reliable URL
     var request = URLRequest(url: url)
-    request.timeoutInterval = 5.0 // 5 seconds timeout
+    request.timeoutInterval = 10.0 // 10 seconds timeout
 
     do {
         let (_, response) = try await URLSession.shared.data(for: request)
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-            return true
+        if let httpResponse = response as? HTTPURLResponse {
+            print("DEBUG: HTTP status code: \(httpResponse.statusCode)")
+            // Consider 200 and 429 status codes as having an internet connection
+            return httpResponse.statusCode == 200 || httpResponse.statusCode == 429
         } else {
+            print("DEBUG: No valid HTTP response received")
             return false
         }
     } catch {
+        print("DEBUG: Error during internet connection check: \(error.localizedDescription)")
         return false
     }
 }
+
+
 
 extension URLSession {
     func dataWithTimeout(for request: URLRequest, timeout: TimeInterval = 10.0) async throws -> (Data, URLResponse) {

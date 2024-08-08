@@ -10,9 +10,9 @@ import Foundation
 class GPTAssistantManager {
     static let shared = GPTAssistantManager()
     
-    let apiKey: String
+    var apiKey: String
     var assistantId: String
-    let headers: [String: String]
+    var headers: [String: String]
     
     private let pollingInterval: Double = 0.5
     
@@ -27,6 +27,13 @@ class GPTAssistantManager {
     }
     
     func setupAssistant() async -> Bool {
+        self.apiKey = retrieveOpenaiAPIKey()
+        self.headers = [
+            "Content-Type": "application/json",
+            "Authorization": "Bearer \(apiKey)",
+            "OpenAI-Beta": "assistants=v2",
+        ]
+        
         let assistantCreator = GPTAssistantCreator()
         let assistantBaseName = "ShellMateSuggestCommands"
         let assistantCurrentVersion: String

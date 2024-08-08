@@ -7,6 +7,53 @@
 
 import SwiftUI
 
+struct TroubleshootShellMateView: View {
+    @State private var apiKey: String = ""
+
+    var body: some View {
+        Button(action: {
+        }) {
+            // this here is a dummy button just to make the style work
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Troubleshoot ShellMate")
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .allowsHitTesting(false)  // Disable interaction for this text
+
+                Text("We're experiencing issues with your current API Key. Please check the key or add a new one to continue. If you believe this is an error, please send us feedback.")
+                    .font(.body)
+                    .fontWeight(.regular)
+                    .multilineTextAlignment(.leading)
+                    .allowsHitTesting(false)  // Disable interaction for this text
+                    .lineLimit(3)  // Allow text to wrap into multiple lines
+                    .fixedSize(horizontal: false, vertical: true)
+
+                SettingsLink {
+                    Text("Add API key")
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 7)
+                        .background(Color.black)
+                        .foregroundColor(.white)
+                        .cornerRadius(4)
+                        .font(.subheadline)
+                }
+                .buttonStyle(BorderlessButtonStyle())  // Ensure no default button styling
+            }
+            .padding(.horizontal, 16)  // Inner padding for the VStack inside the border
+            .padding(.vertical, 12)  // Inner padding for the VStack inside the border
+            .frame(maxWidth: .infinity, alignment: .leading)  // Make VStack take full width
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(LinearGradient(
+                        gradient: Gradient(colors: [AppColors.gradientLightBlue, AppColors.gradientPurple]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ), lineWidth: 2)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())  // Ensure no button styling
+    }
+}
 
 struct ActivateShellMateView: View {
     @State private var apiKey: String = ""
@@ -130,6 +177,9 @@ struct SuggestionsView: View {
             
             if !viewModel.hasInternetConnection {
                 NetworkIssueView()
+                    .padding(10)
+            } else if (viewModel.shouldTroubleShootAPIKey) {
+                TroubleshootShellMateView()
                     .padding(10)
             }
 

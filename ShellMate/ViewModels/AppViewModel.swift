@@ -11,7 +11,8 @@ class AppViewModel: ObservableObject {
     @Published var hasUserValidatedOwnOpenAIAPIKey: Bool = false
     @Published var isAssistantSetupSuccessful: Bool = false
     @Published var areNotificationObserversSetup: Bool = false
-
+    @Published var shouldTroubleShootAPIKey: Bool = false
+    
     private var threadIdDict: [String: String] = [:]
     private var currentTerminalStateID: UUID?
     private let additionalSuggestionDelaySeconds: TimeInterval = 3.0
@@ -58,6 +59,8 @@ class AppViewModel: ObservableObject {
         self.hasGPTSuggestionsFreeTierCountReachedLimit = UserDefaults.standard.bool(forKey: hasGPTSuggestionsFreeTierCountReachedLimitKey)
         updateHasGPTSuggestionsFreeTierCountReachedLimit()
         
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUserValidatedOwnOpenAIAPIKey), name: .userValidatedOwnOpenAIAPIKey, object: nil)
+
         Task {
             await initializeAssistant()
         }
@@ -88,10 +91,24 @@ class AppViewModel: ObservableObject {
             if success {
                 print("Assistant setup successful.")
                 print("Assistant ID: \(self.gptAssistantManager.assistantId)")
+                self.shouldTroubleShootAPIKey = false
                 self.setupNotificationObservers()
             } else {
                 print("Assistant setup failed.")
-                self.hasInternetConnection = false
+                Task {
+                    print("Checking internet connection...")
+                    let isConnected = await checkInternetConnection()
+                    DispatchQueue.main.async {
+                        print("DEBUG: Internet connection check result: \(isConnected)")
+                        if isConnected {
+                            print("DEBUG: Assistant setup failed and has internet.")
+                            self.shouldTroubleShootAPIKey = true
+                        } else {
+                            print("DEBUG: Assistant setup failed and has no internet.")
+                            self.hasInternetConnection = false
+                        }
+                    }
+                }
             }
         }
     }
@@ -109,10 +126,10 @@ class AppViewModel: ObservableObject {
     
     func ensureCurrentTerminalIDHasValue() {
         if currentTerminalID == nil || currentTerminalID?.isEmpty == true {
-            print("DANBUG: currentTerminalID is nil or empty. Posting reinitializeTerminalWindowID notification.")
+            print("DEBUG: currentTerminalID is nil or empty. Posting reinitializeTerminalWindowID notification.")
             NotificationCenter.default.post(name: .reinitializeTerminalWindowID, object: nil)
         } else {
-            print("DANBUG: currentTerminalID has a value: \(currentTerminalID!)")
+            print("DEBUG: currentTerminalID has a value: \(currentTerminalID!)")
             stopCheckingTerminalID() // Stop the timer once a valid ID is found
         }
     }
@@ -128,7 +145,6 @@ class AppViewModel: ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalWindowIdDidChange(_:)), name: .terminalWindowIdDidChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleRequestTerminalContentAnalysis(_:)), name: .requestTerminalContentAnalysis, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleSuggestionGenerationStatusChanged(_:)), name: .suggestionGenerationStatusChanged, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleUserValidatedOwnOpenAIAPIKey), name: .userValidatedOwnOpenAIAPIKey, object: nil)
         areNotificationObserversSetup = true
         startCheckingTerminalID() // Necessary as sometimes the AppViewModel will only setup the observer for handleTerminalWindowIdDidChange after the first setup was run, so the currentTerminalID would be empty, causing errors
     }
@@ -186,27 +202,45 @@ class AppViewModel: ObservableObject {
     }
     
     @objc private func handleUserValidatedOwnOpenAIAPIKey(_ notification: Notification) {
+        print("DEBUG: handleUserValidatedOwnOpenAIAPIKey called")
+        
         if let userInfo = notification.userInfo, let isValid = userInfo["isValid"] as? Bool, isValid == true {
-            self.hasUserValidatedOwnOpenAIAPIKey = true
+            print("DEBUG: User's API key is valid")
             
-            // Clear the entire threadIdDict
-            threadIdDict.removeAll()
-            
-            // Create a new instance of gptAssistantManager
-            gptAssistantManager = GPTAssistantManager.shared
+            Task {
+                print("DEBUG: Starting assistant initialization")
+                await self.initializeAssistant()
+                DispatchQueue.main.async {
+                    print("DEBUG: Assistant initialization completed")
+                    self.hasUserValidatedOwnOpenAIAPIKey = true
+                    print("DEBUG: hasUserValidatedOwnOpenAIAPIKey set to true")
+                    
+                    // Clear the entire threadIdDict
+                    self.threadIdDict.removeAll()
+                    print("DEBUG: threadIdDict cleared")
+                    
+                    // Create a new instance of gptAssistantManager
+                    self.gptAssistantManager = GPTAssistantManager.shared
+                    print("DEBUG: New instance of gptAssistantManager created")
+                }
+            }
         } else {
+            print("DEBUG: User's API key is invalid")
             self.hasUserValidatedOwnOpenAIAPIKey = false
+            print("DEBUG: hasUserValidatedOwnOpenAIAPIKey set to false")
         }
     }
+
+
     
     private func analyzeTerminalContent(text: String, windowID: CGWindowID, source: String, changeIdentifiedAt: Double) {
         guard let currentTerminalId = self.currentTerminalID else {
-            print("DANBUG: Current terminal ID is nil.")
+            print("DEBUG: Current terminal ID is nil.")
             return
         }
         self.currentTerminalStateID = UUID()
         guard let terminalStateID = self.currentTerminalStateID else {
-            print("DANBUG: Current terminal state ID is nil.")
+            print("DEBUG: Current terminal state ID is nil.")
             return
         }
         
@@ -223,11 +257,11 @@ class AppViewModel: ObservableObject {
         
         Task.detached { [weak self] in
             guard let strongSelf = self else {
-                print("DANBUG: Self is nil.")
+                print("DEBUG: Self is nil.")
                 return
             }
             do {
-                print("DANBUG: Calling getOrCreateThreadId for currentTerminalId: \(currentTerminalId)")
+                print("DEBUG: Calling getOrCreateThreadId for currentTerminalId: \(currentTerminalId)")
                 let threadId = try await strongSelf.getOrCreateThreadId(for: currentTerminalId)
                 await strongSelf.processGPTResponse(
                     identifier: currentTerminalId,
@@ -251,7 +285,7 @@ class AppViewModel: ObservableObject {
                     }
                 }
             } catch {
-                print("DANBUG: Error getting or creating thread ID: \(error.localizedDescription)")
+                print("DEBUG: Error getting or creating thread ID: \(error.localizedDescription)")
                 if error.localizedDescription.contains("The network connection was lost") || error.localizedDescription.contains("The request timed out") {
                     DispatchQueue.main.async {
                         strongSelf.hasInternetConnection = false
@@ -328,21 +362,21 @@ class AppViewModel: ObservableObject {
     
     @MainActor
     private func getOrCreateThreadId(for identifier: String) async throws -> String {
-        print("DANBUG: getOrCreateThreadId called for identifier: \(identifier)")
+        print("DEBUG: getOrCreateThreadId called for identifier: \(identifier)")
 
         if let threadId = threadIdDict[identifier] {
-            print("DANBUG: Found existing thread ID for identifier \(identifier): \(threadId)")
+            print("DEBUG: Found existing thread ID for identifier \(identifier): \(threadId)")
             return threadId
         }
         
-        print("DANBUG: No existing thread ID for identifier \(identifier). Creating a new thread ID.")
+        print("DEBUG: No existing thread ID for identifier \(identifier). Creating a new thread ID.")
         do {
             let createdThreadId = try await gptAssistantManager.createThread()
             threadIdDict[identifier] = createdThreadId
-            print("DANBUG: Created new thread ID for identifier \(identifier): \(createdThreadId)")
+            print("DEBUG: Created new thread ID for identifier \(identifier): \(createdThreadId)")
             return createdThreadId
         } catch {
-            print("DANBUG: Failed to create thread ID for identifier \(identifier) with error: \(error)")
+            print("DEBUG: Failed to create thread ID for identifier \(identifier) with error: \(error)")
             throw error
         }
     }

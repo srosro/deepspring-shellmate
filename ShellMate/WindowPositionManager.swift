@@ -30,7 +30,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         }
         
         if let windowID = windowData.windowID {
-            print("DANBUG: terminal window initialized")
+            print("DEBUG: terminal window initialized")
             NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
                 "terminalWindowID": windowID,
                 "terminalWindow": windowData.focusedWindow!
@@ -241,7 +241,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
             if let currentWindowID = focusedTerminalWindowID, let previousWindowID = previousFocusedWindowID, currentWindowID != previousWindowID {
                 print("The focused terminal window changed from \(String(describing: previousFocusedWindowID)) to \(String(describing: currentWindowID)).")
                 shouldBringToFront = true
-                print("DANBUG: terminal window changed")
+                print("DEBUG: terminal window changed")
                 NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
                     "terminalWindowID": currentWindowID,
                     "terminalWindow": focusedWindow
