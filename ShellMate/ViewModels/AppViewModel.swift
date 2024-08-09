@@ -12,7 +12,10 @@ class AppViewModel: ObservableObject {
     @Published var isAssistantSetupSuccessful: Bool = false
     @Published var areNotificationObserversSetup: Bool = false
     @Published var shouldTroubleShootAPIKey: Bool = false
-    
+    @Published var shouldShowNetworkIssueWarning: Bool = false
+    private var consecutiveFailedInternetChecks: Int = 0
+    private var internetConnectionGracePeriodTask: Task<Void, Never>?
+
     private var threadIdDict: [String: String] = [:]
     private var currentTerminalStateID: UUID?
     private let additionalSuggestionDelaySeconds: TimeInterval = 3.0
@@ -45,13 +48,53 @@ class AppViewModel: ObservableObject {
             if hasInternetConnection == false {
                 print("Internet connection lost. Starting check loop.")
                 startInternetCheckLoop()
-            } else if hasInternetConnection == true && !areNotificationObserversSetup {
-                print("Internet connection restored. Setting up assistant and notification observers.")
-                Task {
-                    await initializeAssistant()
+            } else if hasInternetConnection == true {
+                print("Internet connection restored. Resetting connection check state.")
+                resetInternetConnectionCheckState()
+                
+                if !areNotificationObserversSetup {
+                    print("Setting up assistant and notification observers.")
+                    Task {
+                        await initializeAssistant()
+                    }
                 }
             }
         }
+    }
+    
+    private func startInternetConnectionGracePeriod() {
+        // Cancel any existing grace period task
+        internetConnectionGracePeriodTask?.cancel()
+
+        internetConnectionGracePeriodTask = Task.detached { [weak self] in
+            guard let self = self else { return }
+
+            do {
+                // Wait for 20 seconds grace period
+                try await Task.sleep(nanoseconds: 20 * 1_000_000_000)
+
+                // Check internet connection status after the grace period
+                let isConnected = await checkInternetConnection()
+                if !isConnected {
+                    print("Internet connection still down after grace period. Showing network issue warning.")
+                    DispatchQueue.main.async {
+                        self.shouldShowNetworkIssueWarning = true
+                    }
+                } else {
+                    print("Internet connection restored during grace period.")
+                    self.resetInternetConnectionCheckState()
+                }
+            } catch {
+                print("Error during grace period task: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func resetInternetConnectionCheckState() {
+        consecutiveFailedInternetChecks = 0
+        shouldShowNetworkIssueWarning = false
+        internetConnectionGracePeriodTask?.cancel()
+        internetConnectionGracePeriodTask = nil
     }
     
     init() {
@@ -68,6 +111,8 @@ class AppViewModel: ObservableObject {
     
     func startInternetCheckLoop() {
         DispatchQueue.global().async {
+            self.consecutiveFailedInternetChecks = 0  // Reset the counter at the start of the loop
+
             while !self.hasInternetConnection {
                 Task {
                     let isConnected = await checkInternetConnection()
@@ -76,12 +121,24 @@ class AppViewModel: ObservableObject {
                             self.hasInternetConnection = true
                         }
                         return
+                    } else {
+                        DispatchQueue.main.async {
+                            self.consecutiveFailedInternetChecks += 1
+                            print("Internet check failed. Counter: \(self.consecutiveFailedInternetChecks)")
+
+                            if self.consecutiveFailedInternetChecks == 3 {
+                                print("Three consecutive failed internet checks. Starting grace period.")
+                                self.startInternetConnectionGracePeriod()
+                                return
+                            }
+                        }
                     }
                 }
                 sleep(1) // 1 second delay
             }
         }
     }
+
     
     func initializeAssistant() async {
         print("Starting assistant setup...")

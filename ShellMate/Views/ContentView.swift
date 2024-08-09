@@ -175,7 +175,7 @@ struct SuggestionsView: View {
                     .padding(10)
             }
             
-            if !viewModel.hasInternetConnection {
+            if viewModel.shouldShowNetworkIssueWarning {
                 NetworkIssueView()
                     .padding(10)
             } else if (viewModel.shouldTroubleShootAPIKey) {
