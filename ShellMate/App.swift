@@ -14,7 +14,7 @@ struct ShellMateApp: App {
     @NSApplicationDelegateAdaptor(ApplicationDelegate.self) var appDelegate
     @StateObject private var viewModel = AppViewModel()
     @StateObject private var permissionsViewModel = PermissionsViewModel()
-    @StateObject private var licenseViewModel = LicenseViewModel()
+    @StateObject private var licenseViewModel = LicenseViewModel.shared
     @StateObject private var generalViewModel = GeneralViewModel()
     @State private var showPermissionsView = UserDefaults.standard.bool(forKey: "showPermissionsView")
 

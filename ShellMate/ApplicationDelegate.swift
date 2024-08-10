@@ -20,6 +20,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     var isAppInitialized = false // Add this property
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        showPermissionsView()
         setupMainWindow()
         resizeWindow(width: 400, height: 600)
         print("ApplicationDelegate - Application did finish launching.")
@@ -34,7 +35,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     }
     
     @objc func handleStartAppInitialization() {
-        initializeApp()
+        initializeApp() // This runs on Permissions 'Continue' button click action
     }
     
     func setupSentry() {        // Initialize Sentry SDK
@@ -68,23 +69,36 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     }
     
     func checkAccessibilityPermissionsAndApiKey() {
-        let isAppTrusted = AccessibilityChecker.isAppTrusted()
-        
-        if isAppTrusted {
-            print("Application is trusted for accessibility.")
-        } else {
-            print("Application is not trusted for accessibility.")
-        }
-        
-        let apiKeyValidationState = UserDefaults.standard.string(forKey: "apiKeyValidationState") ?? ApiKeyValidationState.unverified.rawValue
-        let isApiKeyValid = apiKeyValidationState == ApiKeyValidationState.valid.rawValue
-
-        if isAppTrusted && isApiKeyValid {
-            initializeApp()
-            print("ApplicationDelegate - \(isApiKeyValid) (valid api)")
-        } else {
-            showPermissionsView()
-            print("ApplicationDelegate - \(isApiKeyValid) (valid api) (show permissions view)")
+        DispatchQueue.main.async {
+            let isAppTrusted = AccessibilityChecker.isAppTrusted()
+            
+            if isAppTrusted {
+                print("Application is trusted for accessibility.")
+            } else {
+                print("Application is not trusted for accessibility.")
+            }
+            
+            Task {
+                let result = await LicenseViewModel.shared.checkApiKey(LicenseViewModel.shared.apiKey)
+                let isApiKeyValid: Bool
+                
+                switch result {
+                case .success:
+                    isApiKeyValid = true
+                    print("ApplicationDelegate - API key is valid.")
+                case .failure(let error):
+                    isApiKeyValid = false
+                    print("ApplicationDelegate - API key validation failed with error: \(error.localizedDescription)")
+                }
+                
+                if isAppTrusted && isApiKeyValid {
+                    // Both conditions are true, so initialize the app
+                    self.initializeApp()
+                    print("ApplicationDelegate - \(isApiKeyValid) (valid API) - App initialized.")
+                } else {
+                    print("ApplicationDelegate - \(isApiKeyValid) (valid API) - Show permissions view.")
+                }
+            }
         }
     }
 

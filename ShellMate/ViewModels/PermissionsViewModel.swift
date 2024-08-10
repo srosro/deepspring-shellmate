@@ -53,6 +53,9 @@ enum ApiKeyValidationState: String {
 }
 
 class LicenseViewModel: ObservableObject {
+    static let shared = LicenseViewModel()
+
+    @Published var apiKeyErrorMessage: String?
     @Published var apiKey: String {
         didSet {
             // Cancel any ongoing validation
@@ -82,12 +85,9 @@ class LicenseViewModel: ObservableObject {
     private var timer: AnyCancellable?
     private var apiKeyCheckTask: DispatchWorkItem?
 
-    init() {
+    private init() {
         self.apiKey = UserDefaults.standard.string(forKey: "apiKey") ?? ""
         self.apiKeyValidationState = ApiKeyValidationState(rawValue: UserDefaults.standard.string(forKey: "apiKeyValidationState") ?? ApiKeyValidationState.unverified.rawValue) ?? .unverified
-        if !self.apiKey.isEmpty {
-            checkApiKey(self.apiKey)
-        }
     }
 
     deinit {
@@ -100,53 +100,68 @@ class LicenseViewModel: ObservableObject {
         apiKeyCheckTask?.cancel() // Cancel any existing task
 
         let task = DispatchWorkItem { [weak self] in
-            self?.checkApiKey(self?.apiKey ?? "")
+            guard let self = self else { return }
+
+            Task {
+                let result = await self.checkApiKey(self.apiKey)
+                switch result {
+                case .success:
+                    print("DEBUG: API key check succeeded in scheduled task.")
+                case .failure(let error):
+                    print("DEBUG: API key check failed in scheduled task with error: \(error.localizedDescription)")
+                }
+            }
         }
         apiKeyCheckTask = task
-
         DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: task) // Delay by 2 seconds
     }
     
-    private func checkApiKey(_ key: String) {
-        print("Checking API Key")
+    func checkApiKey(_ key: String) async -> Result<Void, Error> {
+        print("DEBUG: Starting API Key check")
 
         let assistantCreator = GPTAssistantCreator()
         let assistantBaseName = "ShellMateSuggestCommands"
         let assistantCurrentVersion: String
+
         do {
             assistantCurrentVersion = try getAppVersionAndBuild()
+            print("DEBUG: Retrieved app version and build: \(assistantCurrentVersion)")
         } catch {
-            print("Error retrieving app version and build: \(error)")
+            print("DEBUG: Error retrieving app version and build: \(error)")
             DispatchQueue.main.async {
                 self.updateValidationState(.invalid)
+                self.apiKeyErrorMessage = error.localizedDescription
                 self.userValidatedOwnOpenAIAPIKey(isValid: false)
             }
-            return
+            return .failure(error)
         }
+
         let assistantInstructions = GPTAssistantInstructions.getInstructions()
 
-        Task {
-            do {
-                let assistantId = try await assistantCreator.getOrUpdateAssistant(
-                    assistantBaseName: assistantBaseName,
-                    assistantCurrentVersion: assistantCurrentVersion,
-                    assistantInstructions: assistantInstructions
-                )
-                print("Assistant ID: \(assistantId)")
+        do {
+            let assistantId = try await assistantCreator.getOrUpdateAssistant(
+                assistantBaseName: assistantBaseName,
+                assistantCurrentVersion: assistantCurrentVersion,
+                assistantInstructions: assistantInstructions
+            )
+            print("DEBUG: Assistant ID: \(assistantId)")
 
-                DispatchQueue.main.async {
-                    self.updateValidationState(.valid)
-                    if key != getHardcodedOpenAIAPIKey() {
-                        self.userValidatedOwnOpenAIAPIKey(isValid: true)
-                    }
-                }
-            } catch {
-                print("Error occurred while setting up GPT Assistant: \(error)")
-                DispatchQueue.main.async {
-                    self.updateValidationState(.invalid)
-                    self.userValidatedOwnOpenAIAPIKey(isValid: false)
+            DispatchQueue.main.async {
+                self.apiKeyErrorMessage = nil
+                self.updateValidationState(.valid)
+                if key != getHardcodedOpenAIAPIKey() {
+                    self.userValidatedOwnOpenAIAPIKey(isValid: true)
                 }
             }
+            return .success(())
+        } catch {
+            print("DEBUG: Error occurred while setting up GPT Assistant: \(error)")
+            DispatchQueue.main.async {
+                self.updateValidationState(.invalid)
+                self.apiKeyErrorMessage = error.localizedDescription
+                self.userValidatedOwnOpenAIAPIKey(isValid: false)
+            }
+            return .failure(error)
         }
     }
 

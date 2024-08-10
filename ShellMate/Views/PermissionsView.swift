@@ -16,22 +16,25 @@ struct PermissionsWindowView: View {
     let onContinue: () -> Void
 
     var body: some View {
-        VStack(alignment: .center, spacing: 6) {
-            Spacer()
-            WelcomeView()
-            Spacer()
-            PermissionsView(permissionsViewModel: permissionsViewModel)
-            Spacer()
-            
-            if appViewModel.hasGPTSuggestionsFreeTierCountReachedLimit {
-                LicenseView(licenseViewModel: licenseViewModel, appViewModel: appViewModel)
+        ScrollView {  // Added ScrollView
+            VStack(alignment: .center, spacing: 6) {
+                Spacer()
+                WelcomeView()
+                Spacer()
+                PermissionsView(permissionsViewModel: permissionsViewModel)
+                Spacer()
+                
+                if appViewModel.hasGPTSuggestionsFreeTierCountReachedLimit || licenseViewModel.apiKeyValidationState != .unverified {
+                    LicenseView(licenseViewModel: licenseViewModel, appViewModel: appViewModel)
+                    Spacer()
+                }
+                
+                DisclaimerView().padding(.bottom, 16)
+                ContinueButtonView(permissionsViewModel: permissionsViewModel, licenseViewModel: licenseViewModel, appViewModel: appViewModel, onContinue: onContinue)
                 Spacer()
             }
-            DisclaimerView().padding(.bottom, 16)
-            ContinueButtonView(permissionsViewModel: permissionsViewModel, licenseViewModel: licenseViewModel, appViewModel: appViewModel, onContinue: onContinue)
-            Spacer()
+            .padding()
         }
-        .padding()
     }
 }
 
@@ -143,10 +146,29 @@ struct LicenseView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 // Conditionally show the feedback message if the API key is invalid
                 if licenseViewModel.apiKeyValidationState == .invalid {
-                    Text("API Key is invalid")
-                        .foregroundColor(.red)
-                        .font(.footnote)
-                        .padding(.top, 5)
+                    if let errorMessage = licenseViewModel.apiKeyErrorMessage?.lowercased() {
+                        if errorMessage.contains("the internet connection appears to be offline") {
+                            Text("Your device is not connected to the internet")
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                                .padding(.top, 5)
+                        } else if errorMessage.contains("the request timed out") || errorMessage.contains("the network connection was lost") {
+                            Text("Looks like there's a network issue")
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                                .padding(.top, 5)
+                        } else if errorMessage.contains("failed to list assistants or bad response") {
+                            Text("It looks like the API Key is invalid")
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                                .padding(.top, 5)
+                        } else {
+                            Text("API Key is invalid")
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                                .padding(.top, 5)
+                        }
+                    }
                 } else if licenseViewModel.apiKeyValidationState == .unverified {
                     Text("\(appViewModel.GPTSuggestionsFreeTierCount)/\(appViewModel.GPTSuggestionsFreeTierLimit) complimentary AI responses used")
                         .font(.footnote)
