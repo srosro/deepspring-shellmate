@@ -121,11 +121,34 @@ struct ApiKeyView: View {
                 HStack {
                     Text(" ")
                         .frame(width: 150, alignment: .trailing) // Adds the same width as "OpenAI API Key"
-                    Text("API Key is invalid")
-                        .foregroundColor(.red)
-                        .font(.footnote)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.trailing, 60)
+                    
+                    if let errorMessage = licenseViewModel.apiKeyErrorMessage?.lowercased() {
+                        if errorMessage.contains("the internet connection appears to be offline") {
+                            Text("Your device is not connected to the internet")
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.trailing, 60)
+                        } else if errorMessage.contains("the request timed out") || errorMessage.contains("the network connection was lost") {
+                            Text("Looks like there's a network issue")
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.trailing, 60)
+                        } else if errorMessage.contains("failed to list assistants or bad response") {
+                            Text("It looks like the API Key is invalid")
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.trailing, 60)
+                        } else {
+                            Text("API Key is invalid")
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.trailing, 60)
+                        }
+                    }
                 }
             } else if licenseViewModel.apiKeyValidationState == .unverified {
                 HStack {

@@ -289,15 +289,17 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
     }
     
     func bringAppWindowToFrontWithoutFocus() {
-        guard let window = NSApplication.shared.windows.first else {
-            print("Failed to find the application window.")
-            return
-        }
-        
-        window.level = .floating
-        window.orderFrontRegardless()  // Bring the window to the front without stealing focus
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            window.level = .normal
+        DispatchQueue.main.async {
+            guard let window = NSApplication.shared.windows.first else {
+                print("Failed to find the application window.")
+                return
+            }
+            
+            window.level = .floating
+            window.orderFrontRegardless()  // Bring the window to the front without stealing focus
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                window.level = .normal
+            }
         }
     }
     
@@ -372,51 +374,52 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
     }
 }
 
-
-
 func positionAndSizeWindow(terminalPosition: CGPoint, terminalSize: CGSize, shouldAnimate: Bool) {
-    guard let screen = NSScreen.main, let window = NSApplication.shared.windows.first else {
-        print("Failed to find the application window or screen.")
-        return
-    }
-    
-    // Get the saved window attachment position from UserDefaults
-    let savedPosition = UserDefaults.standard.string(forKey: "windowAttachmentPosition") ?? "right"
-    guard let attachmentPosition = WindowAttachmentPosition(rawValue: savedPosition) else {
-        print("Invalid attachment position saved in UserDefaults.")
-        return
-    }
-    print("Saved position: \(savedPosition)")
-    
-    // Calculate the new y position
-    let screenHeight = screen.frame.height
-    let newYPosition = screenHeight - terminalPosition.y - terminalSize.height
-    
-    // Calculate the new x position based on the attachmentPosition enum
-    let newXPosition: CGFloat
-    switch attachmentPosition {
-    case .left:
-        newXPosition = terminalPosition.x - window.frame.width
-    case .right:
-        newXPosition = terminalPosition.x + terminalSize.width
-    case .float:
-        return
-    }
-    
-    // Calculate the new position
-    let newPosition = CGPoint(x: newXPosition, y: newYPosition)
-    let newSize = CGSize(width: window.frame.width, height: terminalSize.height)
-    
-    if shouldAnimate {
-        // Animate the window position change
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.3 // Set the duration of the animation
-            window.animator().setFrame(NSRect(origin: newPosition, size: newSize), display: true)
-        }, completionHandler: {
-            print("Window repositioning animation completed.")
-        })
-    } else {
-        // Update the window position and size without animation
-        window.setFrame(NSRect(origin: newPosition, size: newSize), display: true)
+    DispatchQueue.main.async {
+        guard let screen = NSScreen.main, let window = NSApplication.shared.windows.first else {
+            print("Failed to find the application window or screen.")
+            return
+        }
+        
+        // Get the saved window attachment position from UserDefaults
+        let savedPosition = UserDefaults.standard.string(forKey: "windowAttachmentPosition") ?? "right"
+        guard let attachmentPosition = WindowAttachmentPosition(rawValue: savedPosition) else {
+            print("Invalid attachment position saved in UserDefaults.")
+            return
+        }
+        print("Saved position: \(savedPosition)")
+        
+        // Calculate the new y position
+        let screenHeight = screen.frame.height
+        let newYPosition = screenHeight - terminalPosition.y - terminalSize.height
+        
+        // Calculate the new x position based on the attachmentPosition enum
+        let newXPosition: CGFloat
+        switch attachmentPosition {
+        case .left:
+            newXPosition = terminalPosition.x - window.frame.width
+        case .right:
+            newXPosition = terminalPosition.x + terminalSize.width
+        case .float:
+            return
+        }
+        
+        // Calculate the new position
+        let newPosition = CGPoint(x: newXPosition, y: newYPosition)
+        let newSize = CGSize(width: window.frame.width, height: terminalSize.height)
+        
+        if shouldAnimate {
+            // Animate the window position change
+            NSAnimationContext.runAnimationGroup({ context in
+                context.duration = 0.3 // Set the duration of the animation
+                window.animator().setFrame(NSRect(origin: newPosition, size: newSize), display: true)
+            }, completionHandler: {
+                print("Window repositioning animation completed.")
+            })
+        } else {
+            // Update the window position and size without animation
+            window.setFrame(NSRect(origin: newPosition, size: newSize), display: true)
+        }
     }
 }
+

@@ -343,8 +343,16 @@ class AppViewModel: ObservableObject {
                 }
             } catch {
                 print("DEBUG: Error getting or creating thread ID: \(error.localizedDescription)")
-                if error.localizedDescription.contains("The network connection was lost") || error.localizedDescription.contains("The request timed out") {
+                
+                if error.localizedDescription.contains("The network connection was lost") ||
+                   error.localizedDescription.contains("The request timed out") {
                     DispatchQueue.main.async {
+                        strongSelf.hasInternetConnection = false
+                        strongSelf.isGeneratingSuggestion[currentTerminalId] = false
+                    }
+                } else if error.localizedDescription.contains("The Internet connection appears to be offline") {
+                    DispatchQueue.main.async {
+                        strongSelf.shouldShowNetworkIssueWarning = true
                         strongSelf.hasInternetConnection = false
                         strongSelf.isGeneratingSuggestion[currentTerminalId] = false
                     }
@@ -352,7 +360,6 @@ class AppViewModel: ObservableObject {
             }
         }
     }
-
     
     private func generateAdditionalSuggestions(identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double, source: String) {
         if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
@@ -454,13 +461,22 @@ class AppViewModel: ObservableObject {
             }
         } catch {
             print("Error processing message in thread: \(error.localizedDescription)")
-            if error.localizedDescription.contains("The network connection was lost") || error.localizedDescription.contains("The request timed out") {
+            
+            if error.localizedDescription.contains("The network connection was lost") ||
+               error.localizedDescription.contains("The request timed out") {
                 DispatchQueue.main.async {
+                    self.hasInternetConnection = false
+                    self.isGeneratingSuggestion[identifier] = false
+                }
+            } else if error.localizedDescription.contains("The Internet connection appears to be offline") {
+                DispatchQueue.main.async {
+                    self.shouldShowNetworkIssueWarning = true
                     self.hasInternetConnection = false
                     self.isGeneratingSuggestion[identifier] = false
                 }
             }
         }
+
         Task { @MainActor in
             NotificationCenter.default.post(name: .suggestionGenerationStatusChanged, object: nil, userInfo: ["identifier": identifier, "isGeneratingSuggestion": false])
             

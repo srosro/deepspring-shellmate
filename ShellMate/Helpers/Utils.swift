@@ -14,7 +14,7 @@ import CoreGraphics
 
 /// Retrieve the API key from UserDefaults
 func getHardcodedOpenAIAPIKey() -> String {
-    return "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"
+    return "sk-proj"
 }
 
 func retrieveOpenaiAPIKey() -> String {
