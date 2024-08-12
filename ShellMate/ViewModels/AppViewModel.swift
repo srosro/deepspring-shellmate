@@ -1,6 +1,11 @@
 import SwiftUI
 import Combine
 
+enum APIKeyValidationState {
+    case valid
+    case invalid
+    case usingFreeTier
+}
 
 class AppViewModel: ObservableObject {
     @Published var currentTerminalID: String?
@@ -8,7 +13,7 @@ class AppViewModel: ObservableObject {
     @Published var updateCounter: Int = 1
     @Published var results: [String: (suggestionsCount: Int, suggestionsHistory: [(UUID, [[String: String]])], updatedAt: Date)] = [:]
     @Published var isGeneratingSuggestion: [String: Bool] = [:]
-    @Published var hasUserValidatedOwnOpenAIAPIKey: Bool = false
+    @Published var hasUserValidatedOwnOpenAIAPIKey: APIKeyValidationState = .usingFreeTier
     @Published var isAssistantSetupSuccessful: Bool = false
     @Published var areNotificationObserversSetup: Bool = false
     @Published var shouldTroubleShootAPIKey: Bool = false
@@ -27,6 +32,7 @@ class AppViewModel: ObservableObject {
     private let GPTSuggestionsFreeTierCountKey = "GPTSuggestionsFreeTierCount"
     private let hasGPTSuggestionsFreeTierCountReachedLimitKey = "hasGPTSuggestionsFreeTierCountReachedLimit"
     private var terminalIDCheckTimer: Timer?
+    private var apiKeyValidationDebounceTask: DispatchWorkItem?
 
     // Limit for free tier suggestions
     let GPTSuggestionsFreeTierLimit = 150
@@ -70,8 +76,8 @@ class AppViewModel: ObservableObject {
             guard let self = self else { return }
 
             do {
-                // Wait for 20 seconds grace period
-                try await Task.sleep(nanoseconds: 20 * 1_000_000_000)
+                // Wait for 10 seconds grace period
+                try await Task.sleep(nanoseconds: 10 * 1_000_000_000)
 
                 // Check internet connection status after the grace period
                 let isConnected = await checkInternetConnection()
@@ -207,7 +213,9 @@ class AppViewModel: ObservableObject {
     }
     
     @objc private func handleTerminalChangeStarted() {
-        if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
+        if hasGPTSuggestionsFreeTierCountReachedLimit && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
+            return
+        } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
             return
         }
         self.currentStateText = "Detecting changes..."
@@ -236,10 +244,12 @@ class AppViewModel: ObservableObject {
             return
         }
         
-        if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
-            print("Suggestions limit reached and user has not validated their own OpenAI API key.")
+        if hasGPTSuggestionsFreeTierCountReachedLimit && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
+            return
+        } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
             return
         }
+
         if !hasInternetConnection {
             print("No internet connection.")
             return
@@ -261,35 +271,55 @@ class AppViewModel: ObservableObject {
     @objc private func handleUserValidatedOwnOpenAIAPIKey(_ notification: Notification) {
         print("DEBUG: handleUserValidatedOwnOpenAIAPIKey called")
         
-        if let userInfo = notification.userInfo, let isValid = userInfo["isValid"] as? Bool, isValid == true {
-            print("DEBUG: User's API key is valid")
+        // Cancel any existing debounced task
+        apiKeyValidationDebounceTask?.cancel()
+        
+        // Debounce logic
+        apiKeyValidationDebounceTask = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
             
-            Task {
-                print("DEBUG: Starting assistant initialization")
-                await self.initializeAssistant()
-                DispatchQueue.main.async {
-                    print("DEBUG: Assistant initialization completed")
-                    self.hasUserValidatedOwnOpenAIAPIKey = true
-                    print("DEBUG: hasUserValidatedOwnOpenAIAPIKey set to true")
-                    
-                    // Clear the entire threadIdDict
-                    self.threadIdDict.removeAll()
-                    print("DEBUG: threadIdDict cleared")
-                    
-                    // Create a new instance of gptAssistantManager
-                    self.gptAssistantManager = GPTAssistantManager.shared
-                    print("DEBUG: New instance of gptAssistantManager created")
-                }
+            // Step 1: Determine the new validation state
+            self.determineAPIKeyValidationState(from: notification)
+
+            // Step 2: Process the assistant initialization for valid or acceptable free tier usage
+            if self.hasUserValidatedOwnOpenAIAPIKey == .valid ||
+               (self.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier && !self.hasGPTSuggestionsFreeTierCountReachedLimit) {
+                self.processAssistantInitialization()
+            } else {
+                print("DEBUG: User's API key is invalid or free tier limit has been reached")
             }
+        }
+        
+        // Execute the task after a delay of 0.25 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: apiKeyValidationDebounceTask!)
+    }
+
+    private func determineAPIKeyValidationState(from notification: Notification) {
+        if let userInfo = notification.userInfo, let isValid = userInfo["isValid"] as? Bool {
+            self.hasUserValidatedOwnOpenAIAPIKey = isValid ? .valid : .invalid
         } else {
-            print("DEBUG: User's API key is invalid")
-            self.hasUserValidatedOwnOpenAIAPIKey = false
-            print("DEBUG: hasUserValidatedOwnOpenAIAPIKey set to false")
+            print("DEBUG: User's API key validation state is unknown (nil)")
+            self.hasUserValidatedOwnOpenAIAPIKey = .usingFreeTier
+            print("DEBUG: hasUserValidatedOwnOpenAIAPIKey set to usingFreeTier due to nil validation state")
+        }
+    }
+
+    private func processAssistantInitialization() {
+        Task {
+            print("DEBUG: Starting assistant initialization")
+            await self.initializeAssistant()
+            DispatchQueue.main.async {
+                print("DEBUG: Assistant initialization completed")
+                
+                // Clear the entire threadIdDict
+                self.threadIdDict.removeAll()
+                print("DEBUG: threadIdDict cleared")
+            }
         }
     }
 
 
-    
+
     private func analyzeTerminalContent(text: String, windowID: CGWindowID, source: String, changeIdentifiedAt: Double) {
         guard let currentTerminalId = self.currentTerminalID else {
             print("DEBUG: Current terminal ID is nil.")
@@ -362,7 +392,9 @@ class AppViewModel: ObservableObject {
     }
     
     private func generateAdditionalSuggestions(identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double, source: String) {
-        if hasGPTSuggestionsFreeTierCountReachedLimit && !hasUserValidatedOwnOpenAIAPIKey {
+        if hasGPTSuggestionsFreeTierCountReachedLimit && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
+            return
+        } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
             return
         }
         
@@ -538,7 +570,7 @@ class AppViewModel: ObservableObject {
             
             self.updateCounter += 1
             self.writeResultsToFile()
-            if !self.hasUserValidatedOwnOpenAIAPIKey {
+            if self.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
                 self.incrementGPTSuggestionsFreeTierCount(by: 1)
             }
         }

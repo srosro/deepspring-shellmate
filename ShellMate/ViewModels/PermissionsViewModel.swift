@@ -56,31 +56,45 @@ class LicenseViewModel: ObservableObject {
     static let shared = LicenseViewModel()
 
     @Published var apiKeyErrorMessage: String?
-    @Published var apiKey: String {
+    @Published var apiKey: String = "" {
         didSet {
             // Cancel any ongoing validation
             apiKeyCheckTask?.cancel()
-            // Sanitize the API key by removing spaces
-            let sanitizedApiKey = apiKey.replacingOccurrences(of: " ", with: "")
-            
-            // Check if the sanitized API key is empty
-            if sanitizedApiKey.isEmpty {
-                // If it is empty, update UserDefaults with an empty string
-                UserDefaults.standard.set("", forKey: "apiKey")
-                // Update the validation state to unverified
-                self.updateValidationState(.unverified)
-                self.userValidatedOwnOpenAIAPIKey(isValid: false)
-            } else {
-                // Otherwise, update UserDefaults with the sanitized API key
-                UserDefaults.standard.set(sanitizedApiKey, forKey: "apiKey")
-                // Schedule the API key check
-                scheduleApiKeyCheck()
+
+            // Debounce the API key validation
+            let debouncedTask = DispatchWorkItem { [weak self] in
+                guard let self = self else { return }
+                
+                // Sanitize the API key by removing spaces and newlines
+                let sanitizedApiKey = self.apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                // Check if the sanitized API key is empty
+                if sanitizedApiKey.isEmpty {
+                    // If it is empty, update UserDefaults with an empty string
+                    print("DEBUG: sanitized empty key trigger")
+                    UserDefaults.standard.set("", forKey: "apiKey")
+                    self.scheduleApiKeyCheck()
+                } else {
+                    // Otherwise, update UserDefaults with the sanitized API key
+                    UserDefaults.standard.set(sanitizedApiKey, forKey: "apiKey")
+                    // Schedule the API key check
+                    self.scheduleApiKeyCheck()
+                }
+
+                print("API Key updated: \(sanitizedApiKey)")
             }
-            
-            print("API Key updated: \(sanitizedApiKey)")
+
+            // Execute the task after a delay to debounce
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: debouncedTask)
+            apiKeyCheckTask = debouncedTask
         }
     }
-    @Published var apiKeyValidationState: ApiKeyValidationState = .unverified
+
+    @Published var apiKeyValidationState: ApiKeyValidationState = .unverified {
+        didSet {
+            print("DEBUG: the current state is: \(apiKeyValidationState)")
+        }
+    }
 
     private var timer: AnyCancellable?
     private var apiKeyCheckTask: DispatchWorkItem?
@@ -109,6 +123,9 @@ class LicenseViewModel: ObservableObject {
                     print("DEBUG: API key check succeeded in scheduled task.")
                 case .failure(let error):
                     print("DEBUG: API key check failed in scheduled task with error: \(error.localizedDescription)")
+                    DispatchQueue.main.async {
+                        self.userValidatedOwnOpenAIAPIKey(isValid: false)
+                    }
                 }
             }
         }
@@ -148,9 +165,13 @@ class LicenseViewModel: ObservableObject {
 
             DispatchQueue.main.async {
                 self.apiKeyErrorMessage = nil
-                self.updateValidationState(.valid)
-                if key != getHardcodedOpenAIAPIKey() {
+                if !key.isEmpty && key != getHardcodedOpenAIAPIKey() {
                     self.userValidatedOwnOpenAIAPIKey(isValid: true)
+                    self.updateValidationState(.valid)
+                }
+                else {
+                    self.updateValidationState(.unverified) // It is valid, but it was not validated by the user
+                    self.userValidatedOwnOpenAIAPIKey(isValid: nil)
                 }
             }
             return .success(())
@@ -165,12 +186,17 @@ class LicenseViewModel: ObservableObject {
         }
     }
 
-    private func userValidatedOwnOpenAIAPIKey(isValid: Bool) {
-        print("User has validated their own OpenAI API Key. Valid: \(isValid)")
-        NotificationCenter.default.post(name: .userValidatedOwnOpenAIAPIKey, object: nil, userInfo: ["isValid": isValid])
+    private func userValidatedOwnOpenAIAPIKey(isValid: Bool?) {
+        if let isValid = isValid {
+            print("User has validated their own OpenAI API Key. Valid: \(isValid)")
+        } else {
+            print("User has validated their own OpenAI API Key. Valid: nil")
+        }
+        NotificationCenter.default.post(name: .userValidatedOwnOpenAIAPIKey, object: nil, userInfo: ["isValid": isValid as Any])
     }
     
     private func updateValidationState(_ state: ApiKeyValidationState) {
+        print("DEBUG: -- method called to update the value of state to : \(state)")
         self.apiKeyValidationState = state
         UserDefaults.standard.set(state.rawValue, forKey: "apiKeyValidationState")
     }
