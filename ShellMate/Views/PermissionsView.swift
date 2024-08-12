@@ -222,10 +222,13 @@ struct ContinueButtonView: View {
     }
     
     private var isButtonEnabled: Bool {
-        if !appViewModel.hasGPTSuggestionsFreeTierCountReachedLimit {
+        switch appViewModel.hasUserValidatedOwnOpenAIAPIKey {
+        case .usingFreeTier:
             return permissionsViewModel.isAppTrusted
-        } else {
-            return permissionsViewModel.isAppTrusted && licenseViewModel.apiKeyValidationState == .valid
+        case .valid:
+            return permissionsViewModel.isAppTrusted
+        case .invalid:
+            return false
         }
     }
     

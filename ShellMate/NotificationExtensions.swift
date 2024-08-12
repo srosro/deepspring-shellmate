@@ -52,7 +52,7 @@ extension Notification.Name {
     
     /// Notification to indicate the user has validated their own OpenAI API Key.
     /// userInfo dictionary should contain:
-    /// - "isValid": Bool (indicates if the API key validation was successful)
+    /// - "isValid": Bool? (indicates if the API key validation was successful or `nil` if the validation state is unknown)
     static let userValidatedOwnOpenAIAPIKey = Notification.Name("userValidatedOwnOpenAIAPIKey")
     
     /// Notification to start the app initialization process (continue button from permissionsView -> change to SuggestionsView

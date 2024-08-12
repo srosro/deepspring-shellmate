@@ -170,15 +170,13 @@ struct SuggestionsView: View {
                 }
             }
             
-            if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit && !viewModel.hasUserValidatedOwnOpenAIAPIKey {
+            if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit && viewModel.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
                 ActivateShellMateView()
                     .padding(10)
-            }
-            
-            if viewModel.shouldShowNetworkIssueWarning {
+            } else if viewModel.shouldShowNetworkIssueWarning {
                 NetworkIssueView()
                     .padding(10)
-            } else if (viewModel.shouldTroubleShootAPIKey) {
+            } else if viewModel.shouldTroubleShootAPIKey || viewModel.hasUserValidatedOwnOpenAIAPIKey == .invalid {
                 TroubleshootShellMateView()
                     .padding(10)
             }

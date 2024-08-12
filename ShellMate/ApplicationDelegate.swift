@@ -20,6 +20,14 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     var isAppInitialized = false // Add this property
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Check if another instance is running
+        let runningInstances = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier!)
+        if runningInstances.count > 1 {
+            print("Another instance of the app is already running. Exiting this instance.")
+            NSApp.terminate(nil) // Exit the current instance
+            return
+        }
+        
         showPermissionsView()
         setupMainWindow()
         resizeWindow(width: 400, height: 600)
