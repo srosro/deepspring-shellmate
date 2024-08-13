@@ -26,9 +26,6 @@ class GPTAssistantCreator {
         // List and print all assistants
         let assistants = try await listAssistants()
         printAssistants(assistants)
-        
-        // Delete outdated assistants
-        try await deleteOutdatedAssistants(assistants: assistants, assistantBaseName: assistantBaseName, assistantCurrentName: assistantCurrentName)
 
         // Check if the current assistant name is already present in the list
         if let existingAssistant = assistants.first(where: { $0.1 == assistantCurrentName }) {
@@ -44,16 +41,6 @@ class GPTAssistantCreator {
         for assistant in assistants {
             print("Assistant ID: \(assistant.0), Name: \(assistant.1)")
             print("--------------------------------------------------")
-        }
-    }
-
-    private func deleteOutdatedAssistants(assistants: [(String, String)], assistantBaseName: String, assistantCurrentName: String) async throws {
-        let outdatedAssistantIds = getOutdatedAssistants(assistants: assistants, assistantBaseName: assistantBaseName, assistantCurrentName: assistantCurrentName)
-        print("Outdated Assistants IDs to be deleted: \(outdatedAssistantIds)")
-
-        for assistantId in outdatedAssistantIds {
-            try await deleteAssistant(assistantId: assistantId)
-            print("Deleted assistant with ID: \(assistantId)")
         }
     }
 
@@ -84,25 +71,6 @@ class GPTAssistantCreator {
         }
 
         return assistantId
-    }
-
-    func deleteAssistant(assistantId: String) async throws {
-        let url = URL(string: "https://api.openai.com/v1/assistants/\(assistantId)")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
-        request.allHTTPHeaderFields = headers
-
-        print("deleteAssistant - Request: \(request)")
-        
-        let (data, response) = try await URLSession.shared.dataWithTimeout(for: request)
-        
-        print("deleteAssistant - Response: \(response)")
-        print("deleteAssistant - Data: \(String(data: data, encoding: .utf8) ?? "No data")")
-        
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to delete assistant or bad response"])
-        }
-        print("Assistant with ID \(assistantId) deleted successfully.")
     }
 
     func listAssistants() async throws -> [(String, String)] {
