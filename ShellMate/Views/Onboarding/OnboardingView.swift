@@ -44,7 +44,7 @@ struct OnboardingHeader: View {
             
             CloseButton(action: closeAction)
         }
-        .padding(.bottom, 20)
+        .padding(.bottom, 10)
     }
 }
 
@@ -74,15 +74,19 @@ struct OnboardingStep1View: View {
                 HStack(alignment: .top, spacing: 1) {
                     Text("1.")
                         .font(.system(.body, design: .monospaced))
-                    (Text("Type: '")
+                    (Text("Type: ")
                         .font(.body) +
                     Text("sm \"\(getOnboardingSmCommand())\"")
+                        .foregroundColor(Color.Text.purple)
                         .font(.body)
-                        .fontWeight(.bold) +
-                    Text("' into your terminal command line. You can also hit the command below to copy the text.")
+                        .fontWeight(.bold)
+                     +
+                    Text(" into your terminal command line. You can also hit the command below to copy the text.")
                         .font(.body))
                 }
                 .padding(.leading, 4)
+                .lineLimit(2)  // Allow text to wrap into multiple lines
+                .fixedSize(horizontal: false, vertical: true)
                 
                 HStack(alignment: .top, spacing: 1) {
                     Text("2.")
@@ -91,6 +95,7 @@ struct OnboardingStep1View: View {
                         .font(.body)
                 }
                 .padding(.leading, 4)
+                
             }
         }
         .padding()
@@ -124,20 +129,24 @@ struct OnboardingStep2View: View {
                 HStack(alignment: .top, spacing: 1) {
                     Text("1.")
                         .font(.system(.body, design: .monospaced))
-                    (Text("Type the following command into your terminal: '")
+                    (Text("Type the following command into your terminal: ")
                         .font(.body) +
                      Text("sm 2")
                         .font(.body)
+                        .foregroundColor(Color.Text.purple)
                         .fontWeight(.bold) +
-                     Text("' or '")
+                     Text(" or ")
                         .font(.body) +
                      Text("sm 2.1")
                         .font(.body)
+                        .foregroundColor(Color.Text.purple)
                         .fontWeight(.bold) +
-                     Text("'")
+                     Text("")
                         .font(.body))
                 }
                 .padding(.leading, 4)
+                .lineLimit(2)  // Allow text to wrap into multiple lines
+                .fixedSize(horizontal: false, vertical: true)
                 
                 HStack(alignment: .top, spacing: 1) {
                     Text("2.")
@@ -170,6 +179,8 @@ struct OnboardingStep3View: View {
             Text("Review and edit inserted suggestions. You should never run commands you don’t know.")
                 .font(.body)
                 .padding(.bottom, 6)
+                .lineLimit(2)  // Allow text to wrap into multiple lines
+                .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading) {
                 Text("Complete the task:")
@@ -229,7 +240,6 @@ struct OnboardingCompleteView: View {
         .background(Color(NSColor.controlBackgroundColor))
     }
 }
-
 
 
 import SwiftUI
