@@ -146,9 +146,11 @@ struct ContentView: View {
 
 struct SuggestionsView: View {
     @ObservedObject var viewModel: AppViewModel
+    @ObservedObject private var stateManager = OnboardingStateManager.shared
 
     var body: some View {
         OnboardingView()
+        
         VStack(alignment: .leading, spacing: 0) {
             ScrollViewReader { scrollView in
                 ScrollView {
@@ -162,7 +164,7 @@ struct SuggestionsView: View {
                     .padding(.horizontal, 10)
                 }
                 .padding(.horizontal, 0)
-                .padding(.top, 15)
+                .padding(.vertical, stateManager.showOnboarding ? 1 : 15)
                 .onChange(of: viewModel.updateCounter) {
                     if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.results[currentTerminalID], let lastBatch = windowData.suggestionsHistory.last?.1, let lastSuggestionIndex = lastBatch.indices.last {
                         scrollToBottom(scrollView: scrollView, key: "suggestion-\(windowData.suggestionsHistory.count - 1)-\(lastSuggestionIndex)")
@@ -196,7 +198,7 @@ struct SuggestionsView: View {
                         .padding(.trailing)
                 }
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, stateManager.showOnboarding ? 5 : 10)
             .frame(maxWidth: .infinity, alignment: .center)
         }
     }
