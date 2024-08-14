@@ -19,7 +19,7 @@ struct CloseButton: View {
                 .padding(5)
                 .frame(width: 26, height: 26, alignment: .center)
                 .background(
-                    Color(NSColor.controlBackgroundColor)
+                    Color.BG.Onboarding.purple
                         .cornerRadius(6)
                 )
                 .overlay(
@@ -38,7 +38,8 @@ struct OnboardingHeader: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.subheadline)
+                .font(.title2)
+                .fontWeight(.semibold)
             
             Spacer()
             
@@ -57,11 +58,6 @@ struct OnboardingStep1View: View {
                 showOnboarding = false
             })
             
-            Text("Become an expert with these pro-tips")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .padding(.bottom, 6)
-
             Text("Use the ShellMate shortcut 'sm' directly in your terminal to ask questions with natural text.")
                 .font(.body)
                 .padding(.bottom, 6)
@@ -99,7 +95,7 @@ struct OnboardingStep1View: View {
             }
         }
         .padding()
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(Color.BG.Onboarding.purple)
     }
 }
 
@@ -111,11 +107,6 @@ struct OnboardingStep2View: View {
             OnboardingHeader(title: "Walkthrough: 2 of 3", closeAction: {
                 showOnboarding = false
             })
-            
-            Text("Become an expert with these pro-tips")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .padding(.bottom, 6)
 
             Text("Insert any suggestion with the shortcut 'sm x.x'")
                 .font(.body)
@@ -158,7 +149,7 @@ struct OnboardingStep2View: View {
             }
         }
         .padding()
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(Color.BG.Onboarding.purple)
     }
 }
 
@@ -171,11 +162,6 @@ struct OnboardingStep3View: View {
                 showOnboarding = false
             })
             
-            Text("Become an expert with these pro-tips")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .padding(.bottom, 6)
-
             Text("Review and edit inserted suggestions. You should never run commands you don’t know.")
                 .font(.body)
                 .padding(.bottom, 6)
@@ -205,7 +191,7 @@ struct OnboardingStep3View: View {
             }
         }
         .padding()
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(Color.BG.Onboarding.purple)
     }
 }
 
@@ -237,7 +223,7 @@ struct OnboardingCompleteView: View {
             }
         }
         .padding()
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(Color.BG.Onboarding.purple)
     }
 }
 

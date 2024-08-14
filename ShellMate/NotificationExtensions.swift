@@ -17,7 +17,7 @@ extension Notification.Name {
     /// - "identifier": String
     /// - "isGeneratingSuggestion": Bool
     static let suggestionGenerationStatusChanged = Notification.Name("suggestionGenerationStatusChanged")
-
+    
     /// Notification to request analysis of terminal content.
     /// userInfo dictionary should contain:
     /// - "text": String
@@ -37,7 +37,7 @@ extension Notification.Name {
     /// - "source": String (the source of the change, e.g., "dragging", "config")
     static let windowAttachmentPositionDidChange = Notification.Name("windowAttachmentPositionDidChange")
     static let updatedAppPositionAfterWindowAttachmentChange = Notification.Name("updatedAppPositionAfterWindowAttachmentChange")
-
+    
     // Required for GhostWindow logic
     /// Notification to update the ghost window state.
     /// userInfo dictionary should contain:
@@ -65,4 +65,7 @@ extension Notification.Name {
     
     /// Notification to indicate that the terminal window ID should be reinitialized.
     static let reinitializeTerminalWindowID = Notification.Name("reinitializeTerminalWindowID")
+    
+    /// Notification to indicate that the user has accepted to receive free credits.
+    static let userAcceptedFreeCredits = Notification.Name("userAcceptedFreeCredits")
 }
