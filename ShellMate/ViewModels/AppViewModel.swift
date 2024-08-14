@@ -35,8 +35,8 @@ class AppViewModel: ObservableObject {
     private var apiKeyValidationDebounceTask: DispatchWorkItem?
 
     // Limit for free tier suggestions
-    let GPTSuggestionsFreeTierLimit = 150
-    
+    @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 5
+
     @Published var GPTSuggestionsFreeTierCount: Int {
         didSet {
             UserDefaults.standard.set(GPTSuggestionsFreeTierCount, forKey: GPTSuggestionsFreeTierCountKey)
@@ -208,6 +208,7 @@ class AppViewModel: ObservableObject {
         NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalWindowIdDidChange(_:)), name: .terminalWindowIdDidChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleRequestTerminalContentAnalysis(_:)), name: .requestTerminalContentAnalysis, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleSuggestionGenerationStatusChanged(_:)), name: .suggestionGenerationStatusChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUserAcceptedFreeCredits), name: .userAcceptedFreeCredits, object: nil)
         areNotificationObserversSetup = true
         startCheckingTerminalID() // Necessary as sometimes the AppViewModel will only setup the observer for handleTerminalWindowIdDidChange after the first setup was run, so the currentTerminalID would be empty, causing errors
     }
@@ -293,6 +294,17 @@ class AppViewModel: ObservableObject {
         // Execute the task after a delay of 0.25 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: apiKeyValidationDebounceTask!)
     }
+    
+    @objc private func handleUserAcceptedFreeCredits() {
+        // Increase the limit for free tier suggestions by 2000
+        GPTSuggestionsFreeTierLimit += 5
+
+        // Check if the free tier count has reached the limit again
+        updateHasGPTSuggestionsFreeTierCountReachedLimit()
+        
+        print("User accepted free credits. New limit: \(GPTSuggestionsFreeTierLimit)")
+    }
+
 
     private func determineAPIKeyValidationState(from notification: Notification) {
         if let userInfo = notification.userInfo, let isValid = userInfo["isValid"] as? Bool {

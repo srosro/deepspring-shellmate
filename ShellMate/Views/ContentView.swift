@@ -57,49 +57,111 @@ struct TroubleshootShellMateView: View {
 
 struct ActivateShellMateView: View {
     @State private var apiKey: String = ""
+    @State private var showSubscriptionMessage: Bool = false
 
     var body: some View {
-        Button(action: {
-        }) {
-            // this here is a dummy button just to make the style work
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Activate ShellMate")
+        VStack(alignment: .leading, spacing: 8) {
+            if showSubscriptionMessage {
+                Text("Thanks for being willing to support us!")
                     .font(.body)
                     .fontWeight(.semibold)
                     .allowsHitTesting(false)  // Disable interaction for this text
-
-                Text("You've run out of free AI responses. Add your own OpenAI API key to keep using.")
+                
+                Text("We haven’t implemented this yet. But we’ve given you more free credits on our OpenAI account")
                     .font(.body)
                     .fontWeight(.regular)
                     .multilineTextAlignment(.leading)
                     .allowsHitTesting(false)  // Disable interaction for this text
-
-                SettingsLink {
-                    Text("Add API key")
+                    .lineLimit(4)  // Allow text to wrap into multiple lines
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                Button(action: acceptFreeCredits) {
+                    Text("Accept 2,000 free credits")
                         .padding(.horizontal, 11)
                         .padding(.vertical, 7)
-                        .background(Color.black)
-                        .foregroundColor(.white)
+                        .background(Color.Text.green)
+                        .foregroundColor(Color.Text.oppositePrimary)
                         .cornerRadius(4)
                         .font(.subheadline)
                 }
                 .buttonStyle(BorderlessButtonStyle())  // Ensure no default button styling
+                
+            } else {
+                Text("Activate ShellMate")
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .allowsHitTesting(false)  // Disable interaction for this text
+                
+                Text("You've run out of free AI responses. Subscribe for credits or add your own OpenAI API key to continue using ShellMate.")
+                    .font(.body)
+                    .fontWeight(.regular)
+                    .multilineTextAlignment(.leading)
+                    .allowsHitTesting(false)  // Disable interaction for this text
+                    .lineLimit(2)  // Allow text to wrap into multiple lines
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                HStack(spacing: 8) {  // Use HStack to align buttons side by side
+                    Button(action: handleSubscriptionClick) {
+                        Text("Subscribe for $2.99/month")
+                            .padding(.horizontal, 11)
+                            .padding(.vertical, 7)
+                            .background(Color.black)
+                            .foregroundColor(.white)
+                            .cornerRadius(4)
+                            .font(.subheadline)
+                    }
+                    .buttonStyle(BorderlessButtonStyle())  // Ensure no default button styling
+                    
+                    SettingsLink {
+                        Text("Add OpenAI API key")
+                            .padding(.horizontal, 11)
+                            .padding(.vertical, 7)
+                            .background(Color.clear)
+                            .foregroundColor(.primary)
+                            .cornerRadius(4)
+                            .font(.subheadline)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color.primary, lineWidth: 0.5)
+                            )
+                    }
+                    .buttonStyle(BorderlessButtonStyle())  // Ensure no default button styling
+                }
             }
-            .padding(.horizontal, 16)  // Inner padding for the VStack inside the border
-            .padding(.vertical, 12)  // Inner padding for the VStack inside the border
-            .frame(maxWidth: .infinity, alignment: .leading)  // Make VStack take full width
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .strokeBorder(LinearGradient(
-                        gradient: Gradient(colors: [AppColors.gradientLightBlue, AppColors.gradientPurple]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ), lineWidth: 2)
-            )
         }
+        .padding(.horizontal, 16)  // Inner padding for the VStack inside the border
+        .padding(.vertical, 12)  // Inner padding for the VStack inside the border
+        .frame(maxWidth: .infinity, alignment: .leading)  // Make VStack take full width
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(LinearGradient(
+                    gradient: Gradient(colors: [AppColors.gradientLightBlue, AppColors.gradientPurple]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ), lineWidth: 2)
+        )
         .buttonStyle(PlainButtonStyle())  // Ensure no button styling
     }
+
+    // Function to handle the subscription button click
+    private func handleSubscriptionClick() {
+        // Simulate the action and show the message
+        showSubscriptionMessage = true
+        MixpanelHelper.shared.trackEvent(name: "clickedSubscribeButton")
+    }
+
+    // Function to handle the acceptance of 2000 free credits
+    private func acceptFreeCredits() {
+        print("2000 free credits accepted")
+        
+        // Post the notification
+        NotificationCenter.default.post(name: .userAcceptedFreeCredits, object: nil)
+        MixpanelHelper.shared.trackEvent(name: "receivedFreeAPICredits")
+    }
 }
+
+
+
 
 struct NetworkIssueView: View {
     @State private var apiKey: String = ""
