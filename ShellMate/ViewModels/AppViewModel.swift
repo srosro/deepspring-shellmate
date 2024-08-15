@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import AXSwift
 
 enum APIKeyValidationState {
     case valid
@@ -226,15 +227,57 @@ class AppViewModel: ObservableObject {
         self.currentStateText = "No changes on Terminal"
         // Process trigger the generation of a suggestion.
     }
-    
-    @MainActor @objc private func handleTerminalWindowIdDidChange(_ notification: Notification) {
+
+    @MainActor
+    @objc private func handleTerminalWindowIdDidChange(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let windowID = userInfo["terminalWindowID"] as? CGWindowID else {
             return
         }
         self.currentTerminalID = String(windowID)
         initializeSampleCommandForOnboardingIfNeeded(for: String(windowID))
+        
+        resizeTerminalWindowIfNeeded()
     }
+
+    private func resizeTerminalWindowIfNeeded() {
+        if OnboardingStateManager.shared.showOnboarding {
+            if let runningTerminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) {
+                runningTerminalApp.activate()
+                
+                let terminalElement = AXUIElementCreateApplication(runningTerminalApp.processIdentifier)
+                var focusedWindow: CFTypeRef?
+                let focusedWindowResult = AXUIElementCopyAttributeValue(terminalElement, kAXFocusedWindowAttribute as CFString, &focusedWindow)
+                
+                guard focusedWindowResult == .success, let terminalWindow = focusedWindow else {
+                    print("DEBUG: Failed to determine focused window for the Terminal application.")
+                    return
+                }
+
+                var size: CFTypeRef?
+                let result = AXUIElementCopyAttributeValue(terminalWindow as! AXUIElement, kAXSizeAttribute as CFString, &size)
+                var currentSize = CGSize.zero
+                if result == .success {
+                    AXValueGetValue(size as! AXValue, .cgSize, &currentSize)
+                }
+
+                if currentSize.height < 500 {
+                    var newSize = CGSize(width: currentSize.width, height: 500) // Declare newSize as var
+                    if let sizeValue = AXValueCreate(.cgSize, &newSize) {
+                        let setResult = AXUIElementSetAttributeValue(terminalWindow as! AXUIElement, kAXSizeAttribute as CFString, sizeValue)
+                        if setResult == .success {
+                            print("DEBUG: Resized the terminal window to height 500.")
+                        } else {
+                            print("DEBUG: Failed to resize the terminal window. Error: \(setResult.rawValue)")
+                        }
+                    }
+                }
+            } else {
+                print("DEBUG: Could not find Terminal app.")
+            }
+        }
+    }
+
     
     @objc private func handleRequestTerminalContentAnalysis(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
@@ -297,7 +340,7 @@ class AppViewModel: ObservableObject {
     
     @objc private func handleUserAcceptedFreeCredits() {
         // Increase the limit for free tier suggestions by 2000
-        GPTSuggestionsFreeTierLimit += 5
+        GPTSuggestionsFreeTierLimit += 15
 
         // Check if the free tier count has reached the limit again
         updateHasGPTSuggestionsFreeTierCountReachedLimit()

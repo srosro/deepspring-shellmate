@@ -81,7 +81,7 @@ struct OnboardingStep1View: View {
                         .font(.body))
                 }
                 .padding(.leading, 4)
-                .lineLimit(2)  // Allow text to wrap into multiple lines
+                .lineLimit(5)  // Allow text to wrap into multiple lines
                 .fixedSize(horizontal: false, vertical: true)
                 
                 HStack(alignment: .top, spacing: 1) {
@@ -136,7 +136,7 @@ struct OnboardingStep2View: View {
                         .font(.body))
                 }
                 .padding(.leading, 4)
-                .lineLimit(2)  // Allow text to wrap into multiple lines
+                .lineLimit(5)  // Allow text to wrap into multiple lines
                 .fixedSize(horizontal: false, vertical: true)
                 
                 HStack(alignment: .top, spacing: 1) {
@@ -165,7 +165,7 @@ struct OnboardingStep3View: View {
             Text("Review and edit inserted suggestions. You should never run commands you don’t know.")
                 .font(.body)
                 .padding(.bottom, 6)
-                .lineLimit(2)  // Allow text to wrap into multiple lines
+                .lineLimit(5)  // Allow text to wrap into multiple lines
                 .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading) {
