@@ -25,7 +25,7 @@ struct TroubleshootShellMateView: View {
                     .fontWeight(.regular)
                     .multilineTextAlignment(.leading)
                     .allowsHitTesting(false)  // Disable interaction for this text
-                    .lineLimit(3)  // Allow text to wrap into multiple lines
+                    .lineLimit(4)  // Allow text to wrap into multiple lines
                     .fixedSize(horizontal: false, vertical: true)
 
                 SettingsLink {
@@ -72,7 +72,7 @@ struct ActivateShellMateView: View {
                     .fontWeight(.regular)
                     .multilineTextAlignment(.leading)
                     .allowsHitTesting(false)  // Disable interaction for this text
-                    .lineLimit(4)  // Allow text to wrap into multiple lines
+                    .lineLimit(5)  // Allow text to wrap into multiple lines
                     .fixedSize(horizontal: false, vertical: true)
                 
                 Button(action: acceptFreeCredits) {
@@ -97,7 +97,7 @@ struct ActivateShellMateView: View {
                     .fontWeight(.regular)
                     .multilineTextAlignment(.leading)
                     .allowsHitTesting(false)  // Disable interaction for this text
-                    .lineLimit(2)  // Allow text to wrap into multiple lines
+                    .lineLimit(5)  // Allow text to wrap into multiple lines
                     .fixedSize(horizontal: false, vertical: true)
                 
                 HStack(spacing: 8) {  // Use HStack to align buttons side by side
