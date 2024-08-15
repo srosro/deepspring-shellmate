@@ -146,6 +146,7 @@ class KeyPressDelegate {
         print("Is valid 'sm' index command: \(isValidSMIndexCommand)")
 
         if isValidSMIndexCommand {
+            MixpanelHelper.shared.trackEvent(name: "userInsertedSMCommandAtTerminal")
             processSMIndexCommand(for: line)
         } else {
             checkAndHandleOnboardingStep1(line: line)

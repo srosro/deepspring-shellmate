@@ -432,6 +432,7 @@ struct SuggestionView: View {
         pasteboard.clearContents()
         pasteboard.setString(command, forType: .string)
         print("Copied to clipboard: \(command)")
+        MixpanelHelper.shared.trackEvent(name: "commandCopiedToClipboard")
     }
 
     private func provideFeedback() {

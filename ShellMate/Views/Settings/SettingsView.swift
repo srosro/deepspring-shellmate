@@ -59,7 +59,6 @@ struct StartupView: View {
     }
 }
 
-
 struct TerminalLaunchView: View {
     @AppStorage("launchShellMateAtTerminalStartup") private var launchAtTerminalStartup = false
     @State private var isProcessing = false
@@ -84,11 +83,13 @@ struct TerminalLaunchView: View {
             .toggleStyle(CheckboxToggleStyle())
             .frame(maxWidth: .infinity, alignment: .leading)
             .disabled(isProcessing)  // Disable the toggle while processing
-            .onChange(of: launchAtTerminalStartup) {
-                if launchAtTerminalStartup {
+            .onChange(of: launchAtTerminalStartup) { oldValue, newValue in
+                if newValue {
                     installShellMateAtTerminalStartup()
+                    MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalEnabled")
                 } else {
                     uninstallShellMateAtTerminalStartup()
+                    MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalDisabled")
                 }
             }
         }
