@@ -72,3 +72,65 @@ class SetupLaunchShellMateAtTerminalStartup {
         }
     }
 }
+
+class CompanionModeManager: ObservableObject {
+    static let shared = CompanionModeManager()
+
+    @Published var isCompanionModeEnabled: Bool = false {
+        didSet {
+            UserDefaults.standard.set(isCompanionModeEnabled, forKey: "isCompanionModeEnabled")
+            
+            if isCompanionModeEnabled {
+                installShellMateAtTerminalStartup()
+                MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalEnabled")
+            } else {
+                uninstallShellMateAtTerminalStartup()
+                MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalDisabled")
+            }
+        }
+    }
+
+
+    let appName: String
+    private let shellMateSetup: SetupLaunchShellMateAtTerminalStartup
+
+    private init() {
+        self.appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "ShellMate"
+        self.shellMateSetup = SetupLaunchShellMateAtTerminalStartup(shellmateLine: "open -a \(self.appName)")
+        
+        if UserDefaults.standard.object(forKey: "isCompanionModeEnabled") == nil {
+            // Set the default value if it doesn't exist
+            self.isCompanionModeEnabled = false
+        } else {
+            // Initialize the isCompanionModeEnabled from UserDefaults
+            self.isCompanionModeEnabled = UserDefaults.standard.bool(forKey: "isCompanionModeEnabled")
+        }
+    }
+
+
+    private func installShellMateAtTerminalStartup() {
+        DispatchQueue.global().async {
+            do {
+                try self.shellMateSetup.install()
+            } catch {
+                DispatchQueue.main.async {
+                    self.isCompanionModeEnabled = false // Revert to the previous state
+                    print("Failed to install \(self.appName): \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
+    private func uninstallShellMateAtTerminalStartup() {
+        DispatchQueue.global().async {
+            do {
+                try self.shellMateSetup.uninstall()
+            } catch {
+                DispatchQueue.main.async {
+                    self.isCompanionModeEnabled = true // Revert to the previous state
+                    print("Failed to uninstall \(self.appName): \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+}

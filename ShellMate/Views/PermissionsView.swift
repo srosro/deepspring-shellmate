@@ -23,7 +23,7 @@ struct PermissionsWindowView: View {
                 Spacer()
                 PermissionsView(permissionsViewModel: permissionsViewModel)
                 Spacer()
-                CompanionModeView(appViewModel: appViewModel)
+                CompanionModeView()
                 Spacer()
                 if appViewModel.hasGPTSuggestionsFreeTierCountReachedLimit || licenseViewModel.apiKeyValidationState != .unverified {
                     LicenseView(licenseViewModel: licenseViewModel, appViewModel: appViewModel)
@@ -198,7 +198,7 @@ struct LicenseView: View {
 }
 
 struct CompanionModeView: View {
-    @ObservedObject var appViewModel: AppViewModel
+    @ObservedObject private var companionModeManager = CompanionModeManager.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -209,7 +209,7 @@ struct CompanionModeView: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    Toggle(isOn: $appViewModel.isCompanionModeEnabled) { // Bind to the variable in AppViewModel
+                    Toggle(isOn: $companionModeManager.isCompanionModeEnabled) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Auto-open ShellMate when you open Terminal.")
                                 .font(.footnote)
