@@ -37,7 +37,7 @@ struct GeneralView: View {
         VStack(alignment: .leading, spacing: 20) {
             Spacer().frame(height: 10)
             StartupView()
-            TerminalLaunchView()
+            TerminalLaunchView(appViewModel: appViewModel)
             WindowPositionView(generalViewModel: generalViewModel)
             ApiKeyView(appViewModel: appViewModel, licenseViewModel: licenseViewModel)
             Spacer()
@@ -60,14 +60,15 @@ struct StartupView: View {
 }
 
 struct TerminalLaunchView: View {
-    @AppStorage("launchShellMateAtTerminalStartup") private var launchAtTerminalStartup = false
+    @ObservedObject var appViewModel: AppViewModel
     @State private var isProcessing = false
 
     // Dynamically retrieve the app name
     private let appName: String
     private let shellMateSetup: SetupLaunchShellMateAtTerminalStartup
 
-    init() {
+    init(appViewModel: AppViewModel) {
+        self.appViewModel = appViewModel
         self.appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "ShellMate"
         self.shellMateSetup = SetupLaunchShellMateAtTerminalStartup(shellmateLine: "open -a \(self.appName)")
     }
@@ -76,14 +77,14 @@ struct TerminalLaunchView: View {
         HStack {
             Text("Terminal Integration")
                 .frame(width: 150, alignment: .trailing)
-            Toggle(isOn: $launchAtTerminalStartup) {
+            Toggle(isOn: $appViewModel.isCompanionModeEnabled) {
                 Text("Run \(appName) with terminal launch")
                     .font(.body)
             }
             .toggleStyle(CheckboxToggleStyle())
             .frame(maxWidth: .infinity, alignment: .leading)
             .disabled(isProcessing)  // Disable the toggle while processing
-            .onChange(of: launchAtTerminalStartup) { oldValue, newValue in
+            .onChange(of: appViewModel.isCompanionModeEnabled) { oldValue, newValue in
                 if newValue {
                     installShellMateAtTerminalStartup()
                     MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalEnabled")
@@ -107,7 +108,7 @@ struct TerminalLaunchView: View {
             } catch {
                 DispatchQueue.main.async {
                     self.isProcessing = false
-                    self.launchAtTerminalStartup = false // Revert to the previous state
+                    self.appViewModel.isCompanionModeEnabled = false // Revert to the previous state
                     print("Failed to install \(self.appName): \(error.localizedDescription)")
                 }
             }
@@ -125,14 +126,13 @@ struct TerminalLaunchView: View {
             } catch {
                 DispatchQueue.main.async {
                     self.isProcessing = false
-                    self.launchAtTerminalStartup = true // Revert to the previous state
+                    self.appViewModel.isCompanionModeEnabled = true // Revert to the previous state
                     print("Failed to uninstall \(self.appName): \(error.localizedDescription)")
                 }
             }
         }
     }
 }
-
 
 struct WindowPositionView: View {
     @ObservedObject var generalViewModel: GeneralViewModel

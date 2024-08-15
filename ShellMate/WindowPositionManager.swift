@@ -22,6 +22,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdatedAppPositionAfterWindowAttachmentChange(_:)), name: .updatedAppPositionAfterWindowAttachmentChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleReinitializeTerminalWindowID), name: .reinitializeTerminalWindowID, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateAppWindowPositionAndSize), name: .manualUpdateAppWindowPositionAndSize, object: nil)
     }
     
     func initializeFocusedWindowID() {
@@ -174,98 +175,101 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
     }
 
     
-    func updateAppWindowPositionAndSize(notification: CFString) {
-        print("Updating app window position and size.")
+    @objc func updateAppWindowPositionAndSize(notification: CFString = kAXFocusedWindowChangedNotification as CFString) {
+        DispatchQueue.main.async {  // Ensure all operations within this block are executed on the main thread
+            print("Updating app window position and size.")
 
-        guard let terminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) else {
-            print("Terminal application is not running.")
-            miniaturizeAppWindow()
-            return
-        }
-
-        let wasTerminalFocused = isTerminalFocused  // Store the previous focused state
-        isTerminalFocused = isTerminalAppFocused(terminalApp)  // Update the current focused state
-
-        let terminalElement = AXUIElementCreateApplication(terminalApp.processIdentifier)
-        var windowList: CFTypeRef?
-        let result = AXUIElementCopyAttributeValue(terminalElement, kAXWindowsAttribute as CFString, &windowList)
-
-        if result == .success, let axWindows = windowList as? [AXUIElement] {
-            let visibleWindows = axWindows.filter { window in
-                var isMinimized: CFTypeRef?
-                let minimizedResult = AXUIElementCopyAttributeValue(window, kAXMinimizedAttribute as CFString, &isMinimized)
-                return minimizedResult == .success && (isMinimized as? Bool) == false
+            guard let terminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) else {
+                print("Terminal application is not running.")
+                self.miniaturizeAppWindow()
+                return
             }
 
-            if visibleWindows.isEmpty {
-                let shouldMiniaturize = (notification == kAXWindowMiniaturizedNotification as CFString) || (notification == kAXUIElementDestroyedNotification as CFString)
+            let wasTerminalFocused = self.isTerminalFocused  // Store the previous focused state
+            self.isTerminalFocused = self.isTerminalAppFocused(terminalApp)  // Update the current focused state
 
-                if shouldMiniaturize {
-                    print("No visible Terminal windows found. Miniaturizing ShellMate app window.")
-                    miniaturizeAppWindow()
+            let terminalElement = AXUIElementCreateApplication(terminalApp.processIdentifier)
+            var windowList: CFTypeRef?
+            let result = AXUIElementCopyAttributeValue(terminalElement, kAXWindowsAttribute as CFString, &windowList)
+
+            if result == .success, let axWindows = windowList as? [AXUIElement] {
+                let visibleWindows = axWindows.filter { window in
+                    var isMinimized: CFTypeRef?
+                    let minimizedResult = AXUIElementCopyAttributeValue(window, kAXMinimizedAttribute as CFString, &isMinimized)
+                    return minimizedResult == .success && (isMinimized as? Bool) == false
+                }
+
+                if visibleWindows.isEmpty {
+                    let shouldMiniaturize = (notification == kAXWindowMiniaturizedNotification as CFString) || (notification == kAXUIElementDestroyedNotification as CFString)
+
+                    if shouldMiniaturize {
+                        print("No visible Terminal windows found. Miniaturizing ShellMate app window.")
+                        self.miniaturizeAppWindow()
+                    }
+                    return
+                }
+
+                guard let focusedWindow = self.getFocusedWindow(for: terminalApp) else {
+                    print("Failed to determine focused window for the Terminal application.")
+                    self.miniaturizeAppWindow()
+                    return
+                }
+                
+                // Get the window's title
+                guard let title = self.getWindowTitle(for: focusedWindow) else {
+                    // This check is necessary to avoid attaching ShellMate to non-terminal windows
+                    // (e.g., the prompt where the user confirms if they want to close the terminal)
+                    print("Unable to retrieve window title")
+                    return
+                }
+
+                print("Focused window title: \(title)")
+
+                // Update the current focused window ID
+                self.previousFocusedWindowID = self.focusedTerminalWindowID  // Store the previous focused window ID
+                // Get the window's position and size
+                let position = self.getWindowPosition(for: focusedWindow)
+                let size = self.getWindowSize(for: focusedWindow)
+                self.focusedTerminalWindowID = self.findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)
+                
+                var shouldBringToFront = false
+
+                if !wasTerminalFocused && self.isTerminalFocused {
+                    print("Terminal application is currently focused.")
+                    shouldBringToFront = true
+                }
+
+                // Check if the current and previous window IDs are not nil to avoid misfiring updates
+                if let currentWindowID = self.focusedTerminalWindowID, let previousWindowID = self.previousFocusedWindowID, currentWindowID != previousWindowID {
+                    print("The focused terminal window changed from \(String(describing: previousWindowID)) to \(String(describing: currentWindowID)).")
+                    shouldBringToFront = true
+                    print("DEBUG: terminal window changed")
+                    NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
+                        "terminalWindowID": currentWindowID,
+                        "terminalWindow": focusedWindow
+                    ])
+                }
+
+                if shouldBringToFront {
+                    self.bringAppWindowToFrontWithoutFocus()  // Bring the app window to front without stealing focus
+                }
+
+                let shouldAnimate = (notification == kAXWindowMovedNotification as CFString)
+                // Call the function with the updated parameters
+                positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: shouldAnimate)
+                
+            } else {
+                print("Failed to get windows for Terminal.")
+                
+                // Check if the app has accessibility access
+                if !AccessibilityChecker.isAppTrusted() {
+                    showPermissionsView()
                 }
                 return
             }
-
-            guard let focusedWindow = getFocusedWindow(for: terminalApp) else {
-                print("Failed to determine focused window for the Terminal application.")
-                miniaturizeAppWindow()
-                return
-            }
-            
-            // Get the window's title
-            guard let title = getWindowTitle(for: focusedWindow) else {
-                // This check is necessary to avoid attaching ShellMate to non-terminal windows
-                // (e.g., the prompt where the user confirms if they want to close the terminal)
-                print("Unable to retrieve window title")
-                return
-            }
-
-            print("Focused window title: \(title)")
-
-            // Update the current focused window ID
-            previousFocusedWindowID = focusedTerminalWindowID  // Store the previous focused window ID
-            // Get the window's position and size
-            let position = getWindowPosition(for: focusedWindow)
-            let size = getWindowSize(for: focusedWindow)
-            focusedTerminalWindowID = findWindowID(for: position, size: size, pid: terminalApp.processIdentifier)
-            
-            var shouldBringToFront = false
-
-            if !wasTerminalFocused && isTerminalFocused {
-                print("Terminal application is currently focused.")
-                shouldBringToFront = true
-            }
-
-            // Check if the current and previous window IDs are not nil to avoid misfiring updates
-            if let currentWindowID = focusedTerminalWindowID, let previousWindowID = previousFocusedWindowID, currentWindowID != previousWindowID {
-                print("The focused terminal window changed from \(String(describing: previousFocusedWindowID)) to \(String(describing: currentWindowID)).")
-                shouldBringToFront = true
-                print("DEBUG: terminal window changed")
-                NotificationCenter.default.post(name: .terminalWindowIdDidChange, object: self, userInfo: [
-                    "terminalWindowID": currentWindowID,
-                    "terminalWindow": focusedWindow
-                ])
-            }
-
-            if shouldBringToFront {
-                bringAppWindowToFrontWithoutFocus()  // Bring the app window to front without stealing focus
-            }
-
-            let shouldAnimate = (notification == kAXWindowMovedNotification as CFString)
-            // Call the function with the updated parameters
-            positionAndSizeWindow(terminalPosition: position, terminalSize: size, shouldAnimate: shouldAnimate)
-            
-        } else {
-            print("Failed to get windows for Terminal.")
-            
-            // Check if the app has accessibility access
-            if !AccessibilityChecker.isAppTrusted() {
-                showPermissionsView()
-            }
-            return
         }
     }
+
 
     
     func isTerminalAppFocused(_ terminalApp: NSRunningApplication) -> Bool {

@@ -17,13 +17,14 @@ struct PermissionsWindowView: View {
 
     var body: some View {
         ScrollView {  // Added ScrollView
-            VStack(alignment: .center, spacing: 6) {
+            VStack(alignment: .center, spacing: 5) {
                 Spacer()
                 WelcomeView()
                 Spacer()
                 PermissionsView(permissionsViewModel: permissionsViewModel)
                 Spacer()
-                
+                CompanionModeView(appViewModel: appViewModel)
+                Spacer()
                 if appViewModel.hasGPTSuggestionsFreeTierCountReachedLimit || licenseViewModel.apiKeyValidationState != .unverified {
                     LicenseView(licenseViewModel: licenseViewModel, appViewModel: appViewModel)
                     Spacer()
@@ -190,6 +191,41 @@ struct LicenseView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(AppColors.gray400, lineWidth: 0.4) // Consistent line width
+            )
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+struct CompanionModeView: View {
+    @ObservedObject var appViewModel: AppViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Companion-Mode")
+                .font(.subheadline)
+                .bold()
+                .padding(.leading, 15)
+
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Toggle(isOn: $appViewModel.isCompanionModeEnabled) { // Bind to the variable in AppViewModel
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Auto-open ShellMate when you open Terminal.")
+                                .font(.footnote)
+                            Text("Note: this does NOT cause ShellMate to run in the background and can be disabled in ShellMate's settings.")
+                                .font(.footnote)
+                        }
+                    }
+                    Spacer() // Ensures that the Toggle and text take full width
+                }
+                .padding()
+            }
+            .frame(maxWidth: .infinity) // Ensure the VStack takes the full width
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(AppColors.gray400, lineWidth: 0.4)
             )
         }
         .frame(maxWidth: .infinity)
