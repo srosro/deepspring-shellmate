@@ -70,7 +70,7 @@ extension Color {
             static var tertiaryFocused: Color { ColorManager.shared.color(light: ("#1A1B1D", 0.15), dark: ("#FFFFFF", 0.15)) }
         }
         struct Onboarding {
-            static var purple: Color { ColorManager.shared.color(light: ("#A3BFFF", 1.0), dark: ("#A3BFFF", 1.0)) }
+            static var purple: Color { ColorManager.shared.color(light: ("#A3BFFF", 1.0), dark: ("#7593ED", 1.0)) }
         }
     }
     

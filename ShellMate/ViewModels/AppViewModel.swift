@@ -19,6 +19,8 @@ class AppViewModel: ObservableObject {
     @Published var areNotificationObserversSetup: Bool = false
     @Published var shouldTroubleShootAPIKey: Bool = false
     @Published var shouldShowNetworkIssueWarning: Bool = false
+    @Published var shouldShowSamAltmansFace: Bool = true
+
     private var consecutiveFailedInternetChecks: Int = 0
     private var internetConnectionGracePeriodTask: Task<Void, Never>?
 
@@ -34,9 +36,18 @@ class AppViewModel: ObservableObject {
     private let hasGPTSuggestionsFreeTierCountReachedLimitKey = "hasGPTSuggestionsFreeTierCountReachedLimit"
     private var terminalIDCheckTimer: Timer?
     private var apiKeyValidationDebounceTask: DispatchWorkItem?
+    private let isCompanionModeEnabledKey = "isCompanionModeEnabled"
+    
 
     // Limit for free tier suggestions
     @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 5
+
+
+    @Published var isCompanionModeEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(isCompanionModeEnabled, forKey: isCompanionModeEnabledKey)
+        }
+    }
 
     @Published var GPTSuggestionsFreeTierCount: Int {
         didSet {
@@ -105,6 +116,7 @@ class AppViewModel: ObservableObject {
     }
     
     init() {
+        self.isCompanionModeEnabled = UserDefaults.standard.bool(forKey: isCompanionModeEnabledKey)
         self.GPTSuggestionsFreeTierCount = UserDefaults.standard.integer(forKey: GPTSuggestionsFreeTierCountKey)
         self.hasGPTSuggestionsFreeTierCountReachedLimit = UserDefaults.standard.bool(forKey: hasGPTSuggestionsFreeTierCountReachedLimitKey)
         updateHasGPTSuggestionsFreeTierCountReachedLimit()
@@ -115,6 +127,18 @@ class AppViewModel: ObservableObject {
             await initializeAssistant()
         }
     }
+    
+    // Method to calculate the likelihood
+    func calculateSamAltmansFaceLikelihood() {
+        let n = Double(GPTSuggestionsFreeTierCount)
+        let adjustedLikelihood = min(100, (1.0 / (1.5 + n / 10)) * 100)
+        let randomValue = Double.random(in: 0...100)
+        shouldShowSamAltmansFace = randomValue <= adjustedLikelihood
+
+        // DEBUG statement
+        print("DEBUG: GPTSuggestionsFreeTierCount: \(GPTSuggestionsFreeTierCount), Adjusted Likelihood: \(adjustedLikelihood), Random Value: \(randomValue), Should Show Sam Altman's Face: \(shouldShowSamAltmansFace)")
+    }
+
     
     func startInternetCheckLoop() {
         DispatchQueue.global().async {
@@ -242,38 +266,45 @@ class AppViewModel: ObservableObject {
 
     private func resizeTerminalWindowIfNeeded() {
         if OnboardingStateManager.shared.showOnboarding {
-            if let runningTerminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) {
-                runningTerminalApp.activate()
-                
-                let terminalElement = AXUIElementCreateApplication(runningTerminalApp.processIdentifier)
-                var focusedWindow: CFTypeRef?
-                let focusedWindowResult = AXUIElementCopyAttributeValue(terminalElement, kAXFocusedWindowAttribute as CFString, &focusedWindow)
-                
-                guard focusedWindowResult == .success, let terminalWindow = focusedWindow else {
-                    print("DEBUG: Failed to determine focused window for the Terminal application.")
-                    return
-                }
+            DispatchQueue.main.async { // Ensure everything inside runs on the main thread
+                if let runningTerminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) {
+                    runningTerminalApp.activate()
 
-                var size: CFTypeRef?
-                let result = AXUIElementCopyAttributeValue(terminalWindow as! AXUIElement, kAXSizeAttribute as CFString, &size)
-                var currentSize = CGSize.zero
-                if result == .success {
-                    AXValueGetValue(size as! AXValue, .cgSize, &currentSize)
-                }
+                    let terminalElement = AXUIElementCreateApplication(runningTerminalApp.processIdentifier)
+                    var focusedWindow: CFTypeRef?
+                    let focusedWindowResult = AXUIElementCopyAttributeValue(terminalElement, kAXFocusedWindowAttribute as CFString, &focusedWindow)
 
-                if currentSize.height < 500 {
-                    var newSize = CGSize(width: currentSize.width, height: 500) // Declare newSize as var
-                    if let sizeValue = AXValueCreate(.cgSize, &newSize) {
-                        let setResult = AXUIElementSetAttributeValue(terminalWindow as! AXUIElement, kAXSizeAttribute as CFString, sizeValue)
-                        if setResult == .success {
-                            print("DEBUG: Resized the terminal window to height 500.")
-                        } else {
-                            print("DEBUG: Failed to resize the terminal window. Error: \(setResult.rawValue)")
+                    guard focusedWindowResult == .success, let terminalWindow = focusedWindow else {
+                        print("DEBUG: Failed to determine focused window for the Terminal application.")
+                        return
+                    }
+
+                    var size: CFTypeRef?
+                    let result = AXUIElementCopyAttributeValue(terminalWindow as! AXUIElement, kAXSizeAttribute as CFString, &size)
+                    var currentSize = CGSize.zero
+                    if result == .success {
+                        AXValueGetValue(size as! AXValue, .cgSize, &currentSize)
+                    }
+
+                    if currentSize.height < 500 {
+                        var newSize = CGSize(width: currentSize.width, height: 500) // Declare newSize as var
+                        if let sizeValue = AXValueCreate(.cgSize, &newSize) {
+                            let setResult = AXUIElementSetAttributeValue(terminalWindow as! AXUIElement, kAXSizeAttribute as CFString, sizeValue)
+                            if setResult == .success {
+                                print("DEBUG: Resized the terminal window to height 500.")
+
+                                // Wait 1 second before posting the notification
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    NotificationCenter.default.post(name: .manualUpdateAppWindowPositionAndSize, object: nil)
+                                }
+                            } else {
+                                print("DEBUG: Failed to resize the terminal window. Error: \(setResult.rawValue)")
+                            }
                         }
                     }
+                } else {
+                    print("DEBUG: Could not find Terminal app.")
                 }
-            } else {
-                print("DEBUG: Could not find Terminal app.")
             }
         }
     }
@@ -309,6 +340,7 @@ class AppViewModel: ObservableObject {
         }
         DispatchQueue.main.async {
             self.isGeneratingSuggestion[identifier] = isGeneratingSuggestion
+            self.calculateSamAltmansFaceLikelihood()
         }
     }
     

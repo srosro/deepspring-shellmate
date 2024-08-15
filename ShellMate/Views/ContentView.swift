@@ -266,25 +266,28 @@ struct SuggestionsView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 
                 if let currentTerminalID = viewModel.currentTerminalID, viewModel.isGeneratingSuggestion[currentTerminalID] == true {
-                    Image("samAltmansFace")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 29)
-                        .rotationEffect(.degrees(isRotating ? 360 : 0))
-                        .onAppear {
-                            withAnimation(
-                                Animation.linear(duration: 0.5)
-                                    .delay(0.8)
-                                    .repeatForever(autoreverses: false)
-                            ) {
-                                isRotating = true
+                    if viewModel.shouldShowSamAltmansFace {
+                        Image("samAltmansFace")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 29)
+                            .rotationEffect(.degrees(isRotating ? 360 : 0))
+                            .onAppear {
+                                withAnimation(
+                                    Animation.linear(duration: 0.5)
+                                        .delay(0.8)
+                                        .repeatForever(autoreverses: false)
+                                ) {
+                                    isRotating = true
+                                }
                             }
-                        }
-                        .onDisappear {
-                            isRotating = false // Stop the rotation when the view disappears
-                        }
-                        .padding(.vertical, 0)
-                        .offset(y: -1)
+                            .onDisappear {
+                                isRotating = false // Stop the rotation when the view disappears
+                            }
+                            .padding(.vertical, 0)
+                            .offset(y: -1)
+
+                    }
                 }
             }
         }

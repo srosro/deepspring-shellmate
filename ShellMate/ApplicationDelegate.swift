@@ -30,7 +30,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
         
         showPermissionsView()
         setupMainWindow()
-        resizeWindow(width: 430, height: 600)
+        resizeWindow(width: 430, height: 650)
         print("ApplicationDelegate - Application did finish launching.")
 
         setupSentry()
