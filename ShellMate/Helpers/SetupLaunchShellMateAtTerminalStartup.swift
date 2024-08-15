@@ -8,15 +8,12 @@
 import Foundation
 
 class SetupLaunchShellMateAtTerminalStartup {
-    // Property to hold the line to be added/removed
     private let shellmateLine: String
     
-    // Initializer
     init(shellmateLine: String) {
         self.shellmateLine = shellmateLine
     }
     
-    // Method to determine the user's shell profile
     private func getShellProfile() -> String {
         if let shell = ProcessInfo.processInfo.environment["SHELL"] {
             if shell.contains("zsh") {
@@ -24,54 +21,71 @@ class SetupLaunchShellMateAtTerminalStartup {
             } else if shell.contains("bash") {
                 return "\(NSHomeDirectory())/.bashrc"
             } else {
-                // Default to zsh if shell cannot be determined
                 return "\(NSHomeDirectory())/.zshrc"
             }
         } else {
-            // Default to zsh if shell environment variable is not found
             return "\(NSHomeDirectory())/.zshrc"
         }
     }
     
-    // Method to install the ShellMate line
-    func install() throws {
-        let shellProfile = getShellProfile()
-        do {
-            let fileContent = try String(contentsOfFile: shellProfile, encoding: .utf8)
-            
-            if fileContent.contains(shellmateLine) {
-                print("ShellMate line already exists in \(shellProfile).")
-            } else {
-                print("Adding ShellMate line to \(shellProfile)...")
-                try fileContent.appending("\n\(shellmateLine)\n").write(toFile: shellProfile, atomically: true, encoding: .utf8)
-                print("ShellMate line added successfully.")
+    func install(completion: @escaping (Bool) -> Void) {
+        DispatchQueue.global().async {
+            let shellProfile = self.getShellProfile()
+            do {
+                let fileContent = try String(contentsOfFile: shellProfile, encoding: .utf8)
+                
+                if fileContent.contains(self.shellmateLine) {
+                    print("ShellMate line already exists in \(shellProfile).")
+                    DispatchQueue.main.async {
+                        completion(true)
+                    }
+                } else {
+                    print("Adding ShellMate line to \(shellProfile)...")
+                    try fileContent.appending("\(self.shellmateLine)\n").write(toFile: shellProfile, atomically: true, encoding: .utf8)
+                    print("ShellMate line added successfully.")
+                    DispatchQueue.main.async {
+                        completion(true)
+                    }
+                }
+            } catch {
+                print("Error reading or writing to \(shellProfile): \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion(false)
+                }
             }
-        } catch {
-            print("Error reading or writing to \(shellProfile): \(error.localizedDescription)")
-            throw error // Propagate the error
         }
     }
     
-    // Method to uninstall the ShellMate line
-    func uninstall() throws {
-        let shellProfile = getShellProfile()
-        do {
-            var fileContent = try String(contentsOfFile: shellProfile, encoding: .utf8)
-            
-            if fileContent.contains(shellmateLine) {
-                print("Removing ShellMate line from \(shellProfile)...")
-                fileContent = fileContent.replacingOccurrences(of: "\(shellmateLine)\n", with: "")
-                try fileContent.write(toFile: shellProfile, atomically: true, encoding: .utf8)
-                print("ShellMate line removed successfully.")
-            } else {
-                print("ShellMate line not found in \(shellProfile).")
+    func uninstall(completion: @escaping (Bool) -> Void) {
+        DispatchQueue.global().async {
+            let shellProfile = self.getShellProfile()
+            do {
+                var fileContent = try String(contentsOfFile: shellProfile, encoding: .utf8)
+                
+                if fileContent.contains(self.shellmateLine) {
+                    print("Removing ShellMate line from \(shellProfile)...")
+                    fileContent = fileContent.replacingOccurrences(of: "\(self.shellmateLine)\n", with: "")
+                    try fileContent.write(toFile: shellProfile, atomically: true, encoding: .utf8)
+                    print("ShellMate line removed successfully.")
+                    DispatchQueue.main.async {
+                        completion(true)
+                    }
+                } else {
+                    print("ShellMate line not found in \(shellProfile).")
+                    DispatchQueue.main.async {
+                        completion(true)
+                    }
+                }
+            } catch {
+                print("Error reading or writing to \(shellProfile): \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion(false)
+                }
             }
-        } catch {
-            print("Error reading or writing to \(shellProfile): \(error.localizedDescription)")
-            throw error // Propagate the error
         }
     }
 }
+
 
 class CompanionModeManager: ObservableObject {
     static let shared = CompanionModeManager()
@@ -90,7 +104,6 @@ class CompanionModeManager: ObservableObject {
         }
     }
 
-
     let appName: String
     private let shellMateSetup: SetupLaunchShellMateAtTerminalStartup
 
@@ -99,36 +112,33 @@ class CompanionModeManager: ObservableObject {
         self.shellMateSetup = SetupLaunchShellMateAtTerminalStartup(shellmateLine: "open -a \(self.appName)")
         
         if UserDefaults.standard.object(forKey: "isCompanionModeEnabled") == nil {
-            // Set the default value if it doesn't exist
-            self.isCompanionModeEnabled = false
+            // First time the app is launched, set to true by default and install
+            DispatchQueue.main.async {
+                self.isCompanionModeEnabled = true
+            }
         } else {
             // Initialize the isCompanionModeEnabled from UserDefaults
             self.isCompanionModeEnabled = UserDefaults.standard.bool(forKey: "isCompanionModeEnabled")
         }
     }
 
-
     private func installShellMateAtTerminalStartup() {
-        DispatchQueue.global().async {
-            do {
-                try self.shellMateSetup.install()
-            } catch {
+        shellMateSetup.install { success in
+            if !success {
                 DispatchQueue.main.async {
                     self.isCompanionModeEnabled = false // Revert to the previous state
-                    print("Failed to install \(self.appName): \(error.localizedDescription)")
+                    print("Failed to install \(self.appName).")
                 }
             }
         }
     }
 
     private func uninstallShellMateAtTerminalStartup() {
-        DispatchQueue.global().async {
-            do {
-                try self.shellMateSetup.uninstall()
-            } catch {
+        shellMateSetup.uninstall { success in
+            if !success {
                 DispatchQueue.main.async {
                     self.isCompanionModeEnabled = true // Revert to the previous state
-                    print("Failed to uninstall \(self.appName): \(error.localizedDescription)")
+                    print("Failed to uninstall \(self.appName).")
                 }
             }
         }
