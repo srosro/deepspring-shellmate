@@ -37,7 +37,7 @@ struct GeneralView: View {
         VStack(alignment: .leading, spacing: 20) {
             Spacer().frame(height: 10)
             StartupView()
-            TerminalLaunchView(appViewModel: appViewModel)
+            TerminalLaunchView()
             WindowPositionView(generalViewModel: generalViewModel)
             ApiKeyView(appViewModel: appViewModel, licenseViewModel: licenseViewModel)
             Spacer()
@@ -52,7 +52,7 @@ struct StartupView: View {
             Text("Startup")
                 .frame(width: 150, alignment: .trailing)
             LaunchAtLogin.Toggle {
-                Text("Open ShellMate at login")
+                Text("Launch ShellMate at login")
                     .font(.body)
             }
         }
@@ -60,79 +60,24 @@ struct StartupView: View {
 }
 
 struct TerminalLaunchView: View {
-    @ObservedObject var appViewModel: AppViewModel
+    @ObservedObject private var companionModeManager = CompanionModeManager.shared
     @State private var isProcessing = false
-
-    // Dynamically retrieve the app name
-    private let appName: String
-    private let shellMateSetup: SetupLaunchShellMateAtTerminalStartup
-
-    init(appViewModel: AppViewModel) {
-        self.appViewModel = appViewModel
-        self.appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "ShellMate"
-        self.shellMateSetup = SetupLaunchShellMateAtTerminalStartup(shellmateLine: "open -a \(self.appName)")
-    }
 
     var body: some View {
         HStack {
-            Text("Terminal Integration")
+            Text("Companion-Mode")
                 .frame(width: 150, alignment: .trailing)
-            Toggle(isOn: $appViewModel.isCompanionModeEnabled) {
-                Text("Run \(appName) with terminal launch")
+            Toggle(isOn: $companionModeManager.isCompanionModeEnabled) {
+                Text("Auto-open \(companionModeManager.appName) when you open terminal")
                     .font(.body)
             }
             .toggleStyle(CheckboxToggleStyle())
             .frame(maxWidth: .infinity, alignment: .leading)
             .disabled(isProcessing)  // Disable the toggle while processing
-            .onChange(of: appViewModel.isCompanionModeEnabled) { oldValue, newValue in
-                if newValue {
-                    installShellMateAtTerminalStartup()
-                    MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalEnabled")
-                } else {
-                    uninstallShellMateAtTerminalStartup()
-                    MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalDisabled")
-                }
-            }
-        }
-    }
-
-    // Functions for installing/uninstalling ShellMate at terminal launch
-    private func installShellMateAtTerminalStartup() {
-        isProcessing = true
-        DispatchQueue.global().async {
-            do {
-                try self.shellMateSetup.install()
-                DispatchQueue.main.async {
-                    self.isProcessing = false
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.isProcessing = false
-                    self.appViewModel.isCompanionModeEnabled = false // Revert to the previous state
-                    print("Failed to install \(self.appName): \(error.localizedDescription)")
-                }
-            }
-        }
-    }
-
-    private func uninstallShellMateAtTerminalStartup() {
-        isProcessing = true
-        DispatchQueue.global().async {
-            do {
-                try self.shellMateSetup.uninstall()
-                DispatchQueue.main.async {
-                    self.isProcessing = false
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.isProcessing = false
-                    self.appViewModel.isCompanionModeEnabled = true // Revert to the previous state
-                    print("Failed to uninstall \(self.appName): \(error.localizedDescription)")
-                }
-            }
         }
     }
 }
+
 
 struct WindowPositionView: View {
     @ObservedObject var generalViewModel: GeneralViewModel
