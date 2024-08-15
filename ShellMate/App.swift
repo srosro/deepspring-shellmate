@@ -31,6 +31,7 @@ struct ShellMateApp: App {
                     showPermissionsView = false
                     UserDefaults.standard.set(false, forKey: "showPermissionsView")
                 })
+                .frame(minWidth: 350)
                 .onAppear {
                     NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { _ in
                         showPermissionsView = UserDefaults.standard.bool(forKey: "showPermissionsView")
@@ -38,6 +39,7 @@ struct ShellMateApp: App {
                 }
             } else {
                 ContentView(viewModel: viewModel)
+                .frame(minWidth: 350)
                 .onAppear {
                     NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { _ in
                         showPermissionsView = UserDefaults.standard.bool(forKey: "showPermissionsView")
