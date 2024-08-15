@@ -40,7 +40,7 @@ class AppViewModel: ObservableObject {
     
 
     // Limit for free tier suggestions
-    @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 5
+    @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 150
 
 
     @Published var isCompanionModeEnabled: Bool {
@@ -372,7 +372,7 @@ class AppViewModel: ObservableObject {
     
     @objc private func handleUserAcceptedFreeCredits() {
         // Increase the limit for free tier suggestions by 2000
-        GPTSuggestionsFreeTierLimit += 15
+        GPTSuggestionsFreeTierLimit += 2000
 
         // Check if the free tier count has reached the limit again
         updateHasGPTSuggestionsFreeTierCountReachedLimit()
