@@ -209,6 +209,7 @@ struct ContentView: View {
 struct SuggestionsView: View {
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject private var stateManager = OnboardingStateManager.shared
+    @State private var isRotating = false
 
     var body: some View {
         OnboardingView()
@@ -244,24 +245,48 @@ struct SuggestionsView: View {
                 TroubleshootShellMateView()
                     .padding(10)
             }
-
+            
             Divider().padding(.top, 5)
-
-            HStack {
-                Text(viewModel.currentStateText)
-                    .font(.footnote)
-                    .foregroundColor(viewModel.currentStateText == "Detecting changes..." ? Color.Text.green : Color.Text.gray)
-                    .padding(.leading)
-                Spacer()
-                if let currentTerminalID = viewModel.currentTerminalID, viewModel.isGeneratingSuggestion[currentTerminalID] == true {
-                    Text("Generating suggestion...")
+            
+            ZStack(alignment: .center) {
+                HStack {
+                    Text(viewModel.currentStateText)
                         .font(.footnote)
-                        .foregroundColor(Color.Text.green)
-                        .padding(.trailing)
+                        .foregroundColor(viewModel.currentStateText == "Detecting changes..." ? Color.Text.green : Color.Text.gray)
+                        .padding(.leading)
+                    Spacer()
+                    if let currentTerminalID = viewModel.currentTerminalID, viewModel.isGeneratingSuggestion[currentTerminalID] == true {
+                        Text("Generating suggestion...")
+                            .font(.footnote)
+                            .foregroundColor(Color.Text.green)
+                            .padding(.trailing)
+                    }
+                }
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .center)
+                
+                if let currentTerminalID = viewModel.currentTerminalID, viewModel.isGeneratingSuggestion[currentTerminalID] == true {
+                    Image("samAltmansFace")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 29)
+                        .rotationEffect(.degrees(isRotating ? 360 : 0))
+                        .onAppear {
+                            withAnimation(
+                                Animation.linear(duration: 0.5)
+                                    .delay(0.8)
+                                    .repeatForever(autoreverses: false)
+                            ) {
+                                isRotating = true
+                            }
+                        }
+                        .onDisappear {
+                            isRotating = false // Stop the rotation when the view disappears
+                        }
+                        .padding(.vertical, 0)
+                        .offset(y: -1)
                 }
             }
-            .padding(.vertical, stateManager.showOnboarding ? 5 : 10)
-            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 
