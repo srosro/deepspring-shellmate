@@ -17,13 +17,18 @@ class OnboardingStateManager: ObservableObject {
         didSet {
             if oldValue != currentStep {
                 // currentStep has changed
+                MixpanelHelper.shared.trackEvent(name: "onboardingStep\(currentStep)FlowShown")
             }
         }
     }
+    
     @Published var showOnboarding: Bool {
         didSet {
             if oldValue != showOnboarding {
                 UserDefaults.standard.set(showOnboarding, forKey: "showOnboarding")
+                if !showOnboarding {
+                    MixpanelHelper.shared.trackEvent(name: "onboardingModalClosed")
+                }
             }
         }
     }
@@ -40,30 +45,18 @@ class OnboardingStateManager: ObservableObject {
 
     func setStep(to newStep: Int) {
         if newStep >= 1 && newStep <= 4 {
+            if currentStep != newStep {
+                MixpanelHelper.shared.trackEvent(name: "onboardingStep\(currentStep)FlowCompleted")
+            }
             currentStep = newStep
         }
-    }
-
-    func goToNextStep() {
-        if currentStep < 4 {
-            NotificationCenter.default.post(name: .onboardingStepChanged, object: nil, userInfo: ["newStep": currentStep + 1])
-        }
-    }
-
-    func goToPreviousStep() {
-        if currentStep > 1 {
-            NotificationCenter.default.post(name: .onboardingStepChanged, object: nil, userInfo: ["newStep": currentStep - 1])
-        }
-    }
-
-    func closeOnboarding() {
-        showOnboarding = false
     }
 
     @objc private func handleOnboardingStepChange(_ notification: Notification) {
         if let newStep = notification.userInfo?["newStep"] as? Int {
             if currentStep != newStep {
                 currentStep = newStep
+                MixpanelHelper.shared.trackEvent(name: "onboardingStep\(newStep)FlowShown")
             }
         }
     }
@@ -72,6 +65,7 @@ class OnboardingStateManager: ObservableObject {
         NotificationCenter.default.removeObserver(self, name: .onboardingStepChanged, object: nil)
     }
 }
+
 
 func getOnboardingSmCommand() -> String {
     // Function to return the onboarding command text

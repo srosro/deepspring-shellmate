@@ -168,6 +168,7 @@ class LicenseViewModel: ObservableObject {
                 if !key.isEmpty && key != getHardcodedOpenAIAPIKey() {
                     self.userValidatedOwnOpenAIAPIKey(isValid: true)
                     self.updateValidationState(.valid)
+                    MixpanelHelper.shared.trackEvent(name: "userValidatedOwnOpenAIAPIKey")
                 }
                 else {
                     self.updateValidationState(.unverified) // It is valid, but it was not validated by the user

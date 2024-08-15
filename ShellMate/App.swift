@@ -61,6 +61,9 @@ struct ShellMateApp: App {
 
         Settings {
             SettingsView(appViewModel: viewModel, licenseViewModel: licenseViewModel, generalViewModel: generalViewModel)
+                .onAppear {
+                    MixpanelHelper.shared.trackEvent(name: "settingsViewOpened")
+                }
         }
     }
 }
