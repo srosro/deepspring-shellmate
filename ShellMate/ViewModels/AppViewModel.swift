@@ -260,55 +260,7 @@ class AppViewModel: ObservableObject {
         }
         self.currentTerminalID = String(windowID)
         initializeSampleCommandForOnboardingIfNeeded(for: String(windowID))
-        
-        resizeTerminalWindowIfNeeded()
     }
-
-    private func resizeTerminalWindowIfNeeded() {
-        if OnboardingStateManager.shared.showOnboarding {
-            DispatchQueue.main.async { // Ensure everything inside runs on the main thread
-                if let runningTerminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) {
-                    runningTerminalApp.activate()
-
-                    let terminalElement = AXUIElementCreateApplication(runningTerminalApp.processIdentifier)
-                    var focusedWindow: CFTypeRef?
-                    let focusedWindowResult = AXUIElementCopyAttributeValue(terminalElement, kAXFocusedWindowAttribute as CFString, &focusedWindow)
-
-                    guard focusedWindowResult == .success, let terminalWindow = focusedWindow else {
-                        print("DEBUG: Failed to determine focused window for the Terminal application.")
-                        return
-                    }
-
-                    var size: CFTypeRef?
-                    let result = AXUIElementCopyAttributeValue(terminalWindow as! AXUIElement, kAXSizeAttribute as CFString, &size)
-                    var currentSize = CGSize.zero
-                    if result == .success {
-                        AXValueGetValue(size as! AXValue, .cgSize, &currentSize)
-                    }
-
-                    if currentSize.height < 500 {
-                        var newSize = CGSize(width: currentSize.width, height: 500) // Declare newSize as var
-                        if let sizeValue = AXValueCreate(.cgSize, &newSize) {
-                            let setResult = AXUIElementSetAttributeValue(terminalWindow as! AXUIElement, kAXSizeAttribute as CFString, sizeValue)
-                            if setResult == .success {
-                                print("DEBUG: Resized the terminal window to height 500.")
-
-                                // Wait 1 second before posting the notification
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    NotificationCenter.default.post(name: .manualUpdateAppWindowPositionAndSize, object: nil)
-                                }
-                            } else {
-                                print("DEBUG: Failed to resize the terminal window. Error: \(setResult.rawValue)")
-                            }
-                        }
-                    }
-                } else {
-                    print("DEBUG: Could not find Terminal app.")
-                }
-            }
-        }
-    }
-
     
     @objc private func handleRequestTerminalContentAnalysis(_ notification: Notification) {
         guard let userInfo = notification.userInfo,

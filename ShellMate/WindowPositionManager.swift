@@ -22,7 +22,6 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleUpdatedAppPositionAfterWindowAttachmentChange(_:)), name: .updatedAppPositionAfterWindowAttachmentChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleReinitializeTerminalWindowID), name: .reinitializeTerminalWindowID, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(updateAppWindowPositionAndSize), name: .manualUpdateAppWindowPositionAndSize, object: nil)
     }
     
     func initializeFocusedWindowID() {

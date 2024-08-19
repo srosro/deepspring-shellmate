@@ -68,7 +68,4 @@ extension Notification.Name {
     
     /// Notification to indicate that the user has accepted to receive free credits.
     static let userAcceptedFreeCredits = Notification.Name("userAcceptedFreeCredits")
-    
-    /// Notification to manually trigger the update of the ShellMate window's position and size based on the Terminal window's current state.
-    static let manualUpdateAppWindowPositionAndSize = Notification.Name("manualUpdateAppWindowPositionAndSize")
 }
