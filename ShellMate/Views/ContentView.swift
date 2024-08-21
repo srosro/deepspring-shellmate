@@ -206,24 +206,6 @@ struct ContentView: View {
     }
 }
 
-func showFirstOnboardingTip(viewModel: AppViewModel) -> OnboardingView? {
-    // Check if onboarding should be shown
-    if !OnboardingStateManager.shared.showOnboarding {
-        return nil
-    }
-    
-    let index = -1
-    let batchIndex = -1
-    
-    if let step = viewModel.indexesToDisplayProTipsWithSuggestions.first(where: {
-        $0.value.batchIndex == batchIndex &&
-        $0.value.suggestionIndex == index
-    })?.key {
-        return OnboardingView(currentStep: step)
-    }
-    return nil
-}
-
 
 struct SuggestionsView: View {
     @ObservedObject var viewModel: AppViewModel
@@ -235,17 +217,24 @@ struct SuggestionsView: View {
             ScrollViewReader { scrollView in
                 ScrollView {
                     VStack(alignment: .leading) {
-                        showFirstOnboardingTip(viewModel: viewModel)
-                        
                         if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.results[currentTerminalID] {
 
                             ForEach(windowData.suggestionsHistory.indices, id: \.self) { batchIndex in
-                                SuggestionBatchView(
-                                    batch: windowData.suggestionsHistory[batchIndex].1,
-                                    batchIndex: batchIndex,
-                                    isLastBatch: batchIndex == windowData.suggestionsHistory.count - 1,
-                                    viewModel: viewModel
-                                )
+                                let batch = windowData.suggestionsHistory[batchIndex].1
+                                if let proTipIdx = batch.first?["proTipIdx"], batch.first?["isProTipBanner"] == "true" {
+                                    if let step = Int(proTipIdx) {
+                                        OnboardingView(currentStep: step)
+                                            .id("protip-\(batchIndex)")
+                                    }
+                                } else {
+                                    SuggestionBatchView(
+                                        batch: batch,
+                                        batchIndex: batchIndex,
+                                        isLastBatch: batchIndex == windowData.suggestionsHistory.count - 1,
+                                        viewModel: viewModel
+                                    )
+                                    .id("suggestion-\(batchIndex)")
+                                }
                             }
                         }
                     }
@@ -255,7 +244,13 @@ struct SuggestionsView: View {
                 .padding(.vertical, stateManager.showOnboarding ? 1 : 15)
                 .onChange(of: viewModel.updateCounter) {
                     if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.results[currentTerminalID], let lastBatch = windowData.suggestionsHistory.last?.1, let lastSuggestionIndex = lastBatch.indices.last {
-                        scrollToBottom(scrollView: scrollView, key: "suggestion-\(windowData.suggestionsHistory.count - 1)-\(lastSuggestionIndex)")
+                        
+                        // Check if the last batch is a pro tip and scroll to it
+                        if lastBatch.first?["isProTipBanner"] == "true" {
+                            scrollView.scrollTo("protip-\(windowData.suggestionsHistory.count - 1)", anchor: .top)
+                        } else {
+                            scrollToBottom(scrollView: scrollView, key: "suggestion-\(windowData.suggestionsHistory.count - 1)-\(lastSuggestionIndex)")
+                        }
                     }
                 }
             }
@@ -349,27 +344,18 @@ struct SuggestionBatchView: View {
                     .foregroundColor(Color.Other.lightGray)
                     .cornerRadius(8)
             }
+        }
 
-            ForEach(batch.indices, id: \.self) { index in
-                let resultDict = batch[index]
-                let isLastSuggestionInBatch = index == batch.count - 1
-
-                SuggestionView(resultDict: resultDict, batchIndex: batchIndex, index: index)
-                    .padding(.bottom, isLastSuggestionInBatch ? 35 : 0)
-                    .id("suggestion-\(batchIndex)-\(index)")
-                
-                // Loop through the onboardingSteps dictionary to find the matching step
-                if let step = viewModel.indexesToDisplayProTipsWithSuggestions.first(where: {
-                    $0.value.batchIndex == batchIndex &&
-                    $0.value.suggestionIndex == index
-                })?.key {
-                    OnboardingView(currentStep: step)
-                }
-            }
+        ForEach(batch.indices, id: \.self) { index in
+            let resultDict = batch[index]
+            let isLastSuggestionInBatch = index == batch.count - 1
+            
+            SuggestionView(resultDict: resultDict, batchIndex: batchIndex, index: index)
+                .padding(.bottom, isLastSuggestionInBatch ? 35 : 0)
+                .id("suggestion-\(batchIndex)-\(index)")
         }
     }
 }
-
 
 struct SmButtonIdxView: View {
     var batchIndex: Int

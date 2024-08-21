@@ -20,7 +20,8 @@ class AppViewModel: ObservableObject {
     @Published var shouldTroubleShootAPIKey: Bool = false
     @Published var shouldShowNetworkIssueWarning: Bool = false
     @Published var shouldShowSamAltmansFace: Bool = true
-    
+    @Published var pendingProTips: [String: (proTipIdx: Int, proTipEntry: [String: String], terminalStateID: UUID, currentTime: Date)] = [:]
+
     private var consecutiveFailedInternetChecks: Int = 0
     private var internetConnectionGracePeriodTask: Task<Void, Never>?
     
@@ -37,10 +38,6 @@ class AppViewModel: ObservableObject {
     private var terminalIDCheckTimer: Timer?
     private var apiKeyValidationDebounceTask: DispatchWorkItem?
     private let isCompanionModeEnabledKey = "isCompanionModeEnabled"
-    
-    // This dictionary keeps track of where to show pro-tips during onboarding.
-    // As we can't directly add this data inside the 'results' variable, we created this separate variable.
-    @Published var indexesToDisplayProTipsWithSuggestions: [Int: (batchIndex: Int, suggestionIndex: Int)] = [:]
 
     // Limit for free tier suggestions
     @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 150
@@ -340,14 +337,18 @@ class AppViewModel: ObservableObject {
             return
         }
         
-        // Run the function to get the current batch and suggestion index
-        if let (terminalID, batchIndex, suggestionIndex) = getCurrentBatchAndSuggestionIndex() {
-            // Store the result in the indexesToDisplayProTipsWithSuggestions dictionary
-            indexesToDisplayProTipsWithSuggestions[newStep] = (batchIndex: batchIndex, suggestionIndex: suggestionIndex)
-            
-            print("DEBUG: Onboarding step \(newStep) will show pro-tip at batch \(batchIndex), suggestion \(suggestionIndex)")
+        // Get the current terminal ID
+        guard let terminalID = currentTerminalID else {
+            return
+        }
+        
+        // Ensure the call to appendProTip happens on the main actor
+        Task { @MainActor in
+            appendProTip(identifier: terminalID, proTipIdx: newStep)
+            print("DEBUG: Onboarding step \(newStep) will trigger appendProTip for terminal ID \(terminalID)")
         }
     }
+
     
     private func determineAPIKeyValidationState(from notification: Notification) {
         if let userInfo = notification.userInfo, let isValid = userInfo["isValid"] as? Bool {
@@ -562,6 +563,8 @@ class AppViewModel: ObservableObject {
             }
         }
         
+        print("\nDANBUG: Current results: \n\(self.results)")
+        
         Task { @MainActor in
             NotificationCenter.default.post(name: .suggestionGenerationStatusChanged, object: nil, userInfo: ["identifier": identifier, "isGeneratingSuggestion": false])
             
@@ -600,10 +603,25 @@ class AppViewModel: ObservableObject {
             return
         }
         
-        let newEntry = ["gptResponse": response, "suggestedCommand": command, "commandExplanation": explanation]
-        let currentTime = Date()
-        
         DispatchQueue.main.async {
+            // Check if there is a pending pro-tip for this identifier (only for proTipIdx 2)
+            if let pendingProTip = self.pendingProTips[identifier], pendingProTip.proTipIdx == 2 {
+                if var windowInfo = self.results[identifier] {
+                    // Append the pending pro-tip first
+                    windowInfo.suggestionsHistory.append((pendingProTip.terminalStateID, [pendingProTip.proTipEntry]))
+                    windowInfo.suggestionsCount += 1
+                    windowInfo.updatedAt = pendingProTip.currentTime
+                    self.results[identifier] = windowInfo
+                    print("DANBUG: Appended pending pro-tip \(pendingProTip.proTipIdx) for identifier \(identifier)")
+                    self.updateCounter += 1
+                }
+                // Remove the pending pro-tip after appending it
+                self.pendingProTips.removeValue(forKey: identifier)
+            }
+            
+            let newEntry = ["gptResponse": response, "suggestedCommand": command, "commandExplanation": explanation]
+            let currentTime = Date()
+    
             if var windowInfo = self.results[identifier] {
                 var batchFound = false
                 for (index, batch) in windowInfo.suggestionsHistory.enumerated() where batch.0 == terminalStateID {
@@ -629,6 +647,33 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    @MainActor
+    func appendProTip(identifier: String, proTipIdx: Int) {
+        let proTipEntry = ["isProTipBanner": "true", "proTipIdx": String(proTipIdx)]
+        let currentTime = Date()
+        let terminalStateID = UUID() // Generate a new UUID
+
+        if proTipIdx == 2 {
+            // Store the pro-tip as pending
+            pendingProTips[identifier] = (proTipIdx: proTipIdx, proTipEntry: proTipEntry, terminalStateID: terminalStateID, currentTime: currentTime)
+            print("DANBUG: Stored pending pro-tip \(proTipIdx) for identifier \(identifier)")
+        } else {
+            // Execute the normal behavior for other proTipIdx values
+            DispatchQueue.main.async {
+                if var windowInfo = self.results[identifier] {
+                    windowInfo.suggestionsHistory.append((terminalStateID, [proTipEntry]))
+                    windowInfo.suggestionsCount += 1
+                    windowInfo.updatedAt = currentTime
+                    self.results[identifier] = windowInfo
+                } else {
+                    self.results[identifier] = (suggestionsCount: 1, suggestionsHistory: [(terminalStateID, [proTipEntry])], updatedAt: currentTime)
+                }
+                self.updateCounter += 1
+                print("DANBUG: Updated results after appendProTip for proTipIdx \(proTipIdx)")
+            }
+        }
+    }
+
     private func getSharedTemporaryDirectory() -> URL {
         let sharedTempDirectory = URL(fileURLWithPath: "/tmp/shellMateShared")
         
@@ -653,6 +698,8 @@ class AppViewModel: ObservableObject {
             let filePath = getShellMateCommandSuggestionsFilePath()
             
             var jsonOutput: [String: String] = [:]
+            
+            // Use the normal for loop index
             for (batchIndex, batch) in terminalResults.suggestionsHistory.enumerated() {
                 for (suggestionIndex, gptResponse) in batch.1.enumerated() {
                     if let suggestedCommand = gptResponse["suggestedCommand"] {
@@ -677,32 +724,13 @@ class AppViewModel: ObservableObject {
             return
         }
         
-        let showOnboarding = UserDefaults.standard.object(forKey: "showOnboarding") as? Bool ?? true
-        
-        guard showOnboarding else {
+        guard !OnboardingStateManager.shared.isStepCompleted(step: 1) else {
             return
         }
         
         if self.results[terminalID]?.suggestionsHistory.isEmpty ?? true {
-            self.indexesToDisplayProTipsWithSuggestions[1] = (batchIndex: -1, suggestionIndex: -1)
+            appendProTip(identifier: terminalID, proTipIdx: 1)
         }
-    }
-    
-    func getCurrentBatchAndSuggestionIndex() -> (terminalID: String, batchIndex: Int, suggestionIndex: Int)? {
-        guard let terminalID = currentTerminalID,
-              let terminalResults = results[terminalID] else {
-            return nil
-        }
-        
-        let lastBatchIndex = terminalResults.suggestionsHistory.count - 1
-        
-        guard lastBatchIndex >= 0 else {
-            return nil
-        }
-        
-        let lastSuggestionIndex = terminalResults.suggestionsHistory[lastBatchIndex].1.count - 1
-        
-        return (terminalID: terminalID, batchIndex: lastBatchIndex, suggestionIndex: lastSuggestionIndex)
     }
 }
 

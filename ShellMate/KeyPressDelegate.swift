@@ -133,10 +133,10 @@ class KeyPressDelegate {
         handleSMCommand(for: activeLine)
     }
 
-    // Function to handle the onboarding step 3
     private func handleOnboardingStep3() {
-        if OnboardingStateManager.shared.showOnboarding && OnboardingStateManager.shared.currentStep == 3 {
-            OnboardingStateManager.shared.setStep(to: 4)
+        print("DANBUG: Marking step 3 as completed.")
+        if !OnboardingStateManager.shared.isStepCompleted(step: 3) && OnboardingStateManager.shared.isStepCompleted(step: 2) {
+            OnboardingStateManager.shared.markAsCompleted(step: 3)
         }
     }
 
@@ -178,20 +178,19 @@ class KeyPressDelegate {
         }
     }
 
-    // Function to handle onboarding step 2
     private func handleOnboardingStep2() {
-        if OnboardingStateManager.shared.showOnboarding && OnboardingStateManager.shared.currentStep == 2 {
-            OnboardingStateManager.shared.setStep(to: 3)
+        print("DANBUG: Marking step 2 as completed.")
+        if !OnboardingStateManager.shared.isStepCompleted(step: 2) {
+            OnboardingStateManager.shared.markAsCompleted(step: 2)
         }
     }
 
-    // Function to check and handle onboarding step 1
     private func checkAndHandleOnboardingStep1(line: String) {
-        if OnboardingStateManager.shared.showOnboarding
-            && OnboardingStateManager.shared.currentStep == 1
+        print("DANBUG: Run step 1 as completed.")
+        if !OnboardingStateManager.shared.isStepCompleted(step: 1)
             && isValidSMQuestion(line: line)
             && doesCurrentLineContainOnboardingCommand(line: line) {
-            OnboardingStateManager.shared.setStep(to: 2)
+            OnboardingStateManager.shared.markAsCompleted(step: 1)
         }
     }
     

@@ -15,10 +15,12 @@ struct OnboardingView: View {
         VStack {
             if currentStep == 1 {
                 OnboardingStep1View()
+                    .padding(.top, 10)
             } else if currentStep == 2 {
                 OnboardingStep2View()
             } else if currentStep == 3 {
                 OnboardingStep3View()
+                    .padding(.bottom, 10)
             }
         }
     }
