@@ -35,8 +35,6 @@ class OnboardingStateManager: ObservableObject {
 
     private init() {
         self.showOnboarding = UserDefaults.standard.object(forKey: "showOnboarding") as? Bool ?? true
-        // Initialization
-        NotificationCenter.default.addObserver(self, selector: #selector(handleOnboardingStepChange(_:)), name: .onboardingStepChanged, object: nil)
     }
 
     func getCurrentStep() -> Int {
@@ -47,27 +45,14 @@ class OnboardingStateManager: ObservableObject {
         if newStep >= 1 && newStep <= 4 {
             if currentStep != newStep {
                 MixpanelHelper.shared.trackEvent(name: "onboardingStep\(currentStep)FlowCompleted")
+                NotificationCenter.default.post(name: .forwardOnboardingStepToAppViewModel, object: nil, userInfo: ["newStep": newStep])
             }
             currentStep = newStep
         }
     }
-
-    @objc private func handleOnboardingStepChange(_ notification: Notification) {
-        if let newStep = notification.userInfo?["newStep"] as? Int {
-            if currentStep != newStep {
-                currentStep = newStep
-                MixpanelHelper.shared.trackEvent(name: "onboardingStep\(newStep)FlowShown")
-            }
-        }
-    }
-
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: .onboardingStepChanged, object: nil)
-    }
 }
-
 
 func getOnboardingSmCommand() -> String {
     // Function to return the onboarding command text
-    return "how can I see the calendar in terminal?"
+    return "how can I display a calendar?"
 }

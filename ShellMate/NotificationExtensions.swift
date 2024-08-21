@@ -58,10 +58,10 @@ extension Notification.Name {
     /// Notification to start the app initialization process (continue button from permissionsView -> change to SuggestionsView
     static let startAppInitialization = Notification.Name("startAppInitialization")
     
-    /// Notification to indicate the onboarding step has changed.
+    /// Notification to indicate the onboarding step should be passed to the AppViewModel.
     /// userInfo dictionary should contain:
-    /// - "newStep": Int (the new step to set in the onboarding process)
-    static let onboardingStepChanged = Notification.Name("onboardingStepChanged")
+    /// - "newStep": Int (the new step to set in the AppViewModel)
+    static let forwardOnboardingStepToAppViewModel = Notification.Name("forwardOnboardingStepToAppViewModel")
     
     /// Notification to indicate that the terminal window ID should be reinitialized.
     static let reinitializeTerminalWindowID = Notification.Name("reinitializeTerminalWindowID")

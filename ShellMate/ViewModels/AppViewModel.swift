@@ -20,17 +20,17 @@ class AppViewModel: ObservableObject {
     @Published var shouldTroubleShootAPIKey: Bool = false
     @Published var shouldShowNetworkIssueWarning: Bool = false
     @Published var shouldShowSamAltmansFace: Bool = true
-
+    
     private var consecutiveFailedInternetChecks: Int = 0
     private var internetConnectionGracePeriodTask: Task<Void, Never>?
-
+    
     private var threadIdDict: [String: String] = [:]
     private var currentTerminalStateID: UUID?
     private let additionalSuggestionDelaySeconds: TimeInterval = 3.0
     private let maxSuggestionsPerEvent: Int = 4
     private var shouldGenerateFollowUpSuggestionsFlag: Bool = true
     private var gptAssistantManager: GPTAssistantManager = GPTAssistantManager.shared
-
+    
     // UserDefaults keys
     private let GPTSuggestionsFreeTierCountKey = "GPTSuggestionsFreeTierCount"
     private let hasGPTSuggestionsFreeTierCountReachedLimitKey = "hasGPTSuggestionsFreeTierCountReachedLimit"
@@ -38,17 +38,20 @@ class AppViewModel: ObservableObject {
     private var apiKeyValidationDebounceTask: DispatchWorkItem?
     private let isCompanionModeEnabledKey = "isCompanionModeEnabled"
     
+    // This dictionary keeps track of where to show pro-tips during onboarding.
+    // As we can't directly add this data inside the 'results' variable, we created this separate variable.
+    @Published var indexesToDisplayProTipsWithSuggestions: [Int: (batchIndex: Int, suggestionIndex: Int)] = [:]
 
     // Limit for free tier suggestions
     @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 150
-
-
+    
+    
     @Published var isCompanionModeEnabled: Bool {
         didSet {
             UserDefaults.standard.set(isCompanionModeEnabled, forKey: isCompanionModeEnabledKey)
         }
     }
-
+    
     @Published var GPTSuggestionsFreeTierCount: Int {
         didSet {
             UserDefaults.standard.set(GPTSuggestionsFreeTierCount, forKey: GPTSuggestionsFreeTierCountKey)
@@ -83,14 +86,14 @@ class AppViewModel: ObservableObject {
     private func startInternetConnectionGracePeriod() {
         // Cancel any existing grace period task
         internetConnectionGracePeriodTask?.cancel()
-
+        
         internetConnectionGracePeriodTask = Task.detached { [weak self] in
             guard let self = self else { return }
-
+            
             do {
                 // Wait for 10 seconds grace period
                 try await Task.sleep(nanoseconds: 10 * 1_000_000_000)
-
+                
                 // Check internet connection status after the grace period
                 let isConnected = await checkInternetConnection()
                 if !isConnected {
@@ -107,7 +110,7 @@ class AppViewModel: ObservableObject {
             }
         }
     }
-
+    
     private func resetInternetConnectionCheckState() {
         consecutiveFailedInternetChecks = 0
         shouldShowNetworkIssueWarning = false
@@ -122,7 +125,7 @@ class AppViewModel: ObservableObject {
         updateHasGPTSuggestionsFreeTierCountReachedLimit()
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleUserValidatedOwnOpenAIAPIKey), name: .userValidatedOwnOpenAIAPIKey, object: nil)
-
+        
         Task {
             await initializeAssistant()
         }
@@ -134,16 +137,16 @@ class AppViewModel: ObservableObject {
         let adjustedLikelihood = min(100, (1.0 / (1.5 + n / 10)) * 100)
         let randomValue = Double.random(in: 0...100)
         shouldShowSamAltmansFace = randomValue <= adjustedLikelihood
-
+        
         // DEBUG statement
         print("DEBUG: GPTSuggestionsFreeTierCount: \(GPTSuggestionsFreeTierCount), Adjusted Likelihood: \(adjustedLikelihood), Random Value: \(randomValue), Should Show Sam Altman's Face: \(shouldShowSamAltmansFace)")
     }
-
+    
     
     func startInternetCheckLoop() {
         DispatchQueue.global().async {
             self.consecutiveFailedInternetChecks = 0  // Reset the counter at the start of the loop
-
+            
             while !self.hasInternetConnection {
                 Task {
                     let isConnected = await checkInternetConnection()
@@ -156,7 +159,7 @@ class AppViewModel: ObservableObject {
                         DispatchQueue.main.async {
                             self.consecutiveFailedInternetChecks += 1
                             print("Internet check failed. Counter: \(self.consecutiveFailedInternetChecks)")
-
+                            
                             if self.consecutiveFailedInternetChecks == 3 {
                                 print("Three consecutive failed internet checks. Starting grace period.")
                                 self.startInternetConnectionGracePeriod()
@@ -169,7 +172,7 @@ class AppViewModel: ObservableObject {
             }
         }
     }
-
+    
     
     func initializeAssistant() async {
         print("Starting assistant setup...")
@@ -206,7 +209,7 @@ class AppViewModel: ObservableObject {
             self?.ensureCurrentTerminalIDHasValue()
         }
     }
-
+    
     func stopCheckingTerminalID() {
         terminalIDCheckTimer?.invalidate()
         terminalIDCheckTimer = nil
@@ -227,13 +230,14 @@ class AppViewModel: ObservableObject {
             print("Notification observers are already set up.")
             return
         }
-
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalChangeStarted), name: .terminalContentChangeStarted, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalChangeEnded), name: .terminalContentChangeEnded, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleTerminalWindowIdDidChange(_:)), name: .terminalWindowIdDidChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleRequestTerminalContentAnalysis(_:)), name: .requestTerminalContentAnalysis, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleSuggestionGenerationStatusChanged(_:)), name: .suggestionGenerationStatusChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleUserAcceptedFreeCredits), name: .userAcceptedFreeCredits, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleOnboardingStepUpdate(_:)), name: .forwardOnboardingStepToAppViewModel, object: nil)
         areNotificationObserversSetup = true
         startCheckingTerminalID() // Necessary as sometimes the AppViewModel will only setup the observer for handleTerminalWindowIdDidChange after the first setup was run, so the currentTerminalID would be empty, causing errors
     }
@@ -251,7 +255,7 @@ class AppViewModel: ObservableObject {
         self.currentStateText = "No changes on Terminal"
         // Process trigger the generation of a suggestion.
     }
-
+    
     @MainActor
     @objc private func handleTerminalWindowIdDidChange(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
@@ -276,7 +280,7 @@ class AppViewModel: ObservableObject {
         } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
             return
         }
-
+        
         if !hasInternetConnection {
             print("No internet connection.")
             return
@@ -308,10 +312,9 @@ class AppViewModel: ObservableObject {
             
             // Step 1: Determine the new validation state
             self.determineAPIKeyValidationState(from: notification)
-
+            
             // Step 2: Process the assistant initialization for valid or acceptable free tier usage
-            if self.hasUserValidatedOwnOpenAIAPIKey == .valid ||
-               (self.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier && !self.hasGPTSuggestionsFreeTierCountReachedLimit) {
+            if self.hasUserValidatedOwnOpenAIAPIKey == .valid || (self.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier && !self.hasGPTSuggestionsFreeTierCountReachedLimit) {
                 self.processAssistantInitialization()
             } else {
                 print("DEBUG: User's API key is invalid or free tier limit has been reached")
@@ -325,14 +328,27 @@ class AppViewModel: ObservableObject {
     @objc private func handleUserAcceptedFreeCredits() {
         // Increase the limit for free tier suggestions by 2000
         GPTSuggestionsFreeTierLimit += 2000
-
+        
         // Check if the free tier count has reached the limit again
         updateHasGPTSuggestionsFreeTierCountReachedLimit()
         
         print("User accepted free credits. New limit: \(GPTSuggestionsFreeTierLimit)")
     }
-
-
+    
+    @objc private func handleOnboardingStepUpdate(_ notification: Notification) {
+        guard let newStep = notification.userInfo?["newStep"] as? Int else {
+            return
+        }
+        
+        // Run the function to get the current batch and suggestion index
+        if let (terminalID, batchIndex, suggestionIndex) = getCurrentBatchAndSuggestionIndex() {
+            // Store the result in the indexesToDisplayProTipsWithSuggestions dictionary
+            indexesToDisplayProTipsWithSuggestions[newStep] = (batchIndex: batchIndex, suggestionIndex: suggestionIndex)
+            
+            print("DEBUG: Onboarding step \(newStep) will show pro-tip at batch \(batchIndex), suggestion \(suggestionIndex)")
+        }
+    }
+    
     private func determineAPIKeyValidationState(from notification: Notification) {
         if let userInfo = notification.userInfo, let isValid = userInfo["isValid"] as? Bool {
             self.hasUserValidatedOwnOpenAIAPIKey = isValid ? .valid : .invalid
@@ -342,7 +358,7 @@ class AppViewModel: ObservableObject {
             print("DEBUG: hasUserValidatedOwnOpenAIAPIKey set to usingFreeTier due to nil validation state")
         }
     }
-
+    
     private func processAssistantInitialization() {
         Task {
             print("DEBUG: Starting assistant initialization")
@@ -356,9 +372,9 @@ class AppViewModel: ObservableObject {
             }
         }
     }
-
-
-
+    
+    
+    
     private func analyzeTerminalContent(text: String, windowID: CGWindowID, source: String, changeIdentifiedAt: Double) {
         guard let currentTerminalId = self.currentTerminalID else {
             print("DEBUG: Current terminal ID is nil.")
@@ -413,8 +429,7 @@ class AppViewModel: ObservableObject {
             } catch {
                 print("DEBUG: Error getting or creating thread ID: \(error.localizedDescription)")
                 
-                if error.localizedDescription.contains("The network connection was lost") ||
-                   error.localizedDescription.contains("The request timed out") {
+                if error.localizedDescription.contains("The network connection was lost") || error.localizedDescription.contains("The request timed out") {
                     DispatchQueue.main.async {
                         strongSelf.hasInternetConnection = false
                         strongSelf.isGeneratingSuggestion[currentTerminalId] = false
@@ -498,7 +513,7 @@ class AppViewModel: ObservableObject {
     @MainActor
     private func getOrCreateThreadId(for identifier: String) async throws -> String {
         print("DEBUG: getOrCreateThreadId called for identifier: \(identifier)")
-
+        
         if let threadId = threadIdDict[identifier] {
             print("DEBUG: Found existing thread ID for identifier \(identifier): \(threadId)")
             return threadId
@@ -515,7 +530,7 @@ class AppViewModel: ObservableObject {
             throw error
         }
     }
-
+    
     
     private func processGPTResponse(identifier: String, terminalStateID: UUID, threadId: String, messageContent: String, changeIdentifiedAt: Double, changedTerminalContentSentToGptAt: Double, source: String) async {
         Task { @MainActor in
@@ -533,8 +548,7 @@ class AppViewModel: ObservableObject {
         } catch {
             print("Error processing message in thread: \(error.localizedDescription)")
             
-            if error.localizedDescription.contains("The network connection was lost") ||
-               error.localizedDescription.contains("The request timed out") {
+            if error.localizedDescription.contains("The network connection was lost") || error.localizedDescription.contains("The request timed out") {
                 DispatchQueue.main.async {
                     self.hasInternetConnection = false
                     self.isGeneratingSuggestion[identifier] = false
@@ -547,7 +561,7 @@ class AppViewModel: ObservableObject {
                 }
             }
         }
-
+        
         Task { @MainActor in
             NotificationCenter.default.post(name: .suggestionGenerationStatusChanged, object: nil, userInfo: ["identifier": identifier, "isGeneratingSuggestion": false])
             
@@ -670,7 +684,25 @@ class AppViewModel: ObservableObject {
         }
         
         if self.results[terminalID]?.suggestionsHistory.isEmpty ?? true {
-            self.appendResult(identifier: terminalID, terminalStateID: UUID(), response: "Complete the task", command: "sm \"\(getOnboardingSmCommand())\"", explanation: "This is a sample command to show you how to use ShellMate.")
+            self.indexesToDisplayProTipsWithSuggestions[1] = (batchIndex: -1, suggestionIndex: -1)
         }
     }
+    
+    func getCurrentBatchAndSuggestionIndex() -> (terminalID: String, batchIndex: Int, suggestionIndex: Int)? {
+        guard let terminalID = currentTerminalID,
+              let terminalResults = results[terminalID] else {
+            return nil
+        }
+        
+        let lastBatchIndex = terminalResults.suggestionsHistory.count - 1
+        
+        guard lastBatchIndex >= 0 else {
+            return nil
+        }
+        
+        let lastSuggestionIndex = terminalResults.suggestionsHistory[lastBatchIndex].1.count - 1
+        
+        return (terminalID: terminalID, batchIndex: lastBatchIndex, suggestionIndex: lastSuggestionIndex)
+    }
 }
+

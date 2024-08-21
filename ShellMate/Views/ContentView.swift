@@ -206,21 +206,46 @@ struct ContentView: View {
     }
 }
 
+func showFirstOnboardingTip(viewModel: AppViewModel) -> OnboardingView? {
+    // Check if onboarding should be shown
+    if !OnboardingStateManager.shared.showOnboarding {
+        return nil
+    }
+    
+    let index = -1
+    let batchIndex = -1
+    
+    if let step = viewModel.indexesToDisplayProTipsWithSuggestions.first(where: {
+        $0.value.batchIndex == batchIndex &&
+        $0.value.suggestionIndex == index
+    })?.key {
+        return OnboardingView(currentStep: step)
+    }
+    return nil
+}
+
+
 struct SuggestionsView: View {
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject private var stateManager = OnboardingStateManager.shared
     @State private var isRotating = false
 
     var body: some View {
-        OnboardingView()
-        
         VStack(alignment: .leading, spacing: 0) {
             ScrollViewReader { scrollView in
                 ScrollView {
                     VStack(alignment: .leading) {
+                        showFirstOnboardingTip(viewModel: viewModel)
+                        
                         if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.results[currentTerminalID] {
+
                             ForEach(windowData.suggestionsHistory.indices, id: \.self) { batchIndex in
-                                SuggestionBatchView(batch: windowData.suggestionsHistory[batchIndex].1, batchIndex: batchIndex, isLastBatch: batchIndex == windowData.suggestionsHistory.count - 1)
+                                SuggestionBatchView(
+                                    batch: windowData.suggestionsHistory[batchIndex].1,
+                                    batchIndex: batchIndex,
+                                    isLastBatch: batchIndex == windowData.suggestionsHistory.count - 1,
+                                    viewModel: viewModel
+                                )
                             }
                         }
                     }
@@ -286,7 +311,6 @@ struct SuggestionsView: View {
                             }
                             .padding(.vertical, 0)
                             .offset(y: -1)
-
                     }
                 }
             }
@@ -311,7 +335,8 @@ struct SuggestionBatchView: View {
     var batch: [[String: String]]
     var batchIndex: Int
     var isLastBatch: Bool
-
+    var viewModel: AppViewModel
+    
     var body: some View {
         if let firstResponse = batch.first {
             VStack(alignment: .leading) {
@@ -328,10 +353,18 @@ struct SuggestionBatchView: View {
             ForEach(batch.indices, id: \.self) { index in
                 let resultDict = batch[index]
                 let isLastSuggestionInBatch = index == batch.count - 1
-                
+
                 SuggestionView(resultDict: resultDict, batchIndex: batchIndex, index: index)
                     .padding(.bottom, isLastSuggestionInBatch ? 35 : 0)
                     .id("suggestion-\(batchIndex)-\(index)")
+                
+                // Loop through the onboardingSteps dictionary to find the matching step
+                if let step = viewModel.indexesToDisplayProTipsWithSuggestions.first(where: {
+                    $0.value.batchIndex == batchIndex &&
+                    $0.value.suggestionIndex == index
+                })?.key {
+                    OnboardingView(currentStep: step)
+                }
             }
         }
     }
