@@ -38,6 +38,8 @@
 		DCAA86462C2A0A550047AE3D /* NotificationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */; };
 		DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */; };
 		DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86492C2A22E40047AE3D /* Utils.swift */; };
+		DCB1F8E42C7A65EE0016CB96 /* ChatWithMakers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1F8E32C7A65EE0016CB96 /* ChatWithMakers.swift */; };
+		DCB1F8E82C7A829D0016CB96 /* ChatWithMakersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */; };
 		DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */; };
 		DCB37C062C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */; };
 		DCF6D7322C49AE08004728C1 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */; };
@@ -100,6 +102,8 @@
 		DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationExtensions.swift; sourceTree = "<group>"; };
 		DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantManager.swift; sourceTree = "<group>"; };
 		DCAA86492C2A22E40047AE3D /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		DCB1F8E32C7A65EE0016CB96 /* ChatWithMakers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWithMakers.swift; sourceTree = "<group>"; };
+		DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWithMakersViewModel.swift; sourceTree = "<group>"; };
 		DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDelegate.swift; sourceTree = "<group>"; };
 		DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupLaunchShellMateAtTerminalStartup.swift; sourceTree = "<group>"; };
 		DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
@@ -171,6 +175,7 @@
 				DC9B38892C24FFEA006755AE /* AppViewModel.swift */,
 				DCA94B682C2CA726004A2BCE /* PermissionsViewModel.swift */,
 				DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */,
+				DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -245,6 +250,7 @@
 				DCA94B662C2C9921004A2BCE /* PermissionsView.swift */,
 				DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */,
 				DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */,
+				DCB1F8E32C7A65EE0016CB96 /* ChatWithMakers.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -401,6 +407,7 @@
 				DC0D53F82C3C9728003FEBB1 /* SettingsView.swift in Sources */,
 				DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */,
 				DCA668D92C3E0CFE0057629C /* ShellMateWindowTrackingDelegate.swift in Sources */,
+				DCB1F8E82C7A829D0016CB96 /* ChatWithMakersViewModel.swift in Sources */,
 				DC0D53FA2C3C9CA0003FEBB1 /* SettingsViewModel.swift in Sources */,
 				DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */,
 				DC53925E2C38CFEA003CB46D /* KeyPressDelegate.swift in Sources */,
@@ -418,6 +425,7 @@
 				DCF6D7322C49AE08004728C1 /* OnboardingViewModel.swift in Sources */,
 				DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */,
 				DCF6D7342C49AE1C004728C1 /* OnboardingView.swift in Sources */,
+				DCB1F8E42C7A65EE0016CB96 /* ChatWithMakers.swift in Sources */,
 				DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

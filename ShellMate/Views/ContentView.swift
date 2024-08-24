@@ -202,6 +202,8 @@ struct ContentView: View {
     @ObservedObject var viewModel: AppViewModel
 
     var body: some View {
+        ChatWithMakersBanner()
+        
         SuggestionsView(viewModel: viewModel)
     }
 }
