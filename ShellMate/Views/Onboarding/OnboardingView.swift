@@ -10,17 +10,18 @@ import SwiftUI
 
 struct OnboardingView: View {
     var currentStep: Int
+    var batchIndex: Int // Only used in step 2
 
     var body: some View {
         VStack {
             if currentStep == 1 {
                 OnboardingStep1View()
-                    .padding(.top, 10)
             } else if currentStep == 2 {
-                OnboardingStep2View()
+                OnboardingStep2View(batchIndex: batchIndex)
             } else if currentStep == 3 {
                 OnboardingStep3View()
-                    .padding(.bottom, 10)
+            } else if currentStep == 4 {
+                OnboardingStep4View()
             }
         }
     }
@@ -40,8 +41,11 @@ struct OnboardingContainerView<Content: View>: View {
         Button(action: {}) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
-                    Image(systemName: "lightbulb") // Assuming "lightbulb" is the correct icon
-                        .foregroundColor(Color.blue) // Adjust color as needed
+                    Image("rocket")
+                        .resizable()
+                        .renderingMode(.template) // This makes the image use the foreground color
+                        .frame(width: 16, height: 16)
+                        .foregroundColor(Color.Text.primary) // Adjust color as needed
                     Text("Pro-tip: \(header)")
                         .font(.body)
                         .fontWeight(.bold)
@@ -110,6 +114,8 @@ struct OnboardingStep1View: View {
 }
 
 struct OnboardingStep2View: View {
+    var batchIndex: Int
+
     var body: some View {
         OnboardingContainerView(header: "Insert suggestions") {
 
@@ -123,13 +129,13 @@ struct OnboardingStep2View: View {
                         .font(.system(.body, design: .monospaced))
                     (Text(". Type ")
                         .font(.body) +
-                     Text("sm 1 ")
+                     Text("sm \(batchIndex + 1) ") // +1 as this will run the NEXT suggestion (not the current pro-tip)
                         .font(.body)
                         .foregroundColor(Color.Text.purple)
                         .fontWeight(.bold) +
                      Text("or ")
                         .font(.body) +
-                     Text("sm 1.1 ")
+                     Text("sm \(batchIndex + 1).1 ") // +1 as this will run the NEXT suggestion (not the current pro-tip)
                         .font(.body)
                         .foregroundColor(Color.Text.purple)
                         .fontWeight(.bold) +
@@ -157,6 +163,18 @@ struct OnboardingStep3View: View {
         OnboardingContainerView(header: "Review and execute") {
 
             Text("Review before executing inserted suggestions. You should never run commands you don’t know.")
+                .font(.body)
+                .padding(.bottom, 5)
+                .lineLimit(5)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+struct OnboardingStep4View: View {
+    var body: some View {
+        OnboardingContainerView(header: "Highlighting") {
+            Text("Did you know you can highlight a word or phrase to focus ShellMate's attention? Try it now by highlighting the error you're seeing.")
                 .font(.body)
                 .padding(.bottom, 5)
                 .lineLimit(5)

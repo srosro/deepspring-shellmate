@@ -223,7 +223,7 @@ struct SuggestionsView: View {
                                 let batch = windowData.suggestionsHistory[batchIndex].1
                                 if let proTipIdx = batch.first?["proTipIdx"], batch.first?["isProTipBanner"] == "true" {
                                     if let step = Int(proTipIdx) {
-                                        OnboardingView(currentStep: step)
+                                        OnboardingView(currentStep: step, batchIndex: batchIndex+1) // +1 as it starts from 0. but we show to user starting from 1 
                                             .id("protip-\(batchIndex)")
                                     }
                                 } else {
@@ -241,7 +241,7 @@ struct SuggestionsView: View {
                     .padding(.horizontal, 10)
                 }
                 .padding(.horizontal, 0)
-                .padding(.vertical, stateManager.showOnboarding ? 1 : 15)
+                .padding(.vertical, 15)
                 .onChange(of: viewModel.updateCounter) {
                     if let currentTerminalID = viewModel.currentTerminalID, let windowData = viewModel.results[currentTerminalID], let lastBatch = windowData.suggestionsHistory.last?.1, let lastSuggestionIndex = lastBatch.indices.last {
                         

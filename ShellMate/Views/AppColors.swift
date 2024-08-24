@@ -69,9 +69,6 @@ extension Color {
             static var tertiary: Color { ColorManager.shared.color(light: ("#1A1B1D", 0.05), dark: ("#FFFFFF", 0.05)) }
             static var tertiaryFocused: Color { ColorManager.shared.color(light: ("#1A1B1D", 0.15), dark: ("#FFFFFF", 0.15)) }
         }
-        struct Onboarding {
-            static var purple: Color { ColorManager.shared.color(light: ("#A3BFFF", 1.0), dark: ("#7593ED", 1.0)) }
-        }
     }
     
     struct Stroke {
@@ -88,10 +85,11 @@ extension Color {
         static var white: Color { ColorManager.shared.color(light: ("#F3F4F6", 1.0), dark: ("#F3F4F6", 1.0)) }
         static var gray: Color { ColorManager.shared.color(light: ("#555558", 1.0), dark: ("#D2D2D4", 1.0)) }
         static var green: Color { ColorManager.shared.color(light: ("#2A9F47", 1.0), dark: ("#5DD27A", 1.0)) }
-        static var purple: Color { ColorManager.shared.color(light: ("#6618CB", 1.0), dark: ("#6618CB", 1.0)) }
+        static var purple: Color { ColorManager.shared.color(light: ("#6618CB", 1.0), dark: ("#D1AEFF", 1.0)) }
         static var oppositePrimary: Color { ColorManager.shared.color(light: ("#F3F4F6", 1.0), dark: ("#1A1B1D", 1.0)) }
     }
     struct Other {
         static var lightGray: Color { ColorManager.shared.color(light: ("#F3F4F6", 1.0), dark: ("#F3F4F6", 1.0)) }
+        static var rocket: Color { ColorManager.shared.color(light: ("#000000", 1.0), dark: ("#FFFFFF", 1.0)) }
     }
 }
