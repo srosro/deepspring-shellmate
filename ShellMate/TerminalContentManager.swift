@@ -60,7 +60,23 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         }
         return nil
     }
+    
+    func checkForErrorKeywords(in text: String) {
+        if OnboardingStateManager.shared.isStepCompleted(step: 4) {
+            return
+        }
+        let lowercasedText = text.lowercased()
+        let keywords = ["error", "traceback", "exception"]
 
+        for keyword in keywords {
+            if lowercasedText.contains(keyword) {
+                print("Keyword '\(keyword)' found in text.")
+                OnboardingStateManager.shared.markAsCompleted(step: 4)
+                return
+            }
+        }
+    }
+    
     func processTerminalText() {
         guard let element = terminalTextAreaElement else { return }
 
@@ -75,6 +91,7 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
                 MixpanelHelper.shared.trackEvent(name: "terminalTextChangeIdentified")
 
                 let last50Lines = getLastNLines(from: sanitizedText, numberOfLines: 50)
+                checkForErrorKeywords(in: last50Lines)
                 // Obfuscate sensitive information
                 let obfuscatedLast50Lines = obfuscateAuthTokens(in: last50Lines)
                 

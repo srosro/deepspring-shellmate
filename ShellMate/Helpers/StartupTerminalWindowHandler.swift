@@ -12,7 +12,6 @@ class StartupTerminalWindowHandler {
     static func handleTerminalApp() {
         let terminalBundleIdentifier = "com.apple.Terminal"
         
-        // Check if Terminal is running
         if let runningTerminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == terminalBundleIdentifier }) {
             handleRunningTerminalApp(runningTerminalApp)
         } else {
@@ -103,14 +102,9 @@ class StartupTerminalWindowHandler {
     private static func launchTerminalApp() {
         if let terminalURL = getURLForTerminal() {
             let configuration = NSWorkspace.OpenConfiguration()
+            configuration.createsNewApplicationInstance = false
+            configuration.activates = true
             NSWorkspace.shared.openApplication(at: terminalURL, configuration: configuration, completionHandler: nil)
-            
-            // After launching, bring Terminal to the foreground
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                if let runningTerminalApp = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == "com.apple.Terminal" }) {
-                    runningTerminalApp.activate()
-                }
-            }
         } else {
             print("Could not find Terminal app.")
         }

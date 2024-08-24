@@ -563,8 +563,6 @@ class AppViewModel: ObservableObject {
             }
         }
         
-        print("\nDANBUG: Current results: \n\(self.results)")
-        
         Task { @MainActor in
             NotificationCenter.default.post(name: .suggestionGenerationStatusChanged, object: nil, userInfo: ["identifier": identifier, "isGeneratingSuggestion": false])
             
@@ -612,7 +610,6 @@ class AppViewModel: ObservableObject {
                     windowInfo.suggestionsCount += 1
                     windowInfo.updatedAt = pendingProTip.currentTime
                     self.results[identifier] = windowInfo
-                    print("DANBUG: Appended pending pro-tip \(pendingProTip.proTipIdx) for identifier \(identifier)")
                     self.updateCounter += 1
                 }
                 // Remove the pending pro-tip after appending it
@@ -656,7 +653,6 @@ class AppViewModel: ObservableObject {
         if proTipIdx == 2 {
             // Store the pro-tip as pending
             pendingProTips[identifier] = (proTipIdx: proTipIdx, proTipEntry: proTipEntry, terminalStateID: terminalStateID, currentTime: currentTime)
-            print("DANBUG: Stored pending pro-tip \(proTipIdx) for identifier \(identifier)")
         } else {
             // Execute the normal behavior for other proTipIdx values
             DispatchQueue.main.async {
@@ -669,7 +665,6 @@ class AppViewModel: ObservableObject {
                     self.results[identifier] = (suggestionsCount: 1, suggestionsHistory: [(terminalStateID, [proTipEntry])], updatedAt: currentTime)
                 }
                 self.updateCounter += 1
-                print("DANBUG: Updated results after appendProTip for proTipIdx \(proTipIdx)")
             }
         }
     }
@@ -730,6 +725,7 @@ class AppViewModel: ObservableObject {
         
         if self.results[terminalID]?.suggestionsHistory.isEmpty ?? true {
             appendProTip(identifier: terminalID, proTipIdx: 1)
+            MixpanelHelper.shared.trackEvent(name: "onboardingStep1FlowShown")
         }
     }
 }

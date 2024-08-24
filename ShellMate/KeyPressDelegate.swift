@@ -134,7 +134,6 @@ class KeyPressDelegate {
     }
 
     private func handleOnboardingStep3() {
-        print("DANBUG: Marking step 3 as completed.")
         if !OnboardingStateManager.shared.isStepCompleted(step: 3) && OnboardingStateManager.shared.isStepCompleted(step: 2) {
             OnboardingStateManager.shared.markAsCompleted(step: 3)
         }
@@ -179,14 +178,12 @@ class KeyPressDelegate {
     }
 
     private func handleOnboardingStep2() {
-        print("DANBUG: Marking step 2 as completed.")
         if !OnboardingStateManager.shared.isStepCompleted(step: 2) {
             OnboardingStateManager.shared.markAsCompleted(step: 2)
         }
     }
 
     private func checkAndHandleOnboardingStep1(line: String) {
-        print("DANBUG: Run step 1 as completed.")
         if !OnboardingStateManager.shared.isStepCompleted(step: 1)
             && isValidSMQuestion(line: line)
             && doesCurrentLineContainOnboardingCommand(line: line) {
