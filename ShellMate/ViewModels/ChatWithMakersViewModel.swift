@@ -24,7 +24,6 @@ class ChatWithMakersViewModel: ObservableObject {
     }
     
     func checkIfShouldShowBanner() {
-        print("DANBUG: checking if should show banner (chat)")
         // Check if it's the right time to show the banner
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(identifier: "America/Los_Angeles")!

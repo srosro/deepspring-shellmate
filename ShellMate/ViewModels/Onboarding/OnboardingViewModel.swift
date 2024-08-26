@@ -14,7 +14,7 @@ class OnboardingStateManager: ObservableObject {
 
     @AppStorage("stepCompletionStatus") private var stepCompletionStatusData: String = ""
     
-    @Published var stepCompletionStatus: [Int: Bool] = [1: false, 2: false, 3: false, 4: false] {
+    @Published var stepCompletionStatus: [Int: Bool] = [1: false, 2: false, 3: false, 4: false, 5: false] {
         didSet {
             // Serialize the dictionary to JSON and store it in AppStorage
             do {
@@ -43,7 +43,7 @@ class OnboardingStateManager: ObservableObject {
     }
 
     func markAsCompleted(step: Int) {
-        guard step >= 1 && step <= 4 else { return }
+        guard step >= 1 && step <= 5 else { return }
         
         if stepCompletionStatus[step] == false {
             // Notify that the next onboarding pro tip should be shown only if the current step is less than 3
@@ -51,11 +51,10 @@ class OnboardingStateManager: ObservableObject {
                 let nextStep = step + 1
                 NotificationCenter.default.post(name: .forwardOnboardingStepToAppViewModel, object: nil, userInfo: ["newStep": nextStep])
                 MixpanelHelper.shared.trackEvent(name: "onboardingStep\(nextStep)FlowShown")
-            } else if step == 4 { // This is automatically completed when triggered so we just want to show the banner without any action necessary
+            } else if step == 4 || step == 5 { // This is automatically completed when triggered so we just want to show the banner without any action necessary
                 MixpanelHelper.shared.trackEvent(name: "onboardingStep\(step)FlowShown")
                 NotificationCenter.default.post(name: .forwardOnboardingStepToAppViewModel, object: nil, userInfo: ["newStep": step])
             }
-            
             stepCompletionStatus[step] = true
             MixpanelHelper.shared.trackEvent(name: "onboardingStep\(step)FlowCompleted")
         }

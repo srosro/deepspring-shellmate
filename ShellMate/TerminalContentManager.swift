@@ -77,6 +77,20 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         }
     }
     
+    func checkForCommandNotFound(in text: String) {
+        //if OnboardingStateManager.shared.isStepCompleted(step: 5) {
+        //    return
+        //}
+        let lowercasedText = text.lowercased()
+        let keyword = "command not found: sm"
+
+        if lowercasedText.contains(keyword) {
+            print("Keyword '\(keyword)' found in text.")
+            OnboardingStateManager.shared.markAsCompleted(step: 5)
+            return
+        }
+    }
+    
     func processTerminalText() {
         guard let element = terminalTextAreaElement else { return }
 
@@ -92,6 +106,7 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
 
                 let last50Lines = getLastNLines(from: sanitizedText, numberOfLines: 50)
                 checkForErrorKeywords(in: last50Lines)
+                checkForCommandNotFound(in: last50Lines)
                 // Obfuscate sensitive information
                 let obfuscatedLast50Lines = obfuscateAuthTokens(in: last50Lines)
                 

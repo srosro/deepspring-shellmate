@@ -247,7 +247,6 @@ class AppViewModel: ObservableObject {
             return
         }
         guard let terminalID = currentTerminalID, pauseSuggestionGeneration[terminalID] != true else {
-            self.currentStateText = "ShellMate paused"
             return
         }
         self.currentStateText = "Detecting changes..."
@@ -255,7 +254,6 @@ class AppViewModel: ObservableObject {
     
     @objc private func handleTerminalChangeEnded() {
         guard let terminalID = currentTerminalID, pauseSuggestionGeneration[terminalID] != true else {
-            self.currentStateText = "ShellMate paused"
             return
         }
         self.currentStateText = "No changes on Terminal"
@@ -752,7 +750,14 @@ class AppViewModel: ObservableObject {
     
     func setPauseSuggestionGeneration(for terminalID: String, to pause: Bool) {
         pauseSuggestionGeneration[terminalID] = pause
+        
+        if pause {
+            currentStateText = "ShellMate paused"
+        } else {
+            currentStateText = "No changes on Terminal"
+        }
     }
+
     
     func checkAndInitializePauseFlag(for terminalID: String) {
         if pauseSuggestionGeneration[terminalID] == nil {

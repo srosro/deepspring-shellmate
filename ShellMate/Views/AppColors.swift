@@ -87,6 +87,10 @@ extension Color {
         struct ChatWithMakers {
             static var gray: Color { ColorManager.shared.color(light: ("#D1D5DB", 1.0), dark: ("#D1D5DB", 1.0)) }
         }
+        
+        struct Error {
+            static var orange: Color { ColorManager.shared.color(light: ("#FF3B30", 1.0), dark: ("#FF3B30", 1.0)) }
+        }
     }
 
     struct Text {

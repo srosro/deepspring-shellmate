@@ -22,6 +22,8 @@ struct OnboardingView: View {
                 OnboardingStep3View()
             } else if currentStep == 4 {
                 OnboardingStep4View()
+            } else if currentStep == 5 {
+                OnboardingStep5View()
             }
         }
     }
@@ -180,5 +182,35 @@ struct OnboardingStep4View: View {
                 .lineLimit(5)
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+}
+
+struct OnboardingStep5View: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "exclamationmark.triangle")
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: 14, height: 14)
+                    .foregroundColor(Color.Text.primary) // Adjust color as needed
+                Text("ShellMate encountered an issue")
+                    .font(.body)
+                    .fontWeight(.bold)
+            }
+
+            Text("We can't run properly on windows that were open prior to install. Start a new terminal session to use ShellMate.")
+                .font(.body)
+                .padding(.bottom, 5)
+                .lineLimit(5)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(Color.Stroke.Error.orange)
+        )
     }
 }
