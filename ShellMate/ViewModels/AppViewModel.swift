@@ -14,6 +14,7 @@ class AppViewModel: ObservableObject {
     @Published var updateCounter: Int = 1
     @Published var results: [String: (suggestionsCount: Int, suggestionsHistory: [(UUID, [[String: String]])], updatedAt: Date)] = [:]
     @Published var isGeneratingSuggestion: [String: Bool] = [:]
+    @Published var pauseSuggestionGeneration: [String: Bool] = [:]
     @Published var hasUserValidatedOwnOpenAIAPIKey: APIKeyValidationState = .usingFreeTier
     @Published var isAssistantSetupSuccessful: Bool = false
     @Published var areNotificationObserversSetup: Bool = false
@@ -245,12 +246,19 @@ class AppViewModel: ObservableObject {
         } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
             return
         }
+        guard let terminalID = currentTerminalID, pauseSuggestionGeneration[terminalID] != true else {
+            self.currentStateText = "ShellMate paused"
+            return
+        }
         self.currentStateText = "Detecting changes..."
     }
     
     @objc private func handleTerminalChangeEnded() {
+        guard let terminalID = currentTerminalID, pauseSuggestionGeneration[terminalID] != true else {
+            self.currentStateText = "ShellMate paused"
+            return
+        }
         self.currentStateText = "No changes on Terminal"
-        // Process trigger the generation of a suggestion.
     }
     
     @MainActor
@@ -259,8 +267,11 @@ class AppViewModel: ObservableObject {
               let windowID = userInfo["terminalWindowID"] as? CGWindowID else {
             return
         }
-        self.currentTerminalID = String(windowID)
-        initializeSampleCommandForOnboardingIfNeeded(for: String(windowID))
+        let terminalID = String(windowID)
+        self.currentTerminalID = terminalID
+        initializeSampleCommandForOnboardingIfNeeded(for: terminalID)
+        
+        checkAndInitializePauseFlag(for: terminalID)
     }
     
     @objc private func handleRequestTerminalContentAnalysis(_ notification: Notification) {
@@ -381,6 +392,12 @@ class AppViewModel: ObservableObject {
             print("DEBUG: Current terminal ID is nil.")
             return
         }
+
+        guard pauseSuggestionGeneration[currentTerminalId] != true else {
+            print("Content analysis is paused for terminal ID: \(currentTerminalId)")
+            return
+        }
+        
         self.currentTerminalStateID = UUID()
         guard let terminalStateID = self.currentTerminalStateID else {
             print("DEBUG: Current terminal state ID is nil.")
@@ -450,6 +467,10 @@ class AppViewModel: ObservableObject {
         if hasGPTSuggestionsFreeTierCountReachedLimit && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
             return
         } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
+            return
+        }
+        guard pauseSuggestionGeneration[identifier] != true else {
+            print("Additional suggestion generation is paused for terminal ID: \(identifier)")
             return
         }
         
@@ -726,6 +747,16 @@ class AppViewModel: ObservableObject {
         if self.results[terminalID]?.suggestionsHistory.isEmpty ?? true {
             appendProTip(identifier: terminalID, proTipIdx: 1)
             MixpanelHelper.shared.trackEvent(name: "onboardingStep1FlowShown")
+        }
+    }
+    
+    func setPauseSuggestionGeneration(for terminalID: String, to pause: Bool) {
+        pauseSuggestionGeneration[terminalID] = pause
+    }
+    
+    func checkAndInitializePauseFlag(for terminalID: String) {
+        if pauseSuggestionGeneration[terminalID] == nil {
+            pauseSuggestionGeneration[terminalID] = false
         }
     }
 }

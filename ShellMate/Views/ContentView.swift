@@ -272,17 +272,37 @@ struct SuggestionsView: View {
             
             ZStack(alignment: .center) {
                 HStack {
-                    Text(viewModel.currentStateText)
-                        .font(.footnote)
-                        .foregroundColor(viewModel.currentStateText == "Detecting changes..." ? Color.Text.green : Color.Text.gray)
-                        .padding(.leading)
-                    Spacer()
-                    if let currentTerminalID = viewModel.currentTerminalID, viewModel.isGeneratingSuggestion[currentTerminalID] == true {
-                        Text("Generating suggestion...")
+                    if let currentTerminalID = viewModel.currentTerminalID, viewModel.pauseSuggestionGeneration[currentTerminalID] != true {
+                        Text(viewModel.currentStateText)
                             .font(.footnote)
-                            .foregroundColor(Color.Text.green)
-                            .padding(.trailing)
+                            .foregroundColor(viewModel.currentStateText == "Detecting changes..." ? Color.Text.green : Color.Text.gray)
+                            .padding(.leading)
                     }
+                    Spacer()
+                    HStack(spacing: 8) {
+                        if let currentTerminalID = viewModel.currentTerminalID {
+                            if viewModel.isGeneratingSuggestion[currentTerminalID] == true {
+                                Text("Generating suggestion...")
+                                    .font(.footnote)
+                                    .foregroundColor(Color.Text.green)
+                            } else if viewModel.pauseSuggestionGeneration[currentTerminalID] == true {
+                                Text("ShellMate paused")
+                                    .font(.footnote)
+                                    .foregroundColor(Color.Text.gray)
+                            }
+                            
+                            Button(action: {
+                                // Toggle the pause state
+                                viewModel.setPauseSuggestionGeneration(for: currentTerminalID, to: !viewModel.pauseSuggestionGeneration[currentTerminalID, default: false])
+                            }) {
+                                Image(systemName: viewModel.pauseSuggestionGeneration[currentTerminalID] == true ? "play.circle.fill" : "pause.circle.fill")
+                                    .font(.system(size: 16)) // Adjust the size as needed
+                                    .foregroundColor(Color.Text.secondary)
+                            }
+                            .buttonStyle(PlayPauseButtonStyle())
+                        }
+                    }
+                    .padding(.trailing, 16)
                 }
                 .padding(.vertical, 10)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -472,5 +492,22 @@ struct SuggestionView: View {
                 buttonText = "sm \(batchIndex + 1).\(index + 1)"
             }
         }
+    }
+}
+
+struct PlayPauseButtonStyle: ButtonStyle {
+    @State private var isHovered: Bool = false
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(4)
+            .background(isHovered ? Color.BG.Cells.secondaryFocused : Color.clear)
+            .cornerRadius(4)
+            .foregroundColor(Color.Text.secondary) // Ensures icon color remains consistent
+            .onHover { hovering in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isHovered = hovering
+                }
+            }
     }
 }
