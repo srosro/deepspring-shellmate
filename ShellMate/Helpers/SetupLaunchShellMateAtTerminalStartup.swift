@@ -95,7 +95,7 @@ class CompanionModeManager: ObservableObject {
             UserDefaults.standard.set(isCompanionModeEnabled, forKey: "isCompanionModeEnabled")
             
             if isCompanionModeEnabled {
-                installShellMateAtTerminalStartup()
+                //installShellMateAtTerminalStartup()
                 MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalEnabled")
             } else {
                 uninstallShellMateAtTerminalStartup()
