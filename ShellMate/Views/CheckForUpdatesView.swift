@@ -5,20 +5,20 @@
 //  Created by Daniel Delattre on 28/06/24.
 //
 
-import SwiftUI
 import Sparkle
+import SwiftUI
 
 struct CheckForUpdatesView: View {
-    @ObservedObject private var checkForUpdatesViewModel: CheckForUpdatesViewModel
-    private let updater: SPUUpdater
+  @ObservedObject private var checkForUpdatesViewModel: CheckForUpdatesViewModel
+  private let updater: SPUUpdater
 
-    init(updater: SPUUpdater) {
-        self.updater = updater
-        self.checkForUpdatesViewModel = CheckForUpdatesViewModel(updater: updater)
-    }
+  init(updater: SPUUpdater) {
+    self.updater = updater
+    self.checkForUpdatesViewModel = CheckForUpdatesViewModel(updater: updater)
+  }
 
-    var body: some View {
-        Button("Check for Updates…", action: updater.checkForUpdates)
-            .disabled(!checkForUpdatesViewModel.canCheckForUpdates)
-    }
+  var body: some View {
+    Button("Check for Updates…", action: updater.checkForUpdates)
+      .disabled(!checkForUpdatesViewModel.canCheckForUpdates)
+  }
 }

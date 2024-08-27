@@ -5,253 +5,216 @@
 //  Created by Daniel Delattre on 18/07/24.
 //
 
-
-import SwiftUI
-
-struct CloseButton: View {
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: "xmark")
-                .font(.body)
-                .foregroundColor(.primary)
-                .padding(5)
-                .frame(width: 26, height: 26, alignment: .center)
-                .background(
-                    Color.BG.Onboarding.purple
-                        .cornerRadius(6)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color.primary, lineWidth: 0.5)
-                )
-        }
-        .buttonStyle(BorderlessButtonStyle())
-    }
-}
-
-struct OnboardingHeader: View {
-    let title: String
-    let closeAction: () -> Void
-
-    var body: some View {
-        HStack {
-            Text(title)
-                .font(.title2)
-                .fontWeight(.semibold)
-            
-            Spacer()
-            
-            CloseButton(action: closeAction)
-        }
-        .padding(.bottom, 10)
-    }
-}
-
-struct OnboardingStep1View: View {
-    @Binding var showOnboarding: Bool
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            OnboardingHeader(title: "Walkthrough: 1 of 3", closeAction: {
-                showOnboarding = false
-            })
-            
-            Text("Use the ShellMate shortcut 'sm' directly in your terminal to ask questions with natural text.")
-                .font(.body)
-                .padding(.bottom, 6)
-
-            VStack(alignment: .leading) {
-                Text("Complete the task:")
-                    .font(.body)
-                    .fontWeight(.bold)
-                
-                HStack(alignment: .top, spacing: 1) {
-                    Text("1.")
-                        .font(.system(.body, design: .monospaced))
-                    (Text("Type: ")
-                        .font(.body) +
-                    Text("sm \"\(getOnboardingSmCommand())\"")
-                        .foregroundColor(Color.Text.purple)
-                        .font(.body)
-                        .fontWeight(.bold)
-                     +
-                    Text(" into your terminal command line. You can also hit the command below to copy the text.")
-                        .font(.body))
-                }
-                .padding(.leading, 4)
-                .lineLimit(5)  // Allow text to wrap into multiple lines
-                .fixedSize(horizontal: false, vertical: true)
-                
-                HStack(alignment: .top, spacing: 1) {
-                    Text("2.")
-                        .font(.system(.body, design: .monospaced))
-                    Text("Execute the command line")
-                        .font(.body)
-                }
-                .padding(.leading, 4)
-                
-            }
-        }
-        .padding()
-        .background(Color.BG.Onboarding.purple)
-    }
-}
-
-struct OnboardingStep2View: View {
-    @Binding var showOnboarding: Bool
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            OnboardingHeader(title: "Walkthrough: 2 of 3", closeAction: {
-                showOnboarding = false
-            })
-
-            Text("Insert any suggestion with the shortcut 'sm x.x'")
-                .font(.body)
-                .padding(.bottom, 6)
-
-            VStack(alignment: .leading) {
-                Text("Complete the task:")
-                    .font(.body)
-                    .fontWeight(.bold)
-                
-                HStack(alignment: .top, spacing: 1) {
-                    Text("1.")
-                        .font(.system(.body, design: .monospaced))
-                    (Text("Type the following command into your terminal: ")
-                        .font(.body) +
-                     Text("sm 2")
-                        .font(.body)
-                        .foregroundColor(Color.Text.purple)
-                        .fontWeight(.bold) +
-                     Text(" or ")
-                        .font(.body) +
-                     Text("sm 2.1")
-                        .font(.body)
-                        .foregroundColor(Color.Text.purple)
-                        .fontWeight(.bold) +
-                     Text("")
-                        .font(.body))
-                }
-                .padding(.leading, 4)
-                .lineLimit(5)  // Allow text to wrap into multiple lines
-                .fixedSize(horizontal: false, vertical: true)
-                
-                HStack(alignment: .top, spacing: 1) {
-                    Text("2.")
-                        .font(.system(.body, design: .monospaced))
-                    Text("Execute the command to paste the suggestion")
-                        .font(.body)
-                }
-                .padding(.leading, 4)
-            }
-        }
-        .padding()
-        .background(Color.BG.Onboarding.purple)
-    }
-}
-
-struct OnboardingStep3View: View {
-    @Binding var showOnboarding: Bool
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            OnboardingHeader(title: "Walkthrough: 3 of 3", closeAction: {
-                showOnboarding = false
-            })
-            
-            Text("Review and edit inserted suggestions. You should never run commands you don’t know.")
-                .font(.body)
-                .padding(.bottom, 6)
-                .lineLimit(5)  // Allow text to wrap into multiple lines
-                .fixedSize(horizontal: false, vertical: true)
-
-            VStack(alignment: .leading) {
-                Text("Complete the task:")
-                    .font(.body)
-                    .fontWeight(.bold)
-                
-                HStack(alignment: .top, spacing: 1) {
-                    Text("1.")
-                        .font(.system(.body, design: .monospaced))
-                    Text("Review the inserted command")
-                        .font(.body)
-                }
-                .padding(.leading, 4)
-                
-                HStack(alignment: .top, spacing: 1) {
-                    Text("2.")
-                        .font(.system(.body, design: .monospaced))
-                    Text("Execute the command line")
-                        .font(.body)
-                }
-                .padding(.leading, 4)
-            }
-        }
-        .padding()
-        .background(Color.BG.Onboarding.purple)
-    }
-}
-
-struct OnboardingCompleteView: View {
-    @Binding var showOnboarding: Bool
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            OnboardingHeader(title: "Walkthrough: Complete", closeAction: {
-                showOnboarding = false
-            })
-            
-            Text("You're ready!")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .padding(.bottom, 6)
-
-            Text("Let us know if you run into any issues by sending us feedback-- you can find a contact link in the menu bar. Otherwise, enjoy!")
-                .font(.body)
-                .padding(.bottom, 6)
-
-            VStack(alignment: .leading) {
-                Text("Bonus tip:")
-                    .font(.body)
-                    .fontWeight(.bold)
-                
-                Text("You can highlight any text in your terminal to focus your suggestions.")
-                    .font(.body)
-            }
-        }
-        .padding()
-        .background(Color.BG.Onboarding.purple)
-    }
-}
-
-
 import SwiftUI
 
 struct OnboardingView: View {
-    @ObservedObject private var stateManager = OnboardingStateManager.shared
+  var currentStep: Int
+  var batchIndex: Int  // Only used in step 2
 
-    var body: some View {
-        if stateManager.showOnboarding {
-            VStack {
-                if stateManager.currentStep == 1 {
-                    OnboardingStep1View(showOnboarding: $stateManager.showOnboarding)
-                        .transition(.opacity)
-                } else if stateManager.currentStep == 2 {
-                    OnboardingStep2View(showOnboarding: $stateManager.showOnboarding)
-                        .transition(.opacity)
-                } else if stateManager.currentStep == 3 {
-                    OnboardingStep3View(showOnboarding: $stateManager.showOnboarding)
-                        .transition(.opacity)
-                } else {
-                    OnboardingCompleteView(showOnboarding: $stateManager.showOnboarding)
-                        .transition(.opacity)
-                }
-            }
-            .transition(.opacity)
-            .animation(.easeInOut(duration: 0.4), value: stateManager.currentStep)
-        }
+  var body: some View {
+    VStack {
+      if currentStep == 1 {
+        OnboardingStep1View()
+      } else if currentStep == 2 {
+        OnboardingStep2View(batchIndex: batchIndex)
+      } else if currentStep == 3 {
+        OnboardingStep3View()
+      } else if currentStep == 4 {
+        OnboardingStep4View()
+      } else if currentStep == 5 {
+        OnboardingStep5View()
+      }
     }
+  }
+}
+
+struct OnboardingContainerView<Content: View>: View {
+  let header: String
+  let content: Content
+
+  init(header: String, @ViewBuilder content: () -> Content) {
+    self.header = header
+    self.content = content()
+  }
+
+  var body: some View {
+    Button(action: {}) {
+      VStack(alignment: .leading, spacing: 8) {
+        HStack(spacing: 8) {
+          Image("rocket")
+            .resizable()
+            .renderingMode(.template)  // This makes the image use the foreground color
+            .frame(width: 16, height: 16)
+            .foregroundColor(Color.Text.primary)  // Adjust color as needed
+          Text("Pro-tip: \(header)")
+            .font(.body)
+            .fontWeight(.bold)
+        }
+
+        content
+      }
+      .padding(.horizontal, 16)
+      .padding(.vertical, 12)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background(
+        RoundedRectangle(cornerRadius: 8)
+          .strokeBorder(
+            LinearGradient(
+              gradient: Gradient(colors: [AppColors.gradientLightBlue, AppColors.gradientPurple]),
+              startPoint: .topLeading,
+              endPoint: .bottomTrailing
+            ), lineWidth: 2)
+      )
+    }
+    .buttonStyle(PlainButtonStyle())
+  }
+}
+
+struct OnboardingStep1View: View {
+  var body: some View {
+    OnboardingContainerView(header: "Ask questions") {
+
+      Text("Use \"sm\" to ask questions in your terminal with natural text.")
+        .font(.body)
+        .padding(.bottom, 5)
+
+      VStack(alignment: .leading) {
+        Text("Try it yourself:")
+          .font(.body)
+          .fontWeight(.bold)
+          .padding(.bottom, 5)
+
+        HStack(alignment: .top, spacing: 0) {
+          Text("1")
+            .font(.system(.body, design: .monospaced))
+          (Text(". Type: ")
+            .font(.body)
+            + Text("sm \"\(getOnboardingSmCommand())\"")
+            .foregroundColor(Color.Text.purple)
+            .font(.body)
+            .fontWeight(.bold)
+            + Text(" into your terminal.")
+            .font(.body))
+        }
+        .padding(.leading, 4)
+        .lineLimit(5)
+        .fixedSize(horizontal: false, vertical: true)
+
+        HStack(alignment: .top, spacing: 0) {
+          Text("2")
+            .font(.system(.body, design: .monospaced))
+          Text(". Execute the command line")
+            .font(.body)
+        }
+        .padding(.leading, 4)
+
+      }
+    }
+  }
+}
+
+struct OnboardingStep2View: View {
+  var batchIndex: Int
+
+  var body: some View {
+    OnboardingContainerView(header: "Insert suggestions") {
+
+      Text("Insert any suggestion with the shortcut \"sm x.x\"")
+        .font(.body)
+        .padding(.bottom, 5)
+
+      VStack(alignment: .leading) {
+        HStack(alignment: .top, spacing: 0) {
+          Text("1")
+            .font(.system(.body, design: .monospaced))
+          (Text(". Type ")
+            .font(.body)
+            + Text("sm \(batchIndex + 1) ")  // +1 as this will run the NEXT suggestion (not the current pro-tip)
+            .font(.body)
+            .foregroundColor(Color.Text.purple)
+            .fontWeight(.bold)
+            + Text("or ")
+            .font(.body)
+            + Text("sm \(batchIndex + 1).1 ")  // +1 as this will run the NEXT suggestion (not the current pro-tip)
+            .font(.body)
+            .foregroundColor(Color.Text.purple)
+            .fontWeight(.bold)
+            + Text("to insert the suggestion above.")
+            .font(.body))
+        }
+        .padding(.leading, 4)
+        .lineLimit(5)
+        .fixedSize(horizontal: false, vertical: true)
+
+        HStack(alignment: .top, spacing: 0) {
+          Text("2")
+            .font(.system(.body, design: .monospaced))
+          Text(". Execute the command to paste the suggestion.")
+            .font(.body)
+        }
+        .padding(.leading, 4)
+      }
+    }
+  }
+}
+
+struct OnboardingStep3View: View {
+  var body: some View {
+    OnboardingContainerView(header: "Review and execute") {
+
+      Text(
+        "Review before executing inserted suggestions. You should never run commands you don’t know."
+      )
+      .font(.body)
+      .padding(.bottom, 5)
+      .lineLimit(5)
+      .fixedSize(horizontal: false, vertical: true)
+    }
+  }
+}
+
+struct OnboardingStep4View: View {
+  var body: some View {
+    OnboardingContainerView(header: "Highlighting") {
+      Text(
+        "Did you know you can highlight a word or phrase to focus ShellMate's attention? Try it now by highlighting the error you're seeing."
+      )
+      .font(.body)
+      .padding(.bottom, 5)
+      .lineLimit(5)
+      .fixedSize(horizontal: false, vertical: true)
+    }
+  }
+}
+
+struct OnboardingStep5View: View {
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      HStack(spacing: 8) {
+        Image(systemName: "exclamationmark.triangle")
+          .resizable()
+          .renderingMode(.template)
+          .frame(width: 14, height: 14)
+          .foregroundColor(Color.Text.primary)  // Adjust color as needed
+        Text("ShellMate encountered an issue")
+          .font(.body)
+          .fontWeight(.bold)
+      }
+
+      Text(
+        "We can't run properly on windows that were open prior to install. Start a new terminal session to use ShellMate."
+      )
+      .font(.body)
+      .padding(.bottom, 5)
+      .lineLimit(5)
+      .fixedSize(horizontal: false, vertical: true)
+    }
+    .padding(.horizontal, 16)
+    .padding(.vertical, 12)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(
+      RoundedRectangle(cornerRadius: 8)
+        .strokeBorder(Color.Stroke.Error.orange)
+    )
+  }
 }

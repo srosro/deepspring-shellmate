@@ -8,66 +8,69 @@
 
 import Foundation
 import SwiftUI
-import Combine
 
 class OnboardingStateManager: ObservableObject {
-    static let shared = OnboardingStateManager()
+  static let shared = OnboardingStateManager()
 
-    @Published var currentStep: Int = 1 {
-        didSet {
-            if oldValue != currentStep {
-                // currentStep has changed
-                MixpanelHelper.shared.trackEvent(name: "onboardingStep\(currentStep)FlowShown")
-            }
-        }
-    }
-    
-    @Published var showOnboarding: Bool {
-        didSet {
-            if oldValue != showOnboarding {
-                UserDefaults.standard.set(showOnboarding, forKey: "showOnboarding")
-                if !showOnboarding {
-                    MixpanelHelper.shared.trackEvent(name: "onboardingModalClosed")
-                }
-            }
-        }
-    }
+  @AppStorage("stepCompletionStatus") private var stepCompletionStatusData: String = ""
 
-    private init() {
-        self.showOnboarding = UserDefaults.standard.object(forKey: "showOnboarding") as? Bool ?? true
-        // Initialization
-        NotificationCenter.default.addObserver(self, selector: #selector(handleOnboardingStepChange(_:)), name: .onboardingStepChanged, object: nil)
+  @Published var stepCompletionStatus: [Int: Bool] = [
+    1: false, 2: false, 3: false, 4: false, 5: false,
+  ]
+  {
+    didSet {
+      // Serialize the dictionary to JSON and store it in AppStorage
+      do {
+        let data = try JSONEncoder().encode(stepCompletionStatus)
+        stepCompletionStatusData = String(data: data, encoding: .utf8) ?? ""
+      } catch {
+        print("Failed to encode step completion status: \(error)")
+      }
     }
+  }
 
-    func getCurrentStep() -> Int {
-        return currentStep
-    }
+  private init() {
+    loadStepCompletionStatus()
+  }
 
-    func setStep(to newStep: Int) {
-        if newStep >= 1 && newStep <= 4 {
-            if currentStep != newStep {
-                MixpanelHelper.shared.trackEvent(name: "onboardingStep\(currentStep)FlowCompleted")
-            }
-            currentStep = newStep
-        }
+  private func loadStepCompletionStatus() {
+    // Load step completion status from AppStorage
+    if let data = stepCompletionStatusData.data(using: .utf8) {
+      do {
+        let decodedStatus = try JSONDecoder().decode([Int: Bool].self, from: data)
+        stepCompletionStatus = decodedStatus
+      } catch {
+        print("Failed to decode step completion status during initialization: \(error)")
+      }
     }
+  }
 
-    @objc private func handleOnboardingStepChange(_ notification: Notification) {
-        if let newStep = notification.userInfo?["newStep"] as? Int {
-            if currentStep != newStep {
-                currentStep = newStep
-                MixpanelHelper.shared.trackEvent(name: "onboardingStep\(newStep)FlowShown")
-            }
-        }
-    }
+  func markAsCompleted(step: Int) {
+    guard step >= 1 && step <= 5 else { return }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: .onboardingStepChanged, object: nil)
+    if stepCompletionStatus[step] == false {
+      // Notify that the next onboarding pro tip should be shown only if the current step is less than 3
+      if step < 3 {
+        let nextStep = step + 1
+        NotificationCenter.default.post(
+          name: .forwardOnboardingStepToAppViewModel, object: nil, userInfo: ["newStep": nextStep])
+        MixpanelHelper.shared.trackEvent(name: "onboardingStep\(nextStep)FlowShown")
+      } else if step == 4 || step == 5 {  // This is automatically completed when triggered so we just want to show the banner without any action necessary
+        MixpanelHelper.shared.trackEvent(name: "onboardingStep\(step)FlowShown")
+        NotificationCenter.default.post(
+          name: .forwardOnboardingStepToAppViewModel, object: nil, userInfo: ["newStep": step])
+      }
+      stepCompletionStatus[step] = true
+      MixpanelHelper.shared.trackEvent(name: "onboardingStep\(step)FlowCompleted")
     }
+  }
+
+  func isStepCompleted(step: Int) -> Bool {
+    return stepCompletionStatus[step] ?? false
+  }
 }
 
-
 func getOnboardingSmCommand() -> String {
-    // Function to return the onboarding command text
-    return "how can I see the calendar in terminal?"
+  // Function to return the onboarding command text
+  return "how can I display a calendar?"
 }
