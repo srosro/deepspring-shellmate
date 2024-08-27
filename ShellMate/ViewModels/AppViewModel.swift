@@ -284,9 +284,6 @@ class AppViewModel: ObservableObject {
         if hasGPTSuggestionsFreeTierCountReachedLimit && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
             return
         } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
-        if hasGPTSuggestionsFreeTierCountReachedLimit && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
-            return
-        } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
             return
         }
         
@@ -768,4 +765,3 @@ class AppViewModel: ObservableObject {
         }
     }
 }
-
