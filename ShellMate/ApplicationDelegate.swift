@@ -134,7 +134,7 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
     windowPositionDelegate.initializeObserverForRunningTerminal()
     keyPressDelegate.applicationDidFinishLaunching(
       Notification(name: Notification.Name("AppDidFinishLaunching")))
-    
+
     CompanionModeManager.shared.handleContinueAction()
   }
 

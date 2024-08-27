@@ -106,7 +106,6 @@ class CompanionModeManager: ObservableObject {
     }
   }
 
-
   let appName: String
   private let shellMateSetup: SetupLaunchShellMateAtTerminalStartup
 
@@ -127,7 +126,7 @@ class CompanionModeManager: ObservableObject {
     }
     initialSetup = false
   }
-  
+
   private func installShellMateAtTerminalStartup() {
     shellMateSetup.install { success in
       if !success {
@@ -149,7 +148,7 @@ class CompanionModeManager: ObservableObject {
       }
     }
   }
-  
+
   func handleContinueAction() {
     if shouldInstallOnlyOnContinue {
       performCompanionModeActions()  // Perform the common actions
