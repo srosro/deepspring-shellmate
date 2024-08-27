@@ -65,6 +65,7 @@ class OnboardingStateManager: ObservableObject {
     }
 }
 
+
 func getOnboardingSmCommand() -> String {
     // Function to return the onboarding command text
     return "how can I display a calendar?"

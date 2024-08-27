@@ -110,6 +110,7 @@ struct OnboardingStep1View: View {
                         .font(.body)
                 }
                 .padding(.leading, 4)
+                
             }
         }
     }
