@@ -45,16 +45,9 @@ class AppViewModel: ObservableObject {
     "hasGPTSuggestionsFreeTierCountReachedLimit"
   private var terminalIDCheckTimer: Timer?
   private var apiKeyValidationDebounceTask: DispatchWorkItem?
-  private let isCompanionModeEnabledKey = "isCompanionModeEnabled"
 
   // Limit for free tier suggestions
   @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 150
-
-  @Published var isCompanionModeEnabled: Bool {
-    didSet {
-      UserDefaults.standard.set(isCompanionModeEnabled, forKey: isCompanionModeEnabledKey)
-    }
-  }
 
   @Published var GPTSuggestionsFreeTierCount: Int {
     didSet {
@@ -125,7 +118,6 @@ class AppViewModel: ObservableObject {
   }
 
   init() {
-    self.isCompanionModeEnabled = UserDefaults.standard.bool(forKey: isCompanionModeEnabledKey)
     self.GPTSuggestionsFreeTierCount = UserDefaults.standard.integer(
       forKey: GPTSuggestionsFreeTierCountKey)
     self.hasGPTSuggestionsFreeTierCountReachedLimit = UserDefaults.standard.bool(

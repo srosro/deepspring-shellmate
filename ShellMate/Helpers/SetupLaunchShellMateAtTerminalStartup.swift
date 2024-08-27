@@ -89,20 +89,23 @@ class SetupLaunchShellMateAtTerminalStartup {
 
 class CompanionModeManager: ObservableObject {
   static let shared = CompanionModeManager()
+  var shouldInstallOnlyOnContinue: Bool = true
+  private var initialSetup: Bool = true
 
-  @Published var isCompanionModeEnabled: Bool = false {
+  @Published var isCompanionModeEnabled: Bool = true {
     didSet {
-      UserDefaults.standard.set(isCompanionModeEnabled, forKey: "isCompanionModeEnabled")
-
-      if isCompanionModeEnabled {
-        installShellMateAtTerminalStartup()
-        MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalEnabled")
-      } else {
-        uninstallShellMateAtTerminalStartup()
-        MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalDisabled")
+      if initialSetup {
+        return
       }
+
+      if shouldInstallOnlyOnContinue {
+        return
+      }
+
+      performCompanionModeActions()  // Perform the common actions
     }
   }
+
 
   let appName: String
   private let shellMateSetup: SetupLaunchShellMateAtTerminalStartup
@@ -114,7 +117,7 @@ class CompanionModeManager: ObservableObject {
       shellmateLine: "open -a \(self.appName)")
 
     if UserDefaults.standard.object(forKey: "isCompanionModeEnabled") == nil {
-      // First time the app is launched, set to true by default and install
+      // First time the app is launched, set to true by default and wait for continue to be hit to install
       DispatchQueue.main.async {
         self.isCompanionModeEnabled = true
       }
@@ -122,8 +125,9 @@ class CompanionModeManager: ObservableObject {
       // Initialize the isCompanionModeEnabled from UserDefaults
       self.isCompanionModeEnabled = UserDefaults.standard.bool(forKey: "isCompanionModeEnabled")
     }
+    initialSetup = false
   }
-
+  
   private func installShellMateAtTerminalStartup() {
     shellMateSetup.install { success in
       if !success {
@@ -144,5 +148,29 @@ class CompanionModeManager: ObservableObject {
         }
       }
     }
+  }
+  
+  func handleContinueAction() {
+    if shouldInstallOnlyOnContinue {
+      performCompanionModeActions()  // Perform the common actions
+      enableInstantChange()
+    } else {
+    }
+  }
+
+  private func performCompanionModeActions() {
+    UserDefaults.standard.set(isCompanionModeEnabled, forKey: "isCompanionModeEnabled")
+
+    if isCompanionModeEnabled {
+      installShellMateAtTerminalStartup()
+      MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalEnabled")
+    } else {
+      uninstallShellMateAtTerminalStartup()
+      MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalDisabled")
+    }
+  }
+
+  func enableInstantChange() {
+    shouldInstallOnlyOnContinue = false
   }
 }
