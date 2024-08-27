@@ -380,8 +380,14 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
 
 func positionAndSizeWindow(terminalPosition: CGPoint, terminalSize: CGSize, shouldAnimate: Bool) {
     DispatchQueue.main.async {
-        guard let screen = NSScreen.main, let window = NSApplication.shared.windows.first else {
+        guard let window = NSApplication.shared.windows.first else {
             print("Failed to find the application window or screen.")
+            return
+        }
+        
+        // terminalPosition is calculated relative to the height of the primaryScreen
+        guard let primaryScreen = NSScreen.screens.first(where: { $0.frame.origin.y == 0 }) else {
+            print("Failed to find the primary screen.")
             return
         }
         
@@ -394,7 +400,8 @@ func positionAndSizeWindow(terminalPosition: CGPoint, terminalSize: CGSize, shou
         print("Saved position: \(savedPosition)")
         
         // Calculate the new y position
-        let screenHeight = screen.frame.height
+        // terminalPosition is relative to primaryScreen, not NSScreen.main
+        let screenHeight = primaryScreen.frame.height
         let newYPosition = screenHeight - terminalPosition.y - terminalSize.height
         
         // Calculate the new x position based on the attachmentPosition enum
