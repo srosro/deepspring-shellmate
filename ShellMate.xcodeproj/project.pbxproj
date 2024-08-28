@@ -16,6 +16,8 @@
 		DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = DC15545E2C3336FF00F24C18 /* Mixpanel */; };
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
 		DC20D0902C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC20D08F2C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift */; };
+		DC26CDE32C7FE17B001FD7DF /* UpdateShellProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC26CDE22C7FE17B001FD7DF /* UpdateShellProfileView.swift */; };
+		DC26CDE52C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC26CDE42C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift */; };
 		DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */; };
 		DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */; };
 		DC53925E2C38CFEA003CB46D /* KeyPressDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */; };
@@ -38,7 +40,7 @@
 		DCAA86462C2A0A550047AE3D /* NotificationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */; };
 		DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */; };
 		DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86492C2A22E40047AE3D /* Utils.swift */; };
-		DCB1F8E42C7A65EE0016CB96 /* ChatWithMakers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1F8E32C7A65EE0016CB96 /* ChatWithMakers.swift */; };
+		DCB1F8E42C7A65EE0016CB96 /* ChatWithMakersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1F8E32C7A65EE0016CB96 /* ChatWithMakersView.swift */; };
 		DCB1F8E82C7A829D0016CB96 /* ChatWithMakersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */; };
 		DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */; };
 		DCB37C062C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */; };
@@ -79,6 +81,8 @@
 		DC0D53F92C3C9CA0003FEBB1 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
 		DC20D08F2C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupTerminalWindowHandler.swift; sourceTree = "<group>"; };
+		DC26CDE22C7FE17B001FD7DF /* UpdateShellProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateShellProfileView.swift; sourceTree = "<group>"; };
+		DC26CDE42C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateShellProfileViewModel.swift; sourceTree = "<group>"; };
 		DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantCreator.swift; sourceTree = "<group>"; };
 		DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantInstructions.swift; sourceTree = "<group>"; };
 		DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressDelegate.swift; sourceTree = "<group>"; };
@@ -102,7 +106,7 @@
 		DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationExtensions.swift; sourceTree = "<group>"; };
 		DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantManager.swift; sourceTree = "<group>"; };
 		DCAA86492C2A22E40047AE3D /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
-		DCB1F8E32C7A65EE0016CB96 /* ChatWithMakers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWithMakers.swift; sourceTree = "<group>"; };
+		DCB1F8E32C7A65EE0016CB96 /* ChatWithMakersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWithMakersView.swift; sourceTree = "<group>"; };
 		DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWithMakersViewModel.swift; sourceTree = "<group>"; };
 		DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDelegate.swift; sourceTree = "<group>"; };
 		DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupLaunchShellMateAtTerminalStartup.swift; sourceTree = "<group>"; };
@@ -167,15 +171,33 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
+		DC26CDE02C7FDF77001FD7DF /* Banners */ = {
+			isa = PBXGroup;
+			children = (
+				DCB1F8E32C7A65EE0016CB96 /* ChatWithMakersView.swift */,
+				DC26CDE22C7FE17B001FD7DF /* UpdateShellProfileView.swift */,
+			);
+			path = Banners;
+			sourceTree = "<group>";
+		};
+		DC26CDE12C7FE0AF001FD7DF /* Banners */ = {
+			isa = PBXGroup;
+			children = (
+				DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */,
+				DC26CDE42C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift */,
+			);
+			path = Banners;
+			sourceTree = "<group>";
+		};
 		DC8FF0912C2CC2C300E5F0A7 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				DC26CDE12C7FE0AF001FD7DF /* Banners */,
 				DCF6D7302C49ADF1004728C1 /* Onboarding */,
 				DC0D53FB2C3CA373003FEBB1 /* Settings */,
 				DC9B38892C24FFEA006755AE /* AppViewModel.swift */,
 				DCA94B682C2CA726004A2BCE /* PermissionsViewModel.swift */,
 				DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */,
-				DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -244,13 +266,13 @@
 		DCA94B652C2C98FA004A2BCE /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DC26CDE02C7FDF77001FD7DF /* Banners */,
 				DCF6D72F2C49ADC5004728C1 /* Onboarding */,
 				DC0D53FC2C3CA38C003FEBB1 /* Settings */,
 				DC9B388B2C24FFEA006755AE /* ContentView.swift */,
 				DCA94B662C2C9921004A2BCE /* PermissionsView.swift */,
 				DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */,
 				DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */,
-				DCB1F8E32C7A65EE0016CB96 /* ChatWithMakers.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -422,11 +444,13 @@
 				DCA94B672C2C9921004A2BCE /* PermissionsView.swift in Sources */,
 				DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */,
 				DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */,
+				DC26CDE52C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift in Sources */,
 				DCF6D7322C49AE08004728C1 /* OnboardingViewModel.swift in Sources */,
 				DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */,
 				DCF6D7342C49AE1C004728C1 /* OnboardingView.swift in Sources */,
-				DCB1F8E42C7A65EE0016CB96 /* ChatWithMakers.swift in Sources */,
+				DCB1F8E42C7A65EE0016CB96 /* ChatWithMakersView.swift in Sources */,
 				DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */,
+				DC26CDE32C7FE17B001FD7DF /* UpdateShellProfileView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
