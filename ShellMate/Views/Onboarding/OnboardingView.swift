@@ -23,6 +23,8 @@ struct OnboardingView: View {
         OnboardingStep4View()
       } else if currentStep == 5 {
         OnboardingStep5View()
+      } else if currentStep == 6 {
+        OnboardingStep6View()
       }
     }
   }
@@ -201,9 +203,13 @@ struct OnboardingStep5View: View {
           .fontWeight(.bold)
       }
 
-      Text(
-        "We can't run properly on windows that were open prior to install. Start a new terminal session to use ShellMate."
-      )
+      HStack {
+        Text("We need to update the ")
+          + Text(getShellProfile()).bold()
+          + Text(
+            " file to run properly on windows open prior to install. Use the command below to fix this issue."
+          )
+      }
       .font(.body)
       .padding(.bottom, 5)
       .lineLimit(5)
@@ -214,7 +220,21 @@ struct OnboardingStep5View: View {
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(
       RoundedRectangle(cornerRadius: 8)
-        .strokeBorder(Color.Stroke.Error.orange)
+        .strokeBorder(Color.Stroke.Error.orange, lineWidth: 2)
     )
+  }
+}
+
+struct OnboardingStep6View: View {
+  var body: some View {
+    OnboardingContainerView(header: "Provide context") {
+      Text(
+        "ShellMate generates command suggestions based on terminal context. Ask questions in the terminal or highlight errors for precise suggestions."
+      )
+      .font(.body)
+      .padding(.bottom, 5)
+      .lineLimit(5)
+      .fixedSize(horizontal: false, vertical: true)
+    }
   }
 }

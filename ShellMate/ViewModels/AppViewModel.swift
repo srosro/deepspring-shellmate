@@ -621,9 +621,17 @@ class AppViewModel: ObservableObject {
         let shouldGenerateFollowUpSuggestions = response["shouldGenerateFollowUpSuggestions"]
           as? Bool
       {
-        await appendResult(
-          identifier: identifier, terminalStateID: terminalStateID, response: intention,
-          command: command, explanation: commandExplanation)
+        if !shouldGenerateFollowUpSuggestions {
+          self.showProvideMoreContextBanner()
+        } else {
+          await appendResult(
+            identifier: identifier,
+            terminalStateID: terminalStateID,
+            response: intention,
+            command: command,
+            explanation: commandExplanation
+          )
+        }
         shouldGenerateFollowUpSuggestionsFlag = shouldGenerateFollowUpSuggestions
       }
     } catch {
@@ -681,6 +689,35 @@ class AppViewModel: ObservableObject {
       GPTSuggestionsFreeTierCount >= GPTSuggestionsFreeTierLimit
   }
 
+  private func updateResults(
+    identifier: String,
+    terminalStateID: UUID,
+    entry: [String: String],
+    currentTime: Date
+  ) {
+    if var windowInfo = self.results[identifier] {
+      var batchFound = false
+      for (index, batch) in windowInfo.suggestionsHistory.enumerated()
+      where batch.0 == terminalStateID {
+        windowInfo.suggestionsHistory[index].1.append(entry)
+        batchFound = true
+        break
+      }
+      if !batchFound {
+        windowInfo.suggestionsHistory.append((terminalStateID, [entry]))
+      }
+      windowInfo.suggestionsCount += 1
+      windowInfo.updatedAt = currentTime
+      self.results[identifier] = windowInfo
+    } else {
+      self.results[identifier] = (
+        suggestionsCount: 1, suggestionsHistory: [(terminalStateID, [entry])],
+        updatedAt: currentTime
+      )
+    }
+    self.updateCounter += 1
+  }
+
   @MainActor
   private func appendResult(
     identifier: String, terminalStateID: UUID, response: String?, command: String?,
@@ -696,15 +733,12 @@ class AppViewModel: ObservableObject {
     DispatchQueue.main.async {
       // Check if there is a pending pro-tip for this identifier (only for proTipIdx 2)
       if let pendingProTip = self.pendingProTips[identifier], pendingProTip.proTipIdx == 2 {
-        if var windowInfo = self.results[identifier] {
-          // Append the pending pro-tip first
-          windowInfo.suggestionsHistory.append(
-            (pendingProTip.terminalStateID, [pendingProTip.proTipEntry]))
-          windowInfo.suggestionsCount += 1
-          windowInfo.updatedAt = pendingProTip.currentTime
-          self.results[identifier] = windowInfo
-          self.updateCounter += 1
-        }
+        self.appendProTipToResults(
+          identifier: identifier,
+          proTipEntry: pendingProTip.proTipEntry,
+          terminalStateID: pendingProTip.terminalStateID,
+          currentTime: pendingProTip.currentTime
+        )
         // Remove the pending pro-tip after appending it
         self.pendingProTips.removeValue(forKey: identifier)
       }
@@ -714,28 +748,13 @@ class AppViewModel: ObservableObject {
       ]
       let currentTime = Date()
 
-      if var windowInfo = self.results[identifier] {
-        var batchFound = false
-        for (index, batch) in windowInfo.suggestionsHistory.enumerated()
-        where batch.0 == terminalStateID {
-          windowInfo.suggestionsHistory[index].1.append(newEntry)
-          batchFound = true
-          break
-        }
-        if !batchFound {
-          windowInfo.suggestionsHistory.append((terminalStateID, [newEntry]))
-        }
-        windowInfo.suggestionsCount += 1
-        windowInfo.updatedAt = currentTime
-        self.results[identifier] = windowInfo
-      } else {
-        self.results[identifier] = (
-          suggestionsCount: 1, suggestionsHistory: [(terminalStateID, [newEntry])],
-          updatedAt: currentTime
-        )
-      }
+      self.updateResults(
+        identifier: identifier,
+        terminalStateID: terminalStateID,
+        entry: newEntry,
+        currentTime: currentTime
+      )
 
-      self.updateCounter += 1
       self.writeResultsToFile()
       if self.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
         self.incrementGPTSuggestionsFreeTierCount(by: 1)
@@ -747,30 +766,87 @@ class AppViewModel: ObservableObject {
   func appendProTip(identifier: String, proTipIdx: Int) {
     let proTipEntry = ["isProTipBanner": "true", "proTipIdx": String(proTipIdx)]
     let currentTime = Date()
-    let terminalStateID = UUID()  // Generate a new UUID
+    let terminalStateID = UUID()
 
-    if proTipIdx == 2 {
-      // Store the pro-tip as pending
-      pendingProTips[identifier] = (
-        proTipIdx: proTipIdx, proTipEntry: proTipEntry, terminalStateID: terminalStateID,
+    switch proTipIdx {
+    case 2:
+      handlePendingProTip(
+        identifier: identifier,
+        proTipIdx: proTipIdx,
+        proTipEntry: proTipEntry,
+        terminalStateID: terminalStateID,
         currentTime: currentTime
       )
-    } else {
-      // Execute the normal behavior for other proTipIdx values
-      DispatchQueue.main.async {
-        if var windowInfo = self.results[identifier] {
-          windowInfo.suggestionsHistory.append((terminalStateID, [proTipEntry]))
-          windowInfo.suggestionsCount += 1
-          windowInfo.updatedAt = currentTime
-          self.results[identifier] = windowInfo
-        } else {
-          self.results[identifier] = (
-            suggestionsCount: 1, suggestionsHistory: [(terminalStateID, [proTipEntry])],
-            updatedAt: currentTime
-          )
-        }
-        self.updateCounter += 1
-      }
+
+    case 5:
+      handleSpecialProTipIdx5(
+        identifier: identifier,
+        terminalStateID: terminalStateID,
+        proTipEntry: proTipEntry,
+        currentTime: currentTime
+      )
+
+    default:
+      appendProTipToResults(
+        identifier: identifier,
+        proTipEntry: proTipEntry,
+        terminalStateID: terminalStateID,
+        currentTime: currentTime
+      )
+    }
+  }
+
+  private func handlePendingProTip(
+    identifier: String,
+    proTipIdx: Int,
+    proTipEntry: [String: String],
+    terminalStateID: UUID,
+    currentTime: Date
+  ) {
+    pendingProTips[identifier] = (
+      proTipIdx: proTipIdx, proTipEntry: proTipEntry, terminalStateID: terminalStateID,
+      currentTime: currentTime
+    )
+  }
+
+  @MainActor
+  private func handleSpecialProTipIdx5(
+    identifier: String,
+    terminalStateID: UUID,
+    proTipEntry: [String: String],
+    currentTime: Date
+  ) {
+    let response = "Fix sm command not found"
+    let command = "source " + getShellProfile()
+    let explanation =
+      "Reloads your terminal profile, allowing the 'sm' command to function properly."
+
+    appendProTipToResults(
+      identifier: identifier,
+      proTipEntry: proTipEntry,
+      terminalStateID: terminalStateID,
+      currentTime: currentTime
+    )
+
+    appendResult(
+      identifier: identifier,
+      terminalStateID: UUID(),  // Create a new UUID so that the suggestion in in other block instead of with the pro-tip (would be hidden)
+      response: response,
+      command: command,
+      explanation: explanation
+    )
+  }
+
+  private func appendProTipToResults(
+    identifier: String, proTipEntry: [String: String], terminalStateID: UUID, currentTime: Date
+  ) {
+    DispatchQueue.main.async {
+      self.updateResults(
+        identifier: identifier,
+        terminalStateID: terminalStateID,
+        entry: proTipEntry,
+        currentTime: currentTime
+      )
     }
   }
 
@@ -850,5 +926,21 @@ class AppViewModel: ObservableObject {
     if pauseSuggestionGeneration[terminalID] == nil {
       pauseSuggestionGeneration[terminalID] = false
     }
+  }
+
+  private func showProvideMoreContextBanner() {
+    // Check if the last suggestion is a proTip
+    if let terminalID = currentTerminalID,
+      let suggestionsHistory = results[terminalID]?.suggestionsHistory,
+      let lastSuggestion = suggestionsHistory.last?.1.last,
+      let isProTipBanner = lastSuggestion["isProTipBanner"],
+      isProTipBanner == "true"
+    {
+      print("Last suggestion is a proTip. Skipping markAsCompleted.")
+      return
+    }
+
+    // This is not exactly an onboarding banner, instead a user feedback warning
+    OnboardingStateManager.shared.markAsCompleted(step: 6)
   }
 }
