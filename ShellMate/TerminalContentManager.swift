@@ -82,9 +82,9 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
   }
 
   func checkForCommandNotFound(in text: String) {
-    //if OnboardingStateManager.shared.isStepCompleted(step: 5) {
-    //    return
-    //}
+    if OnboardingStateManager.shared.isStepCompleted(step: 5) {
+        return
+    }
     let lowercasedText = text.lowercased()
     let keyword = "command not found: sm"
 

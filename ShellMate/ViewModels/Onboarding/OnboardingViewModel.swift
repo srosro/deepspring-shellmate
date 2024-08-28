@@ -46,22 +46,49 @@ class OnboardingStateManager: ObservableObject {
   }
 
   func markAsCompleted(step: Int) {
-    guard step >= 1 && step <= 5 else { return }
-
-    if stepCompletionStatus[step] == false {
-      // Notify that the next onboarding pro tip should be shown only if the current step is less than 3
-      if step < 3 {
+    switch step {
+    case 1, 2:
+      if stepCompletionStatus[step] == false {
         let nextStep = step + 1
         NotificationCenter.default.post(
-          name: .forwardOnboardingStepToAppViewModel, object: nil, userInfo: ["newStep": nextStep])
+          name: .forwardOnboardingStepToAppViewModel,
+          object: nil,
+          userInfo: ["newStep": nextStep]
+        )
         MixpanelHelper.shared.trackEvent(name: "onboardingStep\(nextStep)FlowShown")
-      } else if step == 4 || step == 5 {  // This is automatically completed when triggered so we just want to show the banner without any action necessary
+        stepCompletionStatus[step] = true
+        MixpanelHelper.shared.trackEvent(name: "onboardingStep\(step)FlowCompleted")
+      }
+
+    case 3:
+      if stepCompletionStatus[step] == false {
+        stepCompletionStatus[step] = true
+        MixpanelHelper.shared.trackEvent(name: "onboardingStep\(step)FlowCompleted")
+      }
+
+    case 4, 5:
+      if stepCompletionStatus[step] == false {
         MixpanelHelper.shared.trackEvent(name: "onboardingStep\(step)FlowShown")
         NotificationCenter.default.post(
-          name: .forwardOnboardingStepToAppViewModel, object: nil, userInfo: ["newStep": step])
+          name: .forwardOnboardingStepToAppViewModel,
+          object: nil,
+          userInfo: ["newStep": step]
+        )
+        stepCompletionStatus[step] = true
+        MixpanelHelper.shared.trackEvent(name: "onboardingStep\(step)FlowCompleted")
       }
-      stepCompletionStatus[step] = true
-      MixpanelHelper.shared.trackEvent(name: "onboardingStep\(step)FlowCompleted")
+
+    case 6:
+      // No need to check for completion status as this chould be shown multiple times
+      MixpanelHelper.shared.trackEvent(name: "proTipProvideContextBannerShown")
+      NotificationCenter.default.post(
+        name: .forwardOnboardingStepToAppViewModel,
+        object: nil,
+        userInfo: ["newStep": step]
+      )
+
+    default:
+      break
     }
   }
 

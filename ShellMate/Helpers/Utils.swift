@@ -234,3 +234,17 @@ extension URLSession {
     return try await session.data(for: request)
   }
 }
+
+func getShellProfile() -> String {
+  if let shell = ProcessInfo.processInfo.environment["SHELL"] {
+    if shell.contains("zsh") {
+      return "\(NSHomeDirectory())/.zshrc"
+    } else if shell.contains("bash") {
+      return "\(NSHomeDirectory())/.bashrc"
+    } else {
+      return "\(NSHomeDirectory())/.zshrc"
+    }
+  } else {
+    return "\(NSHomeDirectory())/.zshrc"
+  }
+}
