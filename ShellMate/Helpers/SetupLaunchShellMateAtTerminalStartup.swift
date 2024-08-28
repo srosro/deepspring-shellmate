@@ -14,23 +14,9 @@ class SetupLaunchShellMateAtTerminalStartup {
     self.shellmateLine = shellmateLine
   }
 
-  private func getShellProfile() -> String {
-    if let shell = ProcessInfo.processInfo.environment["SHELL"] {
-      if shell.contains("zsh") {
-        return "\(NSHomeDirectory())/.zshrc"
-      } else if shell.contains("bash") {
-        return "\(NSHomeDirectory())/.bashrc"
-      } else {
-        return "\(NSHomeDirectory())/.zshrc"
-      }
-    } else {
-      return "\(NSHomeDirectory())/.zshrc"
-    }
-  }
-
   func install(completion: @escaping (Bool) -> Void) {
     DispatchQueue.global().async {
-      let shellProfile = self.getShellProfile()
+      let shellProfile = getShellProfile()
       do {
         let fileContent = try String(contentsOfFile: shellProfile, encoding: .utf8)
 
@@ -59,7 +45,7 @@ class SetupLaunchShellMateAtTerminalStartup {
 
   func uninstall(completion: @escaping (Bool) -> Void) {
     DispatchQueue.global().async {
-      let shellProfile = self.getShellProfile()
+      let shellProfile = getShellProfile()
       do {
         var fileContent = try String(contentsOfFile: shellProfile, encoding: .utf8)
 
