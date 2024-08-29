@@ -47,10 +47,11 @@ class AppViewModel: ObservableObject {
   private var apiKeyValidationDebounceTask: DispatchWorkItem?
 
   // Limit for free tier suggestions
-  @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 150
+  @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 100
 
   @Published var GPTSuggestionsFreeTierCount: Int {
     didSet {
+      print("[][] did set")
       UserDefaults.standard.set(GPTSuggestionsFreeTierCount, forKey: GPTSuggestionsFreeTierCountKey)
       updateHasGPTSuggestionsFreeTierCountReachedLimit()
     }
@@ -683,6 +684,12 @@ class AppViewModel: ObservableObject {
 
   private func incrementGPTSuggestionsFreeTierCount(by count: Int) {
     GPTSuggestionsFreeTierCount += count
+
+    if GPTSuggestionsFreeTierCount >= (GPTSuggestionsFreeTierLimit - 10) {
+      MixpanelHelper.shared.trackEvent(name: "freeTierLimitApproaching")
+    } else if GPTSuggestionsFreeTierCount >= GPTSuggestionsFreeTierLimit {
+      MixpanelHelper.shared.trackEvent(name: "freeTierLimitReached")
+    }
   }
   private func updateHasGPTSuggestionsFreeTierCountReachedLimit() {
     hasGPTSuggestionsFreeTierCountReachedLimit =
