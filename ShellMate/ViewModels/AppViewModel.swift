@@ -731,23 +731,27 @@ class AppViewModel: ObservableObject {
     }
 
     DispatchQueue.main.async {
+      let currentTime = Date()
+
       // Check if there is a pending pro-tip for this identifier (only for proTipIdx 2)
       if let pendingProTip = self.pendingProTips[identifier], pendingProTip.proTipIdx == 2 {
-        self.appendProTipToResults(
+        self.updateResults(
           identifier: identifier,
-          proTipEntry: pendingProTip.proTipEntry,
           terminalStateID: pendingProTip.terminalStateID,
+          entry: pendingProTip.proTipEntry,
           currentTime: pendingProTip.currentTime
         )
+
         // Remove the pending pro-tip after appending it
         self.pendingProTips.removeValue(forKey: identifier)
       }
 
+      // Create the new entry
       let newEntry = [
         "gptResponse": response, "suggestedCommand": command, "commandExplanation": explanation,
       ]
-      let currentTime = Date()
 
+      // Use updateResults directly for the new entry
       self.updateResults(
         identifier: identifier,
         terminalStateID: terminalStateID,
@@ -816,25 +820,31 @@ class AppViewModel: ObservableObject {
     proTipEntry: [String: String],
     currentTime: Date
   ) {
-    let response = "Fix sm command not found"
-    let command = "source " + getShellProfile()
+    let response = "refresh shell profile - fix command not found: sm"
+    let command = UpdateShellProfileViewModel.shared.fixingCommand
     let explanation =
       "Reloads your terminal profile, allowing the 'sm' command to function properly."
 
-    appendProTipToResults(
-      identifier: identifier,
-      proTipEntry: proTipEntry,
-      terminalStateID: terminalStateID,
-      currentTime: currentTime
-    )
-
     appendResult(
       identifier: identifier,
-      terminalStateID: UUID(),  // Create a new UUID so that the suggestion in in other block instead of with the pro-tip (would be hidden)
+      terminalStateID: terminalStateID,
       response: response,
       command: command,
       explanation: explanation
     )
+
+    // Ensure this is executed after appendResult
+    DispatchQueue.main.async {
+      if let indices = self.getCurrentSuggestionIndices(
+        identifier: identifier, terminalStateID: terminalStateID)
+      {
+        let suggestionID = generateSuggestionViewElementID(batchIndex: indices.batchIndex)
+        UpdateShellProfileViewModel.shared.fixSmCommandNotFoundSuggestionIndex = suggestionID
+        UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfile = true
+      } else {
+        print("Failed to retrieve current suggestion indices")
+      }
+    }
   }
 
   private func appendProTipToResults(
@@ -942,5 +952,29 @@ class AppViewModel: ObservableObject {
 
     // This is not exactly an onboarding banner, instead a user feedback warning
     OnboardingStateManager.shared.markAsCompleted(step: 6)
+  }
+
+  private func getCurrentSuggestionIndices(identifier: String, terminalStateID: UUID) -> (
+    batchIndex: Int, index: Int
+  )? {
+    // First, find the window data associated with the provided identifier
+    guard let windowData = results[identifier] else {
+      return nil
+    }
+
+    // Iterate over the suggestionsHistory to find the batch that matches the terminalStateID
+    for (batchIndex, batch) in windowData.suggestionsHistory.enumerated() {
+      // Check if this batch matches the terminalStateID we're looking for
+      if batch.0 == terminalStateID {
+        let suggestionCount = batch.1.count
+        if suggestionCount > 0 {
+          // Return the batchIndex and the index of the last suggestion in this batch
+          return (batchIndex, suggestionCount - 1)
+        } else {
+          return (batchIndex, 0)  // If there are no suggestions, return the first index (0)
+        }
+      }
+    }
+    return nil
   }
 }

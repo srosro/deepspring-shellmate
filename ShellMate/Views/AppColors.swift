@@ -89,9 +89,11 @@ extension Color {
         ColorManager.shared.color(light: ("#441A7B", 1.0), dark: ("#441A7B", 1.0))
       }
     }
-  }
-
-  struct Border {
+    struct UpdateShellProfile {
+      static var red: Color {
+        ColorManager.shared.color(light: ("#EF4444", 1.0), dark: ("#EF4444", 1.0))
+      }
+    }
   }
 
   struct Stroke {

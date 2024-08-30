@@ -211,7 +211,6 @@ struct ContentView: View {
 
   var body: some View {
     ChatWithMakersBanner()
-
     SuggestionsView(viewModel: viewModel)
   }
 }
@@ -220,6 +219,7 @@ struct SuggestionsView: View {
   @ObservedObject var viewModel: AppViewModel
   @ObservedObject private var stateManager = OnboardingStateManager.shared
   @State private var isRotating = false
+  @State private var scrollToKey: String? = nil
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -246,7 +246,7 @@ struct SuggestionsView: View {
                     isLastBatch: batchIndex == windowData.suggestionsHistory.count - 1,
                     viewModel: viewModel
                   )
-                  .id("suggestion-\(batchIndex)")
+                  .id(generateSuggestionViewElementID(batchIndex: batchIndex))
                 }
               }
             }
@@ -272,6 +272,23 @@ struct SuggestionsView: View {
             }
           }
         }
+        .onChange(of: scrollToKey) {
+          if let key = scrollToKey {
+            withAnimation {
+              scrollView.scrollTo(key, anchor: .top)
+            }
+          }
+        }
+
+        if UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfile {
+          UpdateShellProfile(
+            scrollToFixingCommand: scrollToFixingCommand,
+            scrollView: scrollView
+          )
+        } else {
+          Divider().padding(.top, 5)
+        }
+
       }
 
       if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit
@@ -288,8 +305,6 @@ struct SuggestionsView: View {
         TroubleshootShellMateView()
           .padding(10)
       }
-
-      Divider().padding(.top, 5)
 
       ZStack(alignment: .center) {
         HStack {
@@ -369,7 +384,7 @@ struct SuggestionsView: View {
 
   private func scrollToBottom(scrollView: ScrollViewProxy, key: String) {
     withAnimation {
-      scrollView.scrollTo(key, anchor: .bottom)
+      scrollView.scrollTo(key, anchor: .top)
     }
   }
 
@@ -378,6 +393,12 @@ struct SuggestionsView: View {
     pasteboard.clearContents()
     pasteboard.setString(command, forType: .string)
     print("Copied to clipboard: \(command)")
+  }
+
+  func scrollToFixingCommand(scrollView: ScrollViewProxy, key: String) {
+    withAnimation {
+      scrollView.scrollTo(key, anchor: .top)
+    }
   }
 }
 
@@ -407,7 +428,7 @@ struct SuggestionBatchView: View {
 
       SuggestionView(resultDict: resultDict, batchIndex: batchIndex, index: index)
         .padding(.bottom, isLastSuggestionInBatch ? 35 : 0)
-        .id("suggestion-\(batchIndex)-\(index)")
+        .id(generateSuggestionViewElementID(batchIndex: batchIndex, suggestionIndex: index))
     }
   }
 }

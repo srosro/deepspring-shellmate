@@ -133,8 +133,26 @@ class KeyPressDelegate {
       return
     }
 
+    handleUpdateShellProfile(for: activeLine)
+
     print("Current active line: \(activeLine)")
     handleSMCommand(for: activeLine)
+  }
+
+  private func handleUpdateShellProfile(for line: String) {
+    if UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfile
+      && doesLineContainFixingCommand(line)
+    {
+      UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfile = false
+      OnboardingStateManager.shared.resetStep(step: 1)
+      OnboardingStateManager.shared.resetStep(step: 2)
+    }
+  }
+
+  private func doesLineContainFixingCommand(_ line: String) -> Bool {
+    let sanitizedLine = sanitizeText(line)
+    let sanitizedFixingCommand = sanitizeText(UpdateShellProfileViewModel.shared.fixingCommand)
+    return sanitizedLine.contains(sanitizedFixingCommand)
   }
 
   private func handleOnboardingStep3() {

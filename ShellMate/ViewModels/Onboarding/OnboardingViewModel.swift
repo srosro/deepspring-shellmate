@@ -46,6 +46,10 @@ class OnboardingStateManager: ObservableObject {
   }
 
   func markAsCompleted(step: Int) {
+    if UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfile {
+      return
+    }
+
     switch step {
     case 1, 2:
       if stepCompletionStatus[step] == false {
@@ -94,6 +98,12 @@ class OnboardingStateManager: ObservableObject {
 
   func isStepCompleted(step: Int) -> Bool {
     return stepCompletionStatus[step] ?? false
+  }
+
+  func resetStep(step: Int) {
+    if stepCompletionStatus[step] == true {
+      stepCompletionStatus[step] = false
+    }
   }
 }
 

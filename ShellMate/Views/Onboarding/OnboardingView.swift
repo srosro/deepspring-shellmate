@@ -10,12 +10,13 @@ import SwiftUI
 struct OnboardingView: View {
   var currentStep: Int
   var batchIndex: Int  // Only used in step 2
+  @ObservedObject var updateShellProfileViewModel = UpdateShellProfileViewModel.shared
 
   var body: some View {
     VStack {
       if currentStep == 1 {
         OnboardingStep1View()
-      } else if currentStep == 2 {
+      } else if currentStep == 2 && !updateShellProfileViewModel.shouldShowUpdateShellProfile {
         OnboardingStep2View(batchIndex: batchIndex)
       } else if currentStep == 3 {
         OnboardingStep3View()
