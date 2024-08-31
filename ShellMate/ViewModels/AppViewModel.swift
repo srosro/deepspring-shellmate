@@ -293,9 +293,9 @@ class AppViewModel: ObservableObject {
     self.currentTerminalID = terminalID
     // Pass the terminal ID to UpdateShellProfileViewModel
     UpdateShellProfileViewModel.shared.updateCurrentTerminalID(terminalID)
-    
+
     initializeSampleCommandForOnboardingIfNeeded(for: terminalID)
-    
+
     checkAndInitializePauseFlag(for: terminalID)
   }
 

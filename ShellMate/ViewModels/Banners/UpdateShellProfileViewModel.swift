@@ -8,37 +8,37 @@
 import Foundation
 
 class UpdateShellProfileViewModel: ObservableObject {
-    // Singleton Instance
-    static let shared = UpdateShellProfileViewModel()
-    
-    @Published var shouldShowUpdateShellProfile: [String: Bool] = [:]
-    @Published var fixSmCommandNotFoundSuggestionIndex: String?
-    
-    public let fixingCommand: String
-    private var currentTerminalID: String?
+  // Singleton Instance
+  static let shared = UpdateShellProfileViewModel()
 
-    // Private initializer to enforce singleton pattern
-    private init() {
-        self.fixingCommand = "source " + getShellProfile()
-    }
+  @Published var shouldShowUpdateShellProfile: [String: Bool] = [:]
+  @Published var fixSmCommandNotFoundSuggestionIndex: String?
 
-    func updateCurrentTerminalID(_ terminalID: String) {
-        self.currentTerminalID = terminalID
-    }
-    
-    func updateShouldShowUpdateShellProfile(value: Bool) {
-        guard let terminalID = currentTerminalID else {
-            print("Error: Terminal ID is not set.")
-            return
-        }
-        shouldShowUpdateShellProfile[terminalID] = value
-    }
+  public let fixingCommand: String
+  private var currentTerminalID: String?
 
-    func shouldShowUpdateShellProfileBanner() -> Bool {
-        guard let terminalID = currentTerminalID else {
-            print("Error: Terminal ID is not set.")
-            return false
-        }
-        return shouldShowUpdateShellProfile[terminalID] ?? false
+  // Private initializer to enforce singleton pattern
+  private init() {
+    self.fixingCommand = "source " + getShellProfile()
+  }
+
+  func updateCurrentTerminalID(_ terminalID: String) {
+    self.currentTerminalID = terminalID
+  }
+
+  func updateShouldShowUpdateShellProfile(value: Bool) {
+    guard let terminalID = currentTerminalID else {
+      print("Error: Terminal ID is not set.")
+      return
     }
+    shouldShowUpdateShellProfile[terminalID] = value
+  }
+
+  func shouldShowUpdateShellProfileBanner() -> Bool {
+    guard let terminalID = currentTerminalID else {
+      print("Error: Terminal ID is not set.")
+      return false
+    }
+    return shouldShowUpdateShellProfile[terminalID] ?? false
+  }
 }

@@ -18,6 +18,7 @@
 		DC20D0902C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC20D08F2C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift */; };
 		DC26CDE32C7FE17B001FD7DF /* UpdateShellProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC26CDE22C7FE17B001FD7DF /* UpdateShellProfileView.swift */; };
 		DC26CDE52C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC26CDE42C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift */; };
+		DC38CB242C839B6B0073870B /* BannersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC38CB232C839B6B0073870B /* BannersView.swift */; };
 		DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */; };
 		DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */; };
 		DC53925E2C38CFEA003CB46D /* KeyPressDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */; };
@@ -83,6 +84,7 @@
 		DC20D08F2C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupTerminalWindowHandler.swift; sourceTree = "<group>"; };
 		DC26CDE22C7FE17B001FD7DF /* UpdateShellProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateShellProfileView.swift; sourceTree = "<group>"; };
 		DC26CDE42C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateShellProfileViewModel.swift; sourceTree = "<group>"; };
+		DC38CB232C839B6B0073870B /* BannersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannersView.swift; sourceTree = "<group>"; };
 		DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantCreator.swift; sourceTree = "<group>"; };
 		DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantInstructions.swift; sourceTree = "<group>"; };
 		DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressDelegate.swift; sourceTree = "<group>"; };
@@ -174,6 +176,7 @@
 		DC26CDE02C7FDF77001FD7DF /* Banners */ = {
 			isa = PBXGroup;
 			children = (
+				DC38CB232C839B6B0073870B /* BannersView.swift */,
 				DCB1F8E32C7A65EE0016CB96 /* ChatWithMakersView.swift */,
 				DC26CDE22C7FE17B001FD7DF /* UpdateShellProfileView.swift */,
 			);
@@ -436,6 +439,7 @@
 				DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */,
 				DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */,
 				DC00C03C2C2F62100019BEB1 /* CheckForUpdatesView.swift in Sources */,
+				DC38CB242C839B6B0073870B /* BannersView.swift in Sources */,
 				DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */,
 				DCA94B692C2CA726004A2BCE /* PermissionsViewModel.swift in Sources */,
 				DC6A78252C46E8F700FFC785 /* SendFeedbackEmail.swift in Sources */,

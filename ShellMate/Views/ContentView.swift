@@ -210,7 +210,6 @@ struct ContentView: View {
   @ObservedObject var viewModel: AppViewModel
 
   var body: some View {
-    ChatWithMakersBanner()
     SuggestionsView(viewModel: viewModel)
   }
 }
@@ -280,15 +279,7 @@ struct SuggestionsView: View {
           }
         }
 
-        if UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfileBanner() {
-          UpdateShellProfile(
-            scrollToFixingCommand: scrollToFixingCommand,
-            scrollView: scrollView
-          )
-        } else {
-          Divider().padding(.top, 5)
-        }
-
+        BannersView(scrollToFixingCommand: scrollToFixingCommand, scrollView: scrollView)
       }
 
       if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit

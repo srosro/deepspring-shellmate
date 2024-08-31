@@ -7,26 +7,14 @@
 
 import SwiftUI
 
-struct ChatWithMakersBanner: View {
-  @StateObject private var viewModel = ChatWithMakersViewModel()
-
-  var body: some View {
-    if viewModel.shouldShowBanner {
-      ChatWithMakersView(viewModel: viewModel)
-    }
-  }
-}
-
 struct ChatWithMakersView: View {
-  @ObservedObject var viewModel: ChatWithMakersViewModel
-
   var body: some View {
     HStack {
       ChatWithMakersTextView()
 
       Spacer()
 
-      ChatWithMakersActionsView(viewModel: viewModel)
+      ChatWithMakersActionsView()
     }
     .frame(height: 48)
     .background(Color.BG.ChatWithMakers.purple)
@@ -49,7 +37,7 @@ struct ChatWithMakersTextView: View {
 }
 
 struct ChatWithMakersActionsView: View {
-  @ObservedObject var viewModel: ChatWithMakersViewModel
+  @ObservedObject private var viewModel = ChatWithMakersViewModel.shared
 
   var body: some View {
     HStack(spacing: 8) {
