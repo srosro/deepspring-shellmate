@@ -46,7 +46,7 @@ class OnboardingStateManager: ObservableObject {
   }
 
   func markAsCompleted(step: Int) {
-    if UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfile {
+    if UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfileBanner() {
       return
     }
 

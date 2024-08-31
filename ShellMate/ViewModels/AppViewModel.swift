@@ -291,8 +291,11 @@ class AppViewModel: ObservableObject {
     }
     let terminalID = String(windowID)
     self.currentTerminalID = terminalID
+    // Pass the terminal ID to UpdateShellProfileViewModel
+    UpdateShellProfileViewModel.shared.updateCurrentTerminalID(terminalID)
+    
     initializeSampleCommandForOnboardingIfNeeded(for: terminalID)
-
+    
     checkAndInitializePauseFlag(for: terminalID)
   }
 
@@ -840,7 +843,7 @@ class AppViewModel: ObservableObject {
       {
         let suggestionID = generateSuggestionViewElementID(batchIndex: indices.batchIndex)
         UpdateShellProfileViewModel.shared.fixSmCommandNotFoundSuggestionIndex = suggestionID
-        UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfile = true
+        UpdateShellProfileViewModel.shared.updateShouldShowUpdateShellProfile(value: true)
       } else {
         print("Failed to retrieve current suggestion indices")
       }

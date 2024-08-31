@@ -280,7 +280,7 @@ struct SuggestionsView: View {
           }
         }
 
-        if UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfile {
+        if UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfileBanner() {
           UpdateShellProfile(
             scrollToFixingCommand: scrollToFixingCommand,
             scrollView: scrollView

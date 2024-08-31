@@ -18,7 +18,7 @@ struct OnboardingView: View {
       case 1:
         OnboardingStep1View()
       case 2:
-        if !updateShellProfileViewModel.shouldShowUpdateShellProfile {
+        if !updateShellProfileViewModel.shouldShowUpdateShellProfileBanner() {
           OnboardingStep2View(batchIndex: batchIndex)
         } else {
           Spacer()

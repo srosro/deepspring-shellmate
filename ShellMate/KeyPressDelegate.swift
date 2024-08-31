@@ -140,10 +140,10 @@ class KeyPressDelegate {
   }
 
   private func handleUpdateShellProfile(for line: String) {
-    if UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfile
+    if UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfileBanner()
       && doesLineContainFixingCommand(line)
     {
-      UpdateShellProfileViewModel.shared.shouldShowUpdateShellProfile = false
+      UpdateShellProfileViewModel.shared.updateShouldShowUpdateShellProfile(value: false)
       OnboardingStateManager.shared.resetStep(step: 1)
       OnboardingStateManager.shared.resetStep(step: 2)
     }
