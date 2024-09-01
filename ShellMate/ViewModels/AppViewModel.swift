@@ -293,7 +293,7 @@ class AppViewModel: ObservableObject {
     }
     let terminalID = String(windowID)
     self.currentTerminalID = terminalID
-    
+
     checkAndInitializeShouldShowSuggestionsView(for: terminalID)
     checkAndInitializeAtLeastOneSuggestionFlag(for: terminalID)
     checkAndInitializePauseFlag(for: terminalID)
@@ -722,7 +722,7 @@ class AppViewModel: ObservableObject {
         updatedAt: currentTime
       )
     }
-    
+
     // Update hasAtLeastOneSuggestion and conditionally trigger updateShouldShowSuggestionsView
     self.updateHasAtLeastOneSuggestion(for: identifier, with: entry)
     self.updateCounter += 1
@@ -947,46 +947,48 @@ class AppViewModel: ObservableObject {
       pauseSuggestionGeneration[terminalID] = false
     }
   }
-  
+
   func checkAndInitializeAtLeastOneSuggestionFlag(for terminalID: String) {
-      if self.hasAtLeastOneSuggestion[terminalID] == nil {
-          self.hasAtLeastOneSuggestion[terminalID] = false
-      }
+    if self.hasAtLeastOneSuggestion[terminalID] == nil {
+      self.hasAtLeastOneSuggestion[terminalID] = false
+    }
   }
-  
+
   func checkAndInitializeShouldShowSuggestionsView(for terminalID: String) {
-      // Ensure that shouldShowSuggestionsView is initialized
-      if self.shouldShowSuggestionsView[terminalID] == nil {
-          // If the onboarding step is not completed, set to true immediately
-          if !OnboardingStateManager.shared.isStepCompleted(step: 1) {
-              self.shouldShowSuggestionsView[terminalID] = true
-          } else {
-              // Otherwise, initialize it as false
-              self.shouldShowSuggestionsView[terminalID] = false
-          }
+    // Ensure that shouldShowSuggestionsView is initialized
+    if self.shouldShowSuggestionsView[terminalID] == nil {
+      // If the onboarding step is not completed, set to true immediately
+      if !OnboardingStateManager.shared.isStepCompleted(step: 1) {
+        self.shouldShowSuggestionsView[terminalID] = true
+      } else {
+        // Otherwise, initialize it as false
+        self.shouldShowSuggestionsView[terminalID] = false
       }
+    }
   }
-  
+
   func updateHasAtLeastOneSuggestion(for identifier: String, with entry: [String: String]) {
-      // Check if the new entry is not a proTip and update hasAtLeastOneSuggestion flag
-      if self.hasAtLeastOneSuggestion[identifier] != true {
-          if entry["isProTipBanner"] == nil {
-              // Update the flag only if it changes from nil or false to true
-              self.hasAtLeastOneSuggestion[identifier] = true
-              
-              // Call updateShouldShowSuggestionsView only if hasAtLeastOneSuggestion was changed
-              self.updateShouldShowSuggestionsView(for: identifier)
-          }
+    // Check if the new entry is not a proTip and update hasAtLeastOneSuggestion flag
+    if self.hasAtLeastOneSuggestion[identifier] != true {
+      if entry["isProTipBanner"] == nil {
+        // Update the flag only if it changes from nil or false to true
+        self.hasAtLeastOneSuggestion[identifier] = true
+
+        // Call updateShouldShowSuggestionsView only if hasAtLeastOneSuggestion was changed
+        self.updateShouldShowSuggestionsView(for: identifier)
       }
+    }
   }
-  
+
   func updateShouldShowSuggestionsView(for identifier: String) {
-      // Ensure that shouldShowSuggestionsView for the terminal ID cannot revert to false
-      if self.shouldShowSuggestionsView[identifier] == false && self.hasAtLeastOneSuggestion[identifier] == true {
-          self.shouldShowSuggestionsView[identifier] = true
-      }
+    // Ensure that shouldShowSuggestionsView for the terminal ID cannot revert to false
+    if self.shouldShowSuggestionsView[identifier] == false
+      && self.hasAtLeastOneSuggestion[identifier] == true
+    {
+      self.shouldShowSuggestionsView[identifier] = true
+    }
   }
-  
+
   private func showProvideMoreContextBanner() {
     // Check if the last suggestion is a proTip
     if let terminalID = currentTerminalID,

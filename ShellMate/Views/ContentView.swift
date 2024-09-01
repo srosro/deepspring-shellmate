@@ -207,18 +207,18 @@ struct NetworkIssueView: View {
 }
 
 struct ContentView: View {
-    @ObservedObject var viewModel: AppViewModel
+  @ObservedObject var viewModel: AppViewModel
 
-    var body: some View {
-        if let terminalID = viewModel.currentTerminalID,
-           viewModel.shouldShowSuggestionsView[terminalID] ?? false {
-            SuggestionsView(viewModel: viewModel)
-        } else {
-            EmptyStateView(viewModel: viewModel)
-        }
+  var body: some View {
+    if let terminalID = viewModel.currentTerminalID,
+      viewModel.shouldShowSuggestionsView[terminalID] ?? false
+    {
+      SuggestionsView(viewModel: viewModel)
+    } else {
+      EmptyStateView(viewModel: viewModel)
     }
+  }
 }
-
 
 struct SuggestionsView: View {
   @ObservedObject var viewModel: AppViewModel
@@ -284,7 +284,7 @@ struct SuggestionsView: View {
             }
           }
         }
-        
+
         if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit
           && viewModel.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
         {

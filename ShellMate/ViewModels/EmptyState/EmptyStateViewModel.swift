@@ -8,15 +8,15 @@
 import Foundation
 
 class EmptyStateViewModel {
-    static let shared = EmptyStateViewModel()
+  static let shared = EmptyStateViewModel()
 
-    let emptyStateData: [[String: String]]
+  let emptyStateData: [[String: String]]
 
-    private init() {
-        self.emptyStateData = EmptyStateMessages.messages
-    }
+  private init() {
+    self.emptyStateData = EmptyStateMessages.messages
+  }
 
-    func getRandomMessage() -> [String: String]? {
-        return emptyStateData.randomElement()
-    }
+  func getRandomMessage() -> [String: String]? {
+    return emptyStateData.randomElement()
+  }
 }
