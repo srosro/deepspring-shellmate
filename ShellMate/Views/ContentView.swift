@@ -210,9 +210,13 @@ struct ContentView: View {
   @ObservedObject var viewModel: AppViewModel
 
   var body: some View {
-    ChatWithMakersBanner()
-
-    SuggestionsView(viewModel: viewModel)
+    if let terminalID = viewModel.currentTerminalID,
+      viewModel.shouldShowSuggestionsView[terminalID] ?? false
+    {
+      SuggestionsView(viewModel: viewModel)
+    } else {
+      EmptyStateView(viewModel: viewModel)
+    }
   }
 }
 
@@ -220,6 +224,7 @@ struct SuggestionsView: View {
   @ObservedObject var viewModel: AppViewModel
   @ObservedObject private var stateManager = OnboardingStateManager.shared
   @State private var isRotating = false
+  @State private var scrollToKey: String? = nil
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -246,7 +251,7 @@ struct SuggestionsView: View {
                     isLastBatch: batchIndex == windowData.suggestionsHistory.count - 1,
                     viewModel: viewModel
                   )
-                  .id("suggestion-\(batchIndex)")
+                  .id(generateSuggestionViewElementID(batchIndex: batchIndex))
                 }
               }
             }
@@ -272,104 +277,38 @@ struct SuggestionsView: View {
             }
           }
         }
-      }
-
-      if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit
-        && viewModel.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
-      {
-        ActivateShellMateView()
-          .padding(10)
-      } else if viewModel.shouldShowNetworkIssueWarning {
-        NetworkIssueView()
-          .padding(10)
-      } else if viewModel.shouldTroubleShootAPIKey
-        || viewModel.hasUserValidatedOwnOpenAIAPIKey == .invalid
-      {
-        TroubleshootShellMateView()
-          .padding(10)
-      }
-
-      Divider().padding(.top, 5)
-
-      ZStack(alignment: .center) {
-        HStack {
-          if let currentTerminalID = viewModel.currentTerminalID,
-            viewModel.pauseSuggestionGeneration[currentTerminalID] != true
-          {
-            Text(viewModel.currentStateText)
-              .font(.footnote)
-              .foregroundColor(
-                viewModel.currentStateText == "Detecting changes..."
-                  ? Color.Text.green : Color.Text.gray
-              )
-              .padding(.leading)
-          }
-          Spacer()
-          HStack(spacing: 8) {
-            if let currentTerminalID = viewModel.currentTerminalID {
-              if viewModel.isGeneratingSuggestion[currentTerminalID] == true {
-                Text("Generating suggestion...")
-                  .font(.footnote)
-                  .foregroundColor(Color.Text.green)
-              } else if viewModel.pauseSuggestionGeneration[currentTerminalID] == true {
-                Text("ShellMate paused")
-                  .font(.footnote)
-                  .foregroundColor(Color.Text.gray)
-              }
-
-              Button(action: {
-                // Toggle the pause state
-                viewModel.setPauseSuggestionGeneration(
-                  for: currentTerminalID,
-                  to: !viewModel.pauseSuggestionGeneration[currentTerminalID, default: false])
-              }) {
-                Image(
-                  systemName: viewModel.pauseSuggestionGeneration[currentTerminalID] == true
-                    ? "play.circle.fill" : "pause.circle.fill"
-                )
-                .font(.system(size: 16))  // Adjust the size as needed
-                .foregroundColor(Color.Text.secondary)
-              }
-              .buttonStyle(PlayPauseButtonStyle())
+        .onChange(of: scrollToKey) {
+          if let key = scrollToKey {
+            withAnimation {
+              scrollView.scrollTo(key, anchor: .top)
             }
           }
-          .padding(.trailing, 16)
         }
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .center)
 
-        if let currentTerminalID = viewModel.currentTerminalID,
-          viewModel.isGeneratingSuggestion[currentTerminalID] == true
+        if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit
+          && viewModel.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
         {
-          if viewModel.shouldShowSamAltmansFace {
-            Image("samAltmansFace")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: 29)
-              .rotationEffect(.degrees(isRotating ? 360 : 0))
-              .onAppear {
-                withAnimation(
-                  Animation.linear(duration: 0.5)
-                    .delay(0.8)
-                    .repeatForever(autoreverses: false)
-                ) {
-                  isRotating = true
-                }
-              }
-              .onDisappear {
-                isRotating = false  // Stop the rotation when the view disappears
-              }
-              .padding(.vertical, 0)
-              .offset(y: -1)
-          }
+          ActivateShellMateView()
+            .padding(10)
+        } else if viewModel.shouldShowNetworkIssueWarning {
+          NetworkIssueView()
+            .padding(10)
+        } else if viewModel.shouldTroubleShootAPIKey
+          || viewModel.hasUserValidatedOwnOpenAIAPIKey == .invalid
+        {
+          TroubleshootShellMateView()
+            .padding(10)
         }
+
+        BannersView(scrollToFixingCommand: scrollToFixingCommand, scrollView: scrollView)
       }
+      SuggestionsStatusBarView(viewModel: viewModel)
     }
   }
 
   private func scrollToBottom(scrollView: ScrollViewProxy, key: String) {
     withAnimation {
-      scrollView.scrollTo(key, anchor: .bottom)
+      scrollView.scrollTo(key, anchor: .top)
     }
   }
 
@@ -378,6 +317,12 @@ struct SuggestionsView: View {
     pasteboard.clearContents()
     pasteboard.setString(command, forType: .string)
     print("Copied to clipboard: \(command)")
+  }
+
+  func scrollToFixingCommand(scrollView: ScrollViewProxy, key: String) {
+    withAnimation {
+      scrollView.scrollTo(key, anchor: .top)
+    }
   }
 }
 
@@ -407,7 +352,7 @@ struct SuggestionBatchView: View {
 
       SuggestionView(resultDict: resultDict, batchIndex: batchIndex, index: index)
         .padding(.bottom, isLastSuggestionInBatch ? 35 : 0)
-        .id("suggestion-\(batchIndex)-\(index)")
+        .id(generateSuggestionViewElementID(batchIndex: batchIndex, suggestionIndex: index))
     }
   }
 }

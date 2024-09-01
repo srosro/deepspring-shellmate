@@ -10,21 +10,27 @@ import SwiftUI
 struct OnboardingView: View {
   var currentStep: Int
   var batchIndex: Int  // Only used in step 2
+  @ObservedObject var updateShellProfileViewModel = UpdateShellProfileViewModel.shared
 
   var body: some View {
     VStack {
-      if currentStep == 1 {
+      switch currentStep {
+      case 1:
         OnboardingStep1View()
-      } else if currentStep == 2 {
-        OnboardingStep2View(batchIndex: batchIndex)
-      } else if currentStep == 3 {
+      case 2:
+        if !updateShellProfileViewModel.shouldShowUpdateShellProfileBanner() {
+          OnboardingStep2View(batchIndex: batchIndex)
+        } else {
+          Spacer()
+        }
+      case 3:
         OnboardingStep3View()
-      } else if currentStep == 4 {
+      case 4:
         OnboardingStep4View()
-      } else if currentStep == 5 {
-        OnboardingStep5View()
-      } else if currentStep == 6 {
+      case 6:
         OnboardingStep6View()
+      default:
+        EmptyView()  // Placeholder for any other steps not handled explicitly
       }
     }
   }
@@ -109,7 +115,6 @@ struct OnboardingStep1View: View {
             .font(.body)
         }
         .padding(.leading, 4)
-
       }
     }
   }
@@ -186,42 +191,6 @@ struct OnboardingStep4View: View {
       .lineLimit(5)
       .fixedSize(horizontal: false, vertical: true)
     }
-  }
-}
-
-struct OnboardingStep5View: View {
-  var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      HStack(spacing: 8) {
-        Image(systemName: "exclamationmark.triangle")
-          .resizable()
-          .renderingMode(.template)
-          .frame(width: 14, height: 14)
-          .foregroundColor(Color.Text.primary)  // Adjust color as needed
-        Text("ShellMate encountered an issue")
-          .font(.body)
-          .fontWeight(.bold)
-      }
-
-      HStack {
-        Text("We need to update the ")
-          + Text(getShellProfile()).bold()
-          + Text(
-            " file to run properly on windows open prior to install. Use the command below to fix this issue."
-          )
-      }
-      .font(.body)
-      .padding(.bottom, 5)
-      .lineLimit(5)
-      .fixedSize(horizontal: false, vertical: true)
-    }
-    .padding(.horizontal, 16)
-    .padding(.vertical, 12)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(
-      RoundedRectangle(cornerRadius: 8)
-        .strokeBorder(Color.Stroke.Error.orange, lineWidth: 2)
-    )
   }
 }
 

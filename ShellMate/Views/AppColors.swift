@@ -89,9 +89,11 @@ extension Color {
         ColorManager.shared.color(light: ("#441A7B", 1.0), dark: ("#441A7B", 1.0))
       }
     }
-  }
-
-  struct Border {
+    struct UpdateShellProfile {
+      static var red: Color {
+        ColorManager.shared.color(light: ("#EF4444", 1.0), dark: ("#EF4444", 1.0))
+      }
+    }
   }
 
   struct Stroke {
@@ -142,7 +144,14 @@ extension Color {
     static var oppositePrimary: Color {
       ColorManager.shared.color(light: ("#F3F4F6", 1.0), dark: ("#1A1B1D", 1.0))
     }
+
+    struct EmptyState {
+      static var gray: Color {
+        ColorManager.shared.color(light: ("#000000", 0.5), dark: ("#FFFFFF", 0.5))
+      }
+    }
   }
+
   struct Other {
     static var lightGray: Color {
       ColorManager.shared.color(light: ("#F3F4F6", 1.0), dark: ("#F3F4F6", 1.0))

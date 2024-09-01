@@ -248,3 +248,11 @@ func getShellProfile() -> String {
     return "\(NSHomeDirectory())/.zshrc"
   }
 }
+
+func generateSuggestionViewElementID(batchIndex: Int, suggestionIndex: Int? = nil) -> String {
+  if let index = suggestionIndex {
+    return "suggestion-\(batchIndex)-\(index)"
+  } else {
+    return "suggestion-\(batchIndex)"
+  }
+}
