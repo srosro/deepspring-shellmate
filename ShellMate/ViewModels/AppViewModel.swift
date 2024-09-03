@@ -297,7 +297,7 @@ class AppViewModel: ObservableObject {
     checkAndInitializeShouldShowSuggestionsView(for: terminalID)
     checkAndInitializeAtLeastOneSuggestionFlag(for: terminalID)
     checkAndInitializePauseFlag(for: terminalID)
-
+    EmptyStateViewModel.shared.initializeEmptyStateMessage(for: terminalID)
     // Pass the terminal ID to UpdateShellProfileViewModel
     UpdateShellProfileViewModel.shared.updateCurrentTerminalID(terminalID)
     initializeSampleCommandForOnboardingIfNeeded(for: terminalID)
