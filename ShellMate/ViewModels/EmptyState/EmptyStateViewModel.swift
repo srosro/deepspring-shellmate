@@ -9,6 +9,7 @@ import Foundation
 
 class EmptyStateViewModel {
   static let shared = EmptyStateViewModel()
+  private var emptyStateMessages: [String: [String: String]] = [:]
 
   let emptyStateData: [[String: String]]
 
@@ -16,7 +17,17 @@ class EmptyStateViewModel {
     self.emptyStateData = EmptyStateMessages.messages
   }
 
+  func initializeEmptyStateMessage(for terminalWindowID: String) {
+    if emptyStateMessages[terminalWindowID] == nil {
+      emptyStateMessages[terminalWindowID] = getRandomMessage()
+    }
+  }
+
   func getRandomMessage() -> [String: String]? {
     return emptyStateData.randomElement()
+  }
+
+  func getEmptyStateMessage(for terminalWindowID: String) -> [String: String]? {
+    return emptyStateMessages[terminalWindowID]
   }
 }
