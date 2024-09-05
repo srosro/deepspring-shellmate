@@ -49,6 +49,7 @@
 		DCB25E992C84E83900D5FACF /* SuggestionsStatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB25E982C84E83900D5FACF /* SuggestionsStatusBarView.swift */; };
 		DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */; };
 		DCB37C062C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */; };
+		DCF319D12C89FEA400CF1E0B /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */; };
 		DCF6D7322C49AE08004728C1 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */; };
 		DCF6D7342C49AE1C004728C1 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF6D7332C49AE1C004728C1 /* OnboardingView.swift */; };
 /* End PBXBuildFile section */
@@ -120,6 +121,8 @@
 		DCB25E982C84E83900D5FACF /* SuggestionsStatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionsStatusBarView.swift; sourceTree = "<group>"; };
 		DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDelegate.swift; sourceTree = "<group>"; };
 		DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupLaunchShellMateAtTerminalStartup.swift; sourceTree = "<group>"; };
+		DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		DCF319D22C8A02C100CF1E0B /* Template.Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Template.Secrets.xcconfig; sourceTree = "<group>"; };
 		DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		DCF6D7332C49AE1C004728C1 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -234,6 +237,8 @@
 		DC9B387D2C24FFEA006755AE = {
 			isa = PBXGroup;
 			children = (
+				DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */,
+				DCF319D22C8A02C100CF1E0B /* Template.Secrets.xcconfig */,
 				DC9B38882C24FFEA006755AE /* ShellMate */,
 				DC9B38C82C2502FA006755AE /* ShellMateCLI */,
 				DC9B38872C24FFEA006755AE /* Products */,
@@ -429,6 +434,7 @@
 			files = (
 				DC9B38912C24FFEB006755AE /* Preview Assets.xcassets in Resources */,
 				DC9B38B52C2501A3006755AE /* Assets.xcassets in Resources */,
+				DCF319D12C89FEA400CF1E0B /* Secrets.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,7 +443,8 @@
 /* Begin PBXShellScriptBuildPhase section */
 		DC20D0912C4C4A6F00F80AE1 /* Run Script: Sentry upload debug symbols */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			alwaysOutOfDate = 1;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -452,7 +459,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which sentry-cli >/dev/null; then\nexport SENTRY_ORG=deepspring\nexport SENTRY_PROJECT=shellmate\nexport SENTRY_AUTH_TOKEN=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\nERROR=$(sentry-cli debug-files upload --include-sources \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
+			shellScript = "if which sentry-cli >/dev/null; then\nexport SENTRY_ORG=deepspring\nexport SENTRY_PROJECT=shellmate\nERROR=$(sentry-cli debug-files upload --force-foreground --include-sources \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"error: sentry-cli - $ERROR\"\nfi\nelse\necho \"error: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -519,6 +526,7 @@
 /* Begin XCBuildConfiguration section */
 		DC9B38932C24FFEB006755AE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -582,6 +590,7 @@
 		};
 		DC9B38942C24FFEB006755AE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
