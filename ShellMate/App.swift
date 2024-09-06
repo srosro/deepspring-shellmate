@@ -17,11 +17,11 @@ struct ShellMateApp: App {
   @StateObject private var generalViewModel = GeneralViewModel()
   @State private var showPermissionsView = UserDefaults.standard.bool(forKey: "showPermissionsView")
 
-  private let updaterController: SPUStandardUpdaterController
+  private var updaterController: SPUStandardUpdaterController?
 
   init() {
     updaterController = SPUStandardUpdaterController(
-      startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+      startingUpdater: true, updaterDelegate: appDelegate, userDriverDelegate: nil)
   }
 
   var body: some Scene {
@@ -57,7 +57,11 @@ struct ShellMateApp: App {
     }
     .commands {
       CommandGroup(after: .appInfo) {
-        CheckForUpdatesView(updater: updaterController.updater)
+        if let updaterController = updaterController {
+          CheckForUpdatesView(updater: updaterController.updater)
+        } else {
+          Text("Updater not initialized")
+        }
       }
       CommandGroup(after: .appSettings) {
         Button("Send Feedback") {

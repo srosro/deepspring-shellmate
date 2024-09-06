@@ -712,6 +712,9 @@ class AppViewModel: ObservableObject {
       }
       if !batchFound {
         windowInfo.suggestionsHistory.append((terminalStateID, [entry]))
+        if entry["isProTipBanner"] != "true" {
+          MixpanelHelper.shared.trackEvent(name: "newSuggestionsGroupCreated")
+        }
       }
       windowInfo.suggestionsCount += 1
       windowInfo.updatedAt = currentTime
