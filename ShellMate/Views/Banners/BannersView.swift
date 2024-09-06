@@ -22,6 +22,22 @@ struct BannersView: View {
       )
     } else if chatWithMakersViewModel.shouldShowBanner {
       ChatWithMakersView()
+    } else if NetworkErrorViewModel.shared.shouldShowNetworkError {
+      NetworkErrorView()
+    } else {
+      Divider().padding(.top, 5)
+    }
+  }
+}
+
+struct BannersViewForEmptyState: View {
+  @ObservedObject private var chatWithMakersViewModel = ChatWithMakersViewModel.shared
+
+  var body: some View {
+    if chatWithMakersViewModel.shouldShowBanner {
+      ChatWithMakersView()
+    } else if NetworkErrorViewModel.shared.shouldShowNetworkError {
+      NetworkErrorView()
     } else {
       Divider().padding(.top, 5)
     }

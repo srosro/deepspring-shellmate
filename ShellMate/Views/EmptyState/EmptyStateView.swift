@@ -106,7 +106,20 @@ struct EmptyStateView: View {
         }
       }
       Spacer()
-      Divider().padding(.top, 5)
+
+      if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit
+        && viewModel.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
+      {
+        ActivateShellMateView()
+          .padding(10)
+      } else if viewModel.shouldTroubleShootAPIKey
+        || viewModel.hasUserValidatedOwnOpenAIAPIKey == .invalid
+      {
+        TroubleshootShellMateView()
+          .padding(10)
+      }
+
+      BannersViewForEmptyState()
       SuggestionsStatusBarView(viewModel: viewModel)
     }
     .frame(maxHeight: .infinity, alignment: .bottom)
