@@ -29,6 +29,8 @@
 		DC60BD912C3AF8A10027048D /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = DC60BD902C3AF8A10027048D /* LaunchAtLogin */; };
 		DC6A78252C46E8F700FFC785 /* SendFeedbackEmail.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6A78242C46E8F700FFC785 /* SendFeedbackEmail.swift */; };
 		DC7DD61D2C36DEF80034E6ED /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = DC7DD61C2C36DEF80034E6ED /* Sentry */; };
+		DC8C11942C8B9AB400A24308 /* NetworkErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8C11932C8B9AB400A24308 /* NetworkErrorView.swift */; };
+		DC8C11962C8B9D0C00A24308 /* NetworkErrorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8C11952C8B9D0C00A24308 /* NetworkErrorViewModel.swift */; };
 		DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8FF0922C2CC30300E5F0A7 /* App.swift */; };
 		DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* AppViewModel.swift */; };
 		DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B388B2C24FFEA006755AE /* ContentView.swift */; };
@@ -97,6 +99,8 @@
 		DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressDelegate.swift; sourceTree = "<group>"; };
 		DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		DC6A78242C46E8F700FFC785 /* SendFeedbackEmail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeedbackEmail.swift; sourceTree = "<group>"; };
+		DC8C11932C8B9AB400A24308 /* NetworkErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrorView.swift; sourceTree = "<group>"; };
+		DC8C11952C8B9D0C00A24308 /* NetworkErrorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrorViewModel.swift; sourceTree = "<group>"; };
 		DC8FF0922C2CC30300E5F0A7 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		DC9B38862C24FFEA006755AE /* ShellMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC9B38892C24FFEA006755AE /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
@@ -190,6 +194,7 @@
 				DC38CB232C839B6B0073870B /* BannersView.swift */,
 				DCB1F8E32C7A65EE0016CB96 /* ChatWithMakersView.swift */,
 				DC26CDE22C7FE17B001FD7DF /* UpdateShellProfileView.swift */,
+				DC8C11932C8B9AB400A24308 /* NetworkErrorView.swift */,
 			);
 			path = Banners;
 			sourceTree = "<group>";
@@ -199,6 +204,7 @@
 			children = (
 				DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */,
 				DC26CDE42C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift */,
+				DC8C11952C8B9D0C00A24308 /* NetworkErrorViewModel.swift */,
 			);
 			path = Banners;
 			sourceTree = "<group>";
@@ -474,6 +480,8 @@
 				DC20D0902C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift in Sources */,
 				DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */,
 				DC0D53F82C3C9728003FEBB1 /* SettingsView.swift in Sources */,
+				DC8C11962C8B9D0C00A24308 /* NetworkErrorViewModel.swift in Sources */,
+				DC8C11942C8B9AB400A24308 /* NetworkErrorView.swift in Sources */,
 				DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */,
 				DCA668D92C3E0CFE0057629C /* ShellMateWindowTrackingDelegate.swift in Sources */,
 				DCB25E962C84E51900D5FACF /* EmptyStateMessages.swift in Sources */,

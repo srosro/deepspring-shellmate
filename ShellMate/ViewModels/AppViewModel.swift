@@ -24,7 +24,6 @@ class AppViewModel: ObservableObject {
   @Published var isAssistantSetupSuccessful: Bool = false
   @Published var areNotificationObserversSetup: Bool = false
   @Published var shouldTroubleShootAPIKey: Bool = false
-  @Published var shouldShowNetworkIssueWarning: Bool = false
   @Published var shouldShowSamAltmansFace: Bool = true
   @Published var pendingProTips:
     [String: (
@@ -100,7 +99,7 @@ class AppViewModel: ObservableObject {
         if !isConnected {
           print("Internet connection still down after grace period. Showing network issue warning.")
           DispatchQueue.main.async {
-            self.shouldShowNetworkIssueWarning = true
+            NetworkErrorViewModel.shared.shouldShowNetworkError = true
           }
         } else {
           print("Internet connection restored during grace period.")
@@ -114,7 +113,7 @@ class AppViewModel: ObservableObject {
 
   private func resetInternetConnectionCheckState() {
     consecutiveFailedInternetChecks = 0
-    shouldShowNetworkIssueWarning = false
+    NetworkErrorViewModel.shared.shouldShowNetworkError = false
     internetConnectionGracePeriodTask?.cancel()
     internetConnectionGracePeriodTask = nil
   }
@@ -499,7 +498,7 @@ class AppViewModel: ObservableObject {
           "The Internet connection appears to be offline")
         {
           DispatchQueue.main.async {
-            strongSelf.shouldShowNetworkIssueWarning = true
+            NetworkErrorViewModel.shared.shouldShowNetworkError = true
             strongSelf.hasInternetConnection = false
             strongSelf.isGeneratingSuggestion[currentTerminalId] = false
           }
@@ -654,7 +653,7 @@ class AppViewModel: ObservableObject {
       } else if error.localizedDescription.contains("The Internet connection appears to be offline")
       {
         DispatchQueue.main.async {
-          self.shouldShowNetworkIssueWarning = true
+          NetworkErrorViewModel.shared.shouldShowNetworkError = true
           self.hasInternetConnection = false
           self.isGeneratingSuggestion[identifier] = false
         }
