@@ -122,8 +122,12 @@ class LicenseViewModel: ObservableObject {
         let result = await self.checkApiKey(self.apiKey)
         switch result {
         case .success:
+          MixpanelHelper.shared.trackEvent(name: "openAIAPIKeyValidationSuccess")
           print("DEBUG: API key check succeeded in scheduled task.")
         case .failure(let error):
+          MixpanelHelper.shared.trackEvent(
+            name: "openAIAPIKeyValidationFailure", properties: ["error": error.localizedDescription]
+          )
           print(
             "DEBUG: API key check failed in scheduled task with error: \(error.localizedDescription)"
           )

@@ -9,8 +9,9 @@ import AXSwift
 import Cocoa
 import Mixpanel
 import Sentry
+import Sparkle
 
-class ApplicationDelegate: NSObject, NSApplicationDelegate {
+class ApplicationDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
   var window: NSWindow!
   let terminalContentDelegate = TerminalContentManager()
   let windowPositionDelegate = WindowPositionManager()
@@ -199,5 +200,21 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate {
   func applicationWillTerminate(_ notification: Notification) {
     // Stop tracking
     shellMateWindowTrackingDelegate.stopTracking()
+  }
+
+  func updater(
+    _ updater: SPUUpdater, userDidMake choice: SPUUserUpdateChoice,
+    forUpdate updateItem: SUAppcastItem, state: SPUUserUpdateState
+  ) {
+    switch choice {
+    case .install:
+      MixpanelHelper.shared.trackEvent(name: "sparkleUpdateInstallSelected")
+    case .skip:
+      MixpanelHelper.shared.trackEvent(name: "sparkleUpdateSkipSelected")
+    case .dismiss:
+      MixpanelHelper.shared.trackEvent(name: "sparkleUpdateDismissSelected")
+    @unknown default:
+      MixpanelHelper.shared.trackEvent(name: "sparkleUpdateUnknownAction")
+    }
   }
 }
