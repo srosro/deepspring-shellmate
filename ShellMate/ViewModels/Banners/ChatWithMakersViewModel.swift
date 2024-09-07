@@ -44,7 +44,7 @@ class ChatWithMakersViewModel: ObservableObject {
     }
 
     // in Swift, Sunday is 1, so Saturday is 7
-    if weekday == 7 {
+    if weekday == 1 {
       isCorrectTimeToShowBanner = true
     } else {
       isCorrectTimeToShowBanner = false
