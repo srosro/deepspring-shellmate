@@ -253,9 +253,6 @@ class AppViewModel: ObservableObject {
       self, selector: #selector(handleSuggestionGenerationStatusChanged(_:)),
       name: .suggestionGenerationStatusChanged, object: nil)
     NotificationCenter.default.addObserver(
-      self, selector: #selector(handleUserAcceptedFreeCredits), name: .userAcceptedFreeCredits,
-      object: nil)
-    NotificationCenter.default.addObserver(
       self, selector: #selector(handleOnboardingStepUpdate(_:)),
       name: .forwardOnboardingStepToAppViewModel, object: nil)
     areNotificationObserversSetup = true
@@ -367,16 +364,6 @@ class AppViewModel: ObservableObject {
 
     // Execute the task after a delay of 0.25 seconds
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: apiKeyValidationDebounceTask!)
-  }
-
-  @objc private func handleUserAcceptedFreeCredits() {
-    // Increase the limit for free tier suggestions by 2000
-    GPTSuggestionsFreeTierLimit += 2000
-
-    // Check if the free tier count has reached the limit again
-    updateHasGPTSuggestionsFreeTierCountReachedLimit()
-
-    print("User accepted free credits. New limit: \(GPTSuggestionsFreeTierLimit)")
   }
 
   @objc private func handleOnboardingStepUpdate(_ notification: Notification) {
