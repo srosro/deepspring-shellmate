@@ -102,9 +102,16 @@ class GPTAssistantManager {
     return try await handleResponse(data: data, response: response)
   }
 
-  func pollRunStatus(threadId: String, runId: String) async throws {
+  func pollRunStatusAsync(
+    threadId: String,
+    runId: String,
+    successStates: [String] = ["completed"],  // Default success state is "completed"
+    failureStates: [String] = ["failed", "cancelled", "expired", "incomplete"]  // Default failure states
+  ) async throws {
     try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-      pollRunStatus(threadId: threadId, runId: runId) { result in
+      pollRunStatusWithCompletion(
+        threadId: threadId, runId: runId, successStates: successStates, failureStates: failureStates
+      ) { result in
         switch result {
         case .success():
           continuation.resume()
@@ -115,8 +122,12 @@ class GPTAssistantManager {
     }
   }
 
-  private func pollRunStatus(
-    threadId: String, runId: String, completion: @escaping (Result<Void, Error>) -> Void
+  private func pollRunStatusWithCompletion(
+    threadId: String,
+    runId: String,
+    successStates: [String],
+    failureStates: [String],
+    completion: @escaping (Result<Void, Error>) -> Void
   ) {
     let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/runs/\(runId)")!
     var request = URLRequest(url: url)
@@ -146,23 +157,32 @@ class GPTAssistantManager {
                 domain: "", code: 0,
                 userInfo: [
                   NSLocalizedDescriptionKey: "PollRunStatus - Failed to parse JSON or bad response"
-                ])))
+                ]
+              )))
           return
         }
         print("Checking run status: \(status)")
-        if status == "completed" {
-          print("Run completed successfully.")
+
+        // Check if the status is one of the success states
+        if successStates.contains(status) {
+          print("Run completed successfully with status: \(status)")
           completion(.success(()))
-        } else if status == "failed" || status == "cancelled" || status == "expired" {
+          return
+        }
+        // Check if the status is one of the failure states
+        else if failureStates.contains(status) {
+          print("Run failed with status: \(status)")
           completion(
             .failure(
               NSError(
                 domain: "", code: 0,
                 userInfo: [
-                  NSLocalizedDescriptionKey:
-                    "PollRunStatus - Run did not complete successfully: \(status)"
-                ])))
+                  NSLocalizedDescriptionKey: "PollRunStatus - Run failed with status: \(status)"
+                ]
+              )))
+          return
         } else {
+          // Poll again after a delay if neither success nor failure states are met
           DispatchQueue.global().asyncAfter(deadline: .now() + interval) {
             checkStatus()  // Recursively check after delay
           }
@@ -281,14 +301,103 @@ class GPTAssistantManager {
     }
   }
 
+  func getMostRecentRun(threadId: String) async throws -> [String: Any]? {
+    let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/runs?limit=1&order=desc")!
+    var request = URLRequest(url: url)
+    request.httpMethod = "GET"
+    request.allHTTPHeaderFields = headers
+
+    let (data, _) = try await URLSession.shared.dataWithTimeout(for: request)
+    guard let jsonData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+      let runs = jsonData["data"] as? [[String: Any]],
+      let mostRecentRun = runs.first
+    else {
+      return nil
+    }
+    return mostRecentRun
+  }
+
+  func cancelRun(threadId: String, runId: String) async throws {
+    let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/runs/\(runId)/cancel")!
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.allHTTPHeaderFields = headers
+
+    let (data, response) = try await URLSession.shared.dataWithTimeout(for: request)
+
+    // Use the handleResponse function to process the response
+    _ = try await handleResponse(data: data, response: response)
+    print("DANBUG: Run \(runId) cancelled successfully.")
+  }
+
+  func handleMostRecentRun(threadId: String) async throws {
+    // Step 1: Get the most recent run
+    guard let mostRecentRun = try await getMostRecentRun(threadId: threadId) else {
+      print("DANBUG: No recent run found for thread \(threadId).")
+      return  // or throw an error if needed
+    }
+
+    // Step 2: Check if the run has a status
+    guard let status = mostRecentRun["status"] as? String else {
+      print("DANBUG: Unable to retrieve status for the most recent run.")
+      return  // or throw an error if needed
+    }
+
+    print("DANBUG: Most recent run status: \(status)")
+
+    // Step 3: Check if the run is still active, cancelling, or needs to be cancelled
+    let activeStates = ["queued", "in_progress", "requires_action"]
+    let intermediateState = "cancelling"
+
+    if activeStates.contains(status) || status == intermediateState,
+      let runId = mostRecentRun["id"] as? String
+    {
+      if status == intermediateState {
+        print(
+          "DANBUG: Run \(runId) is in the process of being cancelled. Waiting for cancellation to complete..."
+        )
+
+        // Step 4: Poll the cancellation status until it's fully cancelled or in a final state
+        try await pollRunStatusAsync(
+          threadId: threadId,
+          runId: runId,
+          successStates: ["cancelled"],
+          failureStates: ["failed", "expired", "incomplete"]
+        )
+      } else {
+        print("DANBUG: Run \(runId) is still active. Attempting to cancel...")
+
+        // Step 5: Cancel the run and wait for it to be fully cancelled
+        try await cancelRun(threadId: threadId, runId: runId)
+
+        // Step 6: Poll the cancellation status (ensure it reaches a terminal state)
+        try await pollRunStatusAsync(
+          threadId: threadId,
+          runId: runId,
+          successStates: ["cancelled"],
+          failureStates: ["failed", "expired", "incomplete"]
+        )
+      }
+      MixpanelHelper.shared.trackEvent(
+        name: "threadRunCancelled", properties: ["originalStatus": status])
+      print("DANBUG: Run \(runId) has been successfully cancelled.")
+    } else {
+      print("DANBUG: Most recent run is already in a terminal state: \(status)")
+    }
+  }
+
   func processMessageInThread(threadId: String, messageContent: String) async throws -> [String:
     Any]
   {
+    // This is necessary to avoid the case where API is slow and execution got stuck
+    // To avoid error: "Can't add messages to thread while a run run is active.",
+    try await handleMostRecentRun(threadId: threadId)
+
     let messageId = try await createMessage(threadId: threadId, messageContent: messageContent)
     print("Message created successfully with ID: \(messageId)")
     let runId = try await startRun(threadId: threadId)
     print("Run started successfully with ID: \(runId)")
-    try await pollRunStatus(threadId: threadId, runId: runId)
+    try await pollRunStatusAsync(threadId: threadId, runId: runId)
     let messageData = try await fetchMessageResult(threadId: threadId)
     return messageData
   }
