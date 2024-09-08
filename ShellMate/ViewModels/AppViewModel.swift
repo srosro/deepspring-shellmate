@@ -39,6 +39,7 @@ class AppViewModel: ObservableObject {
   private let maxSuggestionsPerEvent: Int = 4
   private var shouldGenerateFollowUpSuggestionsFlag: Bool = true
   private var gptAssistantManager: GPTAssistantManager = GPTAssistantManager.shared
+  private var ongoingTerminalContentAnalysisTasks: [String: Task<Void, Never>] = [:]
 
   // UserDefaults keys
   private let GPTSuggestionsFreeTierCountKey = "GPTSuggestionsFreeTierCount"
@@ -428,6 +429,12 @@ class AppViewModel: ObservableObject {
       return
     }
 
+    // Cancel any ongoing task for this terminal ID
+    if let ongoingTask = ongoingTerminalContentAnalysisTasks[currentTerminalId] {
+      ongoingTask.cancel()
+      print("DANBUG: Ongoing task for terminal ID \(currentTerminalId) was canceled.")
+    }
+
     // Log the event when terminal content analysis is requested
     let changedTerminalContentSentToGptAt = Date().timeIntervalSince1970
     MixpanelHelper.shared.trackEvent(
@@ -440,7 +447,8 @@ class AppViewModel: ObservableObject {
         "triggerSource": source,
       ])
 
-    Task.detached { [weak self] in
+    // Create the new task
+    let newTask = Task.detached { [weak self] in
       guard let strongSelf = self else {
         print("DEBUG: Self is nil.")
         return
@@ -448,7 +456,7 @@ class AppViewModel: ObservableObject {
       do {
         print("DEBUG: Calling getOrCreateThreadId for currentTerminalId: \(currentTerminalId)")
         let threadId = try await strongSelf.getOrCreateThreadId(for: currentTerminalId)
-        await strongSelf.processGPTResponse(
+        await strongSelf.processTerminalContentAnalysisWithGPT(
           identifier: currentTerminalId,
           terminalStateID: terminalStateID,
           threadId: threadId,
@@ -492,7 +500,11 @@ class AppViewModel: ObservableObject {
         }
       }
     }
+
+    // Assign the task to the dictionary immediately
+    self.ongoingTerminalContentAnalysisTasks[currentTerminalId] = newTask
   }
+
 
   private func generateAdditionalSuggestions(
     identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double,
@@ -548,7 +560,7 @@ class AppViewModel: ObservableObject {
     Task.detached { [weak self] in
       guard let strongSelf = self else { return }
 
-      await strongSelf.processGPTResponse(
+      await strongSelf.processTerminalContentAnalysisWithGPT(
         identifier: identifier,
         terminalStateID: terminalStateID,
         threadId: threadId,
@@ -596,7 +608,7 @@ class AppViewModel: ObservableObject {
     }
   }
 
-  private func processGPTResponse(
+  private func processTerminalContentAnalysisWithGPT(
     identifier: String, terminalStateID: UUID, threadId: String, messageContent: String,
     changeIdentifiedAt: Double, changedTerminalContentSentToGptAt: Double, source: String
   ) async {
@@ -646,7 +658,12 @@ class AppViewModel: ObservableObject {
         }
       }
     }
-
+    
+    // Always remove the ongoing task for the terminal after processing completes (success or error)
+    DispatchQueue.main.async {
+      self.ongoingTerminalContentAnalysisTasks[identifier] = nil
+    }
+    
     Task { @MainActor in
       NotificationCenter.default.post(
         name: .suggestionGenerationStatusChanged, object: nil,
