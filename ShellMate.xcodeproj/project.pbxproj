@@ -16,6 +16,11 @@
 		DC15545F2C3336FF00F24C18 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = DC15545E2C3336FF00F24C18 /* Mixpanel */; };
 		DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1778902C2887BB002C852C /* WindowPositionManager.swift */; };
 		DC20D0902C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC20D08F2C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift */; };
+		DC26CDE32C7FE17B001FD7DF /* UpdateShellProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC26CDE22C7FE17B001FD7DF /* UpdateShellProfileView.swift */; };
+		DC26CDE52C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC26CDE42C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift */; };
+		DC38CB242C839B6B0073870B /* BannersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC38CB232C839B6B0073870B /* BannersView.swift */; };
+		DC38CB282C83B1B50073870B /* EmptyStateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC38CB272C83B1B50073870B /* EmptyStateViewModel.swift */; };
+		DC38CB2A2C83B1C50073870B /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC38CB292C83B1C50073870B /* EmptyStateView.swift */; };
 		DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */; };
 		DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */; };
 		DC53925E2C38CFEA003CB46D /* KeyPressDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */; };
@@ -24,6 +29,8 @@
 		DC60BD912C3AF8A10027048D /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = DC60BD902C3AF8A10027048D /* LaunchAtLogin */; };
 		DC6A78252C46E8F700FFC785 /* SendFeedbackEmail.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6A78242C46E8F700FFC785 /* SendFeedbackEmail.swift */; };
 		DC7DD61D2C36DEF80034E6ED /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = DC7DD61C2C36DEF80034E6ED /* Sentry */; };
+		DC8C11942C8B9AB400A24308 /* NetworkErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8C11932C8B9AB400A24308 /* NetworkErrorView.swift */; };
+		DC8C11962C8B9D0C00A24308 /* NetworkErrorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8C11952C8B9D0C00A24308 /* NetworkErrorViewModel.swift */; };
 		DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8FF0922C2CC30300E5F0A7 /* App.swift */; };
 		DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B38892C24FFEA006755AE /* AppViewModel.swift */; };
 		DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9B388B2C24FFEA006755AE /* ContentView.swift */; };
@@ -38,10 +45,13 @@
 		DCAA86462C2A0A550047AE3D /* NotificationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */; };
 		DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */; };
 		DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAA86492C2A22E40047AE3D /* Utils.swift */; };
-		DCB1F8E42C7A65EE0016CB96 /* ChatWithMakers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1F8E32C7A65EE0016CB96 /* ChatWithMakers.swift */; };
+		DCB1F8E42C7A65EE0016CB96 /* ChatWithMakersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1F8E32C7A65EE0016CB96 /* ChatWithMakersView.swift */; };
 		DCB1F8E82C7A829D0016CB96 /* ChatWithMakersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */; };
+		DCB25E962C84E51900D5FACF /* EmptyStateMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB25E952C84E51900D5FACF /* EmptyStateMessages.swift */; };
+		DCB25E992C84E83900D5FACF /* SuggestionsStatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB25E982C84E83900D5FACF /* SuggestionsStatusBarView.swift */; };
 		DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */; };
 		DCB37C062C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */; };
+		DCF319D12C89FEA400CF1E0B /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */; };
 		DCF6D7322C49AE08004728C1 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */; };
 		DCF6D7342C49AE1C004728C1 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF6D7332C49AE1C004728C1 /* OnboardingView.swift */; };
 /* End PBXBuildFile section */
@@ -79,11 +89,18 @@
 		DC0D53F92C3C9CA0003FEBB1 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		DC1778902C2887BB002C852C /* WindowPositionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPositionManager.swift; sourceTree = "<group>"; };
 		DC20D08F2C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartupTerminalWindowHandler.swift; sourceTree = "<group>"; };
+		DC26CDE22C7FE17B001FD7DF /* UpdateShellProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateShellProfileView.swift; sourceTree = "<group>"; };
+		DC26CDE42C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateShellProfileViewModel.swift; sourceTree = "<group>"; };
+		DC38CB232C839B6B0073870B /* BannersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannersView.swift; sourceTree = "<group>"; };
+		DC38CB272C83B1B50073870B /* EmptyStateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateViewModel.swift; sourceTree = "<group>"; };
+		DC38CB292C83B1C50073870B /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantCreator.swift; sourceTree = "<group>"; };
 		DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantInstructions.swift; sourceTree = "<group>"; };
 		DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressDelegate.swift; sourceTree = "<group>"; };
 		DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		DC6A78242C46E8F700FFC785 /* SendFeedbackEmail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeedbackEmail.swift; sourceTree = "<group>"; };
+		DC8C11932C8B9AB400A24308 /* NetworkErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrorView.swift; sourceTree = "<group>"; };
+		DC8C11952C8B9D0C00A24308 /* NetworkErrorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrorViewModel.swift; sourceTree = "<group>"; };
 		DC8FF0922C2CC30300E5F0A7 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		DC9B38862C24FFEA006755AE /* ShellMate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShellMate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC9B38892C24FFEA006755AE /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
@@ -102,10 +119,14 @@
 		DCAA86452C2A0A550047AE3D /* NotificationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationExtensions.swift; sourceTree = "<group>"; };
 		DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantManager.swift; sourceTree = "<group>"; };
 		DCAA86492C2A22E40047AE3D /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
-		DCB1F8E32C7A65EE0016CB96 /* ChatWithMakers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWithMakers.swift; sourceTree = "<group>"; };
+		DCB1F8E32C7A65EE0016CB96 /* ChatWithMakersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWithMakersView.swift; sourceTree = "<group>"; };
 		DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWithMakersViewModel.swift; sourceTree = "<group>"; };
+		DCB25E952C84E51900D5FACF /* EmptyStateMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateMessages.swift; sourceTree = "<group>"; };
+		DCB25E982C84E83900D5FACF /* SuggestionsStatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionsStatusBarView.swift; sourceTree = "<group>"; };
 		DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDelegate.swift; sourceTree = "<group>"; };
 		DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupLaunchShellMateAtTerminalStartup.swift; sourceTree = "<group>"; };
+		DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		DCF319D22C8A02C100CF1E0B /* Template.Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Template.Secrets.xcconfig; sourceTree = "<group>"; };
 		DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		DCF6D7332C49AE1C004728C1 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -167,15 +188,54 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
+		DC26CDE02C7FDF77001FD7DF /* Banners */ = {
+			isa = PBXGroup;
+			children = (
+				DC38CB232C839B6B0073870B /* BannersView.swift */,
+				DCB1F8E32C7A65EE0016CB96 /* ChatWithMakersView.swift */,
+				DC26CDE22C7FE17B001FD7DF /* UpdateShellProfileView.swift */,
+				DC8C11932C8B9AB400A24308 /* NetworkErrorView.swift */,
+			);
+			path = Banners;
+			sourceTree = "<group>";
+		};
+		DC26CDE12C7FE0AF001FD7DF /* Banners */ = {
+			isa = PBXGroup;
+			children = (
+				DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */,
+				DC26CDE42C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift */,
+				DC8C11952C8B9D0C00A24308 /* NetworkErrorViewModel.swift */,
+			);
+			path = Banners;
+			sourceTree = "<group>";
+		};
+		DC38CB252C83B18F0073870B /* EmptyState */ = {
+			isa = PBXGroup;
+			children = (
+				DC38CB292C83B1C50073870B /* EmptyStateView.swift */,
+			);
+			path = EmptyState;
+			sourceTree = "<group>";
+		};
+		DC38CB262C83B1980073870B /* EmptyState */ = {
+			isa = PBXGroup;
+			children = (
+				DC38CB272C83B1B50073870B /* EmptyStateViewModel.swift */,
+				DCB25E952C84E51900D5FACF /* EmptyStateMessages.swift */,
+			);
+			path = EmptyState;
+			sourceTree = "<group>";
+		};
 		DC8FF0912C2CC2C300E5F0A7 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				DC38CB262C83B1980073870B /* EmptyState */,
+				DC26CDE12C7FE0AF001FD7DF /* Banners */,
 				DCF6D7302C49ADF1004728C1 /* Onboarding */,
 				DC0D53FB2C3CA373003FEBB1 /* Settings */,
 				DC9B38892C24FFEA006755AE /* AppViewModel.swift */,
 				DCA94B682C2CA726004A2BCE /* PermissionsViewModel.swift */,
 				DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */,
-				DCB1F8E72C7A829D0016CB96 /* ChatWithMakersViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -183,6 +243,8 @@
 		DC9B387D2C24FFEA006755AE = {
 			isa = PBXGroup;
 			children = (
+				DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */,
+				DCF319D22C8A02C100CF1E0B /* Template.Secrets.xcconfig */,
 				DC9B38882C24FFEA006755AE /* ShellMate */,
 				DC9B38C82C2502FA006755AE /* ShellMateCLI */,
 				DC9B38872C24FFEA006755AE /* Products */,
@@ -244,15 +306,25 @@
 		DCA94B652C2C98FA004A2BCE /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DCB25E972C84E7BA00D5FACF /* Suggestions */,
+				DC38CB252C83B18F0073870B /* EmptyState */,
+				DC26CDE02C7FDF77001FD7DF /* Banners */,
 				DCF6D72F2C49ADC5004728C1 /* Onboarding */,
 				DC0D53FC2C3CA38C003FEBB1 /* Settings */,
 				DC9B388B2C24FFEA006755AE /* ContentView.swift */,
 				DCA94B662C2C9921004A2BCE /* PermissionsView.swift */,
 				DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */,
 				DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */,
-				DCB1F8E32C7A65EE0016CB96 /* ChatWithMakers.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		DCB25E972C84E7BA00D5FACF /* Suggestions */ = {
+			isa = PBXGroup;
+			children = (
+				DCB25E982C84E83900D5FACF /* SuggestionsStatusBarView.swift */,
+			);
+			path = Suggestions;
 			sourceTree = "<group>";
 		};
 		DCF6D72F2C49ADC5004728C1 /* Onboarding */ = {
@@ -368,6 +440,7 @@
 			files = (
 				DC9B38912C24FFEB006755AE /* Preview Assets.xcassets in Resources */,
 				DC9B38B52C2501A3006755AE /* Assets.xcassets in Resources */,
+				DCF319D12C89FEA400CF1E0B /* Secrets.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -376,7 +449,8 @@
 /* Begin PBXShellScriptBuildPhase section */
 		DC20D0912C4C4A6F00F80AE1 /* Run Script: Sentry upload debug symbols */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			alwaysOutOfDate = 1;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -391,7 +465,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which sentry-cli >/dev/null; then\nexport SENTRY_ORG=deepspring\nexport SENTRY_PROJECT=shellmate\nexport SENTRY_AUTH_TOKEN=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\nERROR=$(sentry-cli debug-files upload --include-sources \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"warning: sentry-cli - $ERROR\"\nfi\nelse\necho \"warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
+			shellScript = "if which sentry-cli >/dev/null; then\nexport SENTRY_ORG=deepspring\nexport SENTRY_PROJECT=shellmate\nERROR=$(sentry-cli debug-files upload --force-foreground --include-sources \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null)\nif [ ! $? -eq 0 ]; then\necho \"error: sentry-cli - $ERROR\"\nfi\nelse\necho \"error: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -402,11 +476,15 @@
 			files = (
 				DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */,
 				DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */,
+				DCB25E992C84E83900D5FACF /* SuggestionsStatusBarView.swift in Sources */,
 				DC20D0902C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift in Sources */,
 				DCAA86482C2A22C50047AE3D /* GPTAssistantManager.swift in Sources */,
 				DC0D53F82C3C9728003FEBB1 /* SettingsView.swift in Sources */,
+				DC8C11962C8B9D0C00A24308 /* NetworkErrorViewModel.swift in Sources */,
+				DC8C11942C8B9AB400A24308 /* NetworkErrorView.swift in Sources */,
 				DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */,
 				DCA668D92C3E0CFE0057629C /* ShellMateWindowTrackingDelegate.swift in Sources */,
+				DCB25E962C84E51900D5FACF /* EmptyStateMessages.swift in Sources */,
 				DCB1F8E82C7A829D0016CB96 /* ChatWithMakersViewModel.swift in Sources */,
 				DC0D53FA2C3C9CA0003FEBB1 /* SettingsViewModel.swift in Sources */,
 				DC8FF0932C2CC30300E5F0A7 /* App.swift in Sources */,
@@ -414,6 +492,8 @@
 				DC1778912C2887BB002C852C /* WindowPositionManager.swift in Sources */,
 				DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */,
 				DC00C03C2C2F62100019BEB1 /* CheckForUpdatesView.swift in Sources */,
+				DC38CB242C839B6B0073870B /* BannersView.swift in Sources */,
+				DC38CB282C83B1B50073870B /* EmptyStateViewModel.swift in Sources */,
 				DC9B388C2C24FFEA006755AE /* ContentView.swift in Sources */,
 				DCA94B692C2CA726004A2BCE /* PermissionsViewModel.swift in Sources */,
 				DC6A78252C46E8F700FFC785 /* SendFeedbackEmail.swift in Sources */,
@@ -422,11 +502,14 @@
 				DCA94B672C2C9921004A2BCE /* PermissionsView.swift in Sources */,
 				DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */,
 				DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */,
+				DC26CDE52C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift in Sources */,
 				DCF6D7322C49AE08004728C1 /* OnboardingViewModel.swift in Sources */,
+				DC38CB2A2C83B1C50073870B /* EmptyStateView.swift in Sources */,
 				DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */,
 				DCF6D7342C49AE1C004728C1 /* OnboardingView.swift in Sources */,
-				DCB1F8E42C7A65EE0016CB96 /* ChatWithMakers.swift in Sources */,
+				DCB1F8E42C7A65EE0016CB96 /* ChatWithMakersView.swift in Sources */,
 				DCAA864A2C2A22E40047AE3D /* Utils.swift in Sources */,
+				DC26CDE32C7FE17B001FD7DF /* UpdateShellProfileView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,6 +534,7 @@
 /* Begin XCBuildConfiguration section */
 		DC9B38932C24FFEB006755AE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -514,6 +598,7 @@
 		};
 		DC9B38942C24FFEB006755AE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

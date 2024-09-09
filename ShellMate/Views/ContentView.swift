@@ -60,81 +60,34 @@ struct TroubleshootShellMateView: View {
 
 struct ActivateShellMateView: View {
   @State private var apiKey: String = ""
-  @State private var showSubscriptionMessage: Bool = false
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      if showSubscriptionMessage {
-        Text("Thanks for being willing to support us!")
-          .font(.body)
-          .fontWeight(.semibold)
-          .allowsHitTesting(false)  // Disable interaction for this text
-
-        Text(
-          "We haven’t implemented this yet. But we’ve given you more free credits on our OpenAI account"
-        )
+      Text("Activate ShellMate")
         .font(.body)
-        .fontWeight(.regular)
-        .multilineTextAlignment(.leading)
+        .fontWeight(.semibold)
         .allowsHitTesting(false)  // Disable interaction for this text
-        .lineLimit(5)  // Allow text to wrap into multiple lines
-        .fixedSize(horizontal: false, vertical: true)
 
-        Button(action: acceptFreeCredits) {
-          Text("Accept 2,000 free credits")
-            .padding(.horizontal, 11)
-            .padding(.vertical, 7)
-            .background(Color.Text.green)
-            .foregroundColor(Color.Text.oppositePrimary)
-            .cornerRadius(4)
-            .font(.subheadline)
-        }
-        .buttonStyle(BorderlessButtonStyle())  // Ensure no default button styling
+      Text(
+        "You've run out of free AI responses. Add your own OpenAI API key to continue using ShellMate."
+      )
+      .font(.body)
+      .fontWeight(.regular)
+      .multilineTextAlignment(.leading)
+      .allowsHitTesting(false)  // Disable interaction for this text
+      .lineLimit(5)  // Allow text to wrap into multiple lines
+      .fixedSize(horizontal: false, vertical: true)
 
-      } else {
-        Text("Activate ShellMate")
-          .font(.body)
-          .fontWeight(.semibold)
-          .allowsHitTesting(false)  // Disable interaction for this text
-
-        Text(
-          "You've run out of free AI responses. Subscribe for credits or add your own OpenAI API key to continue using ShellMate."
-        )
-        .font(.body)
-        .fontWeight(.regular)
-        .multilineTextAlignment(.leading)
-        .allowsHitTesting(false)  // Disable interaction for this text
-        .lineLimit(5)  // Allow text to wrap into multiple lines
-        .fixedSize(horizontal: false, vertical: true)
-
-        HStack(spacing: 8) {  // Use HStack to align buttons side by side
-          Button(action: handleSubscriptionClick) {
-            Text("Subscribe for $2.99/month")
-              .padding(.horizontal, 11)
-              .padding(.vertical, 7)
-              .background(Color.black)
-              .foregroundColor(.white)
-              .cornerRadius(4)
-              .font(.subheadline)
-          }
-          .buttonStyle(BorderlessButtonStyle())  // Ensure no default button styling
-
-          SettingsLink {
-            Text("Add OpenAI API key")
-              .padding(.horizontal, 11)
-              .padding(.vertical, 7)
-              .background(Color.clear)
-              .foregroundColor(.primary)
-              .cornerRadius(4)
-              .font(.subheadline)
-              .overlay(
-                RoundedRectangle(cornerRadius: 4)
-                  .stroke(Color.primary, lineWidth: 0.5)
-              )
-          }
-          .buttonStyle(BorderlessButtonStyle())  // Ensure no default button styling
-        }
+      SettingsLink {
+        Text("Add OpenAI API key")  // Text from the second button
+          .padding(.horizontal, 11)
+          .padding(.vertical, 7)
+          .background(Color.black)  // Style from the first button
+          .foregroundColor(.white)
+          .cornerRadius(4)
+          .font(.subheadline)
       }
+      .buttonStyle(BorderlessButtonStyle())  // Ensure no default button styling
     }
     .padding(.horizontal, 16)  // Inner padding for the VStack inside the border
     .padding(.vertical, 12)  // Inner padding for the VStack inside the border
@@ -150,69 +103,19 @@ struct ActivateShellMateView: View {
     )
     .buttonStyle(PlainButtonStyle())  // Ensure no button styling
   }
-
-  // Function to handle the subscription button click
-  private func handleSubscriptionClick() {
-    // Simulate the action and show the message
-    showSubscriptionMessage = true
-    MixpanelHelper.shared.trackEvent(name: "clickedSubscribeButton")
-  }
-
-  // Function to handle the acceptance of 2000 free credits
-  private func acceptFreeCredits() {
-    print("2000 free credits accepted")
-
-    // Post the notification
-    NotificationCenter.default.post(name: .userAcceptedFreeCredits, object: nil)
-    MixpanelHelper.shared.trackEvent(name: "receivedFreeAPICredits")
-  }
-}
-
-struct NetworkIssueView: View {
-  @State private var apiKey: String = ""
-
-  var body: some View {
-    Button(action: {
-    }) {
-      // this here is a dummy button just to make the style work
-      VStack(alignment: .leading, spacing: 8) {
-        Text("Network Error")
-          .font(.body)
-          .fontWeight(.semibold)
-          .allowsHitTesting(false)  // Disable interaction for this text
-
-        Text(
-          "Please check your internet connection. If you believe this is an error, feel free to send us feedback."
-        )
-        .font(.body)
-        .fontWeight(.regular)
-        .multilineTextAlignment(.leading)
-        .allowsHitTesting(false)  // Disable interaction for this text
-      }
-      .padding(.horizontal, 16)  // Inner padding for the VStack inside the border
-      .padding(.vertical, 12)  // Inner padding for the VStack inside the border
-      .frame(maxWidth: .infinity, alignment: .leading)  // Make VStack take full width
-      .background(
-        RoundedRectangle(cornerRadius: 8)
-          .strokeBorder(
-            LinearGradient(
-              gradient: Gradient(colors: [AppColors.gradientLightBlue, AppColors.gradientPurple]),
-              startPoint: .topLeading,
-              endPoint: .bottomTrailing
-            ), lineWidth: 2)
-      )
-    }
-    .buttonStyle(PlainButtonStyle())  // Ensure no button styling
-  }
 }
 
 struct ContentView: View {
   @ObservedObject var viewModel: AppViewModel
 
   var body: some View {
-    ChatWithMakersBanner()
-
-    SuggestionsView(viewModel: viewModel)
+    if let terminalID = viewModel.currentTerminalID,
+      viewModel.shouldShowSuggestionsView[terminalID] ?? false
+    {
+      SuggestionsView(viewModel: viewModel)
+    } else {
+      EmptyStateView(viewModel: viewModel)
+    }
   }
 }
 
@@ -220,6 +123,7 @@ struct SuggestionsView: View {
   @ObservedObject var viewModel: AppViewModel
   @ObservedObject private var stateManager = OnboardingStateManager.shared
   @State private var isRotating = false
+  @State private var scrollToKey: String? = nil
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -246,7 +150,7 @@ struct SuggestionsView: View {
                     isLastBatch: batchIndex == windowData.suggestionsHistory.count - 1,
                     viewModel: viewModel
                   )
-                  .id("suggestion-\(batchIndex)")
+                  .id(generateSuggestionViewElementID(batchIndex: batchIndex))
                 }
               }
             }
@@ -272,104 +176,34 @@ struct SuggestionsView: View {
             }
           }
         }
-      }
-
-      if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit
-        && viewModel.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
-      {
-        ActivateShellMateView()
-          .padding(10)
-      } else if viewModel.shouldShowNetworkIssueWarning {
-        NetworkIssueView()
-          .padding(10)
-      } else if viewModel.shouldTroubleShootAPIKey
-        || viewModel.hasUserValidatedOwnOpenAIAPIKey == .invalid
-      {
-        TroubleshootShellMateView()
-          .padding(10)
-      }
-
-      Divider().padding(.top, 5)
-
-      ZStack(alignment: .center) {
-        HStack {
-          if let currentTerminalID = viewModel.currentTerminalID,
-            viewModel.pauseSuggestionGeneration[currentTerminalID] != true
-          {
-            Text(viewModel.currentStateText)
-              .font(.footnote)
-              .foregroundColor(
-                viewModel.currentStateText == "Detecting changes..."
-                  ? Color.Text.green : Color.Text.gray
-              )
-              .padding(.leading)
-          }
-          Spacer()
-          HStack(spacing: 8) {
-            if let currentTerminalID = viewModel.currentTerminalID {
-              if viewModel.isGeneratingSuggestion[currentTerminalID] == true {
-                Text("Generating suggestion...")
-                  .font(.footnote)
-                  .foregroundColor(Color.Text.green)
-              } else if viewModel.pauseSuggestionGeneration[currentTerminalID] == true {
-                Text("ShellMate paused")
-                  .font(.footnote)
-                  .foregroundColor(Color.Text.gray)
-              }
-
-              Button(action: {
-                // Toggle the pause state
-                viewModel.setPauseSuggestionGeneration(
-                  for: currentTerminalID,
-                  to: !viewModel.pauseSuggestionGeneration[currentTerminalID, default: false])
-              }) {
-                Image(
-                  systemName: viewModel.pauseSuggestionGeneration[currentTerminalID] == true
-                    ? "play.circle.fill" : "pause.circle.fill"
-                )
-                .font(.system(size: 16))  // Adjust the size as needed
-                .foregroundColor(Color.Text.secondary)
-              }
-              .buttonStyle(PlayPauseButtonStyle())
+        .onChange(of: scrollToKey) {
+          if let key = scrollToKey {
+            withAnimation {
+              scrollView.scrollTo(key, anchor: .top)
             }
           }
-          .padding(.trailing, 16)
         }
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .center)
 
-        if let currentTerminalID = viewModel.currentTerminalID,
-          viewModel.isGeneratingSuggestion[currentTerminalID] == true
+        if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit
+          && viewModel.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
         {
-          if viewModel.shouldShowSamAltmansFace {
-            Image("samAltmansFace")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(width: 29)
-              .rotationEffect(.degrees(isRotating ? 360 : 0))
-              .onAppear {
-                withAnimation(
-                  Animation.linear(duration: 0.5)
-                    .delay(0.8)
-                    .repeatForever(autoreverses: false)
-                ) {
-                  isRotating = true
-                }
-              }
-              .onDisappear {
-                isRotating = false  // Stop the rotation when the view disappears
-              }
-              .padding(.vertical, 0)
-              .offset(y: -1)
-          }
+          ActivateShellMateView()
+            .padding(10)
+        } else if viewModel.shouldTroubleShootAPIKey
+          || viewModel.hasUserValidatedOwnOpenAIAPIKey == .invalid
+        {
+          TroubleshootShellMateView()
+            .padding(10)
         }
+        BannersView(scrollToFixingCommand: scrollToFixingCommand, scrollView: scrollView)
       }
+      SuggestionsStatusBarView(viewModel: viewModel)
     }
   }
 
   private func scrollToBottom(scrollView: ScrollViewProxy, key: String) {
     withAnimation {
-      scrollView.scrollTo(key, anchor: .bottom)
+      scrollView.scrollTo(key, anchor: .top)
     }
   }
 
@@ -378,6 +212,12 @@ struct SuggestionsView: View {
     pasteboard.clearContents()
     pasteboard.setString(command, forType: .string)
     print("Copied to clipboard: \(command)")
+  }
+
+  func scrollToFixingCommand(scrollView: ScrollViewProxy, key: String) {
+    withAnimation {
+      scrollView.scrollTo(key, anchor: .top)
+    }
   }
 }
 
@@ -407,7 +247,7 @@ struct SuggestionBatchView: View {
 
       SuggestionView(resultDict: resultDict, batchIndex: batchIndex, index: index)
         .padding(.bottom, isLastSuggestionInBatch ? 35 : 0)
-        .id("suggestion-\(batchIndex)-\(index)")
+        .id(generateSuggestionViewElementID(batchIndex: batchIndex, suggestionIndex: index))
     }
   }
 }

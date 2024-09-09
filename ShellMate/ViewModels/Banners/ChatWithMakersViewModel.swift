@@ -9,12 +9,16 @@ import Combine
 import Foundation
 
 class ChatWithMakersViewModel: ObservableObject {
+  // Singleton instance
+  static let shared = ChatWithMakersViewModel()
+
   @Published private(set) var shouldShowBanner: Bool = false
   private var isCorrectTimeToShowBanner: Bool = false
   private var hasUserClosedBanner: Bool = false
   private var timer: Timer?
 
-  init() {
+  // Private initializer to enforce singleton pattern
+  private init() {
     checkIfShouldShowBanner()
     startTimer()  // Start the timer when the view model is initialized
   }
@@ -40,8 +44,7 @@ class ChatWithMakersViewModel: ObservableObject {
     }
 
     // in Swift, Sunday is 1, so Saturday is 7
-    //if weekday == 2 && hour == 14 && minute == 24 {
-    if weekday == 2 {
+    if weekday == 1 {
       isCorrectTimeToShowBanner = true
     } else {
       isCorrectTimeToShowBanner = false

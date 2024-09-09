@@ -144,14 +144,19 @@ class CompanionModeManager: ObservableObject {
   }
 
   private func performCompanionModeActions() {
-    UserDefaults.standard.set(isCompanionModeEnabled, forKey: "isCompanionModeEnabled")
+    let currentMode = UserDefaults.standard.bool(forKey: "isCompanionModeEnabled")
 
-    if isCompanionModeEnabled {
-      installShellMateAtTerminalStartup()
-      MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalEnabled")
-    } else {
-      uninstallShellMateAtTerminalStartup()
-      MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalDisabled")
+    // Check if the new value is different from the current one
+    if isCompanionModeEnabled != currentMode {
+      UserDefaults.standard.set(isCompanionModeEnabled, forKey: "isCompanionModeEnabled")
+
+      if isCompanionModeEnabled {
+        installShellMateAtTerminalStartup()
+        MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalEnabled")
+      } else {
+        uninstallShellMateAtTerminalStartup()
+        MixpanelHelper.shared.trackEvent(name: "autoOpenWithTerminalDisabled")
+      }
     }
   }
 
