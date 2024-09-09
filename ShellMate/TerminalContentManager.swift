@@ -188,6 +188,8 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
   }
 
   func debounceTerminalTextChange() {
+    let textChangeDebounceTime: TimeInterval = 1.75
+
     NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
     textDebounceWorkItem?.cancel()
     let workItem = DispatchWorkItem { [weak self] in
@@ -195,7 +197,7 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
       NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
     }
     textDebounceWorkItem = workItem
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
+    DispatchQueue.main.asyncAfter(deadline: .now() + textChangeDebounceTime, execute: workItem)
   }
 
   func processHighlightedText() {

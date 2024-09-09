@@ -51,6 +51,7 @@
 		DCB25E992C84E83900D5FACF /* SuggestionsStatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB25E982C84E83900D5FACF /* SuggestionsStatusBarView.swift */; };
 		DCB2D0062C28CDFD00479574 /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */; };
 		DCB37C062C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */; };
+		DCEF52442C8F4589000AB274 /* GPTAssistantThreadIDManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCEF52432C8F4589000AB274 /* GPTAssistantThreadIDManager.swift */; };
 		DCF319D12C89FEA400CF1E0B /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */; };
 		DCF6D7322C49AE08004728C1 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */; };
 		DCF6D7342C49AE1C004728C1 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF6D7332C49AE1C004728C1 /* OnboardingView.swift */; };
@@ -125,6 +126,7 @@
 		DCB25E982C84E83900D5FACF /* SuggestionsStatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionsStatusBarView.swift; sourceTree = "<group>"; };
 		DCB2D0052C28CDFD00479574 /* ApplicationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDelegate.swift; sourceTree = "<group>"; };
 		DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupLaunchShellMateAtTerminalStartup.swift; sourceTree = "<group>"; };
+		DCEF52432C8F4589000AB274 /* GPTAssistantThreadIDManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantThreadIDManager.swift; sourceTree = "<group>"; };
 		DCF319D02C89FEA400CF1E0B /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		DCF319D22C8A02C100CF1E0B /* Template.Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Template.Secrets.xcconfig; sourceTree = "<group>"; };
 		DCF6D7312C49AE08004728C1 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
@@ -264,6 +266,7 @@
 		DC9B38882C24FFEA006755AE /* ShellMate */ = {
 			isa = PBXGroup;
 			children = (
+				DCEF52422C8F4558000AB274 /* GPT */,
 				DC8FF0912C2CC2C300E5F0A7 /* ViewModels */,
 				DC00C0382C2F5F2D0019BEB1 /* Info.plist */,
 				DCA94B652C2C98FA004A2BCE /* Views */,
@@ -277,9 +280,6 @@
 				DC9B38922C24FFEB006755AE /* ShellMate.entitlements */,
 				DC9B38B42C2501A3006755AE /* Assets.xcassets */,
 				DC9B388F2C24FFEB006755AE /* Preview Content */,
-				DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */,
-				DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */,
-				DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */,
 				DC20D08E2C4C108B00F80AE1 /* Helpers */,
 			);
 			path = ShellMate;
@@ -325,6 +325,17 @@
 				DCB25E982C84E83900D5FACF /* SuggestionsStatusBarView.swift */,
 			);
 			path = Suggestions;
+			sourceTree = "<group>";
+		};
+		DCEF52422C8F4558000AB274 /* GPT */ = {
+			isa = PBXGroup;
+			children = (
+				DCAA86472C2A22C50047AE3D /* GPTAssistantManager.swift */,
+				DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */,
+				DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */,
+				DCEF52432C8F4589000AB274 /* GPTAssistantThreadIDManager.swift */,
+			);
+			path = GPT;
 			sourceTree = "<group>";
 		};
 		DCF6D72F2C49ADC5004728C1 /* Onboarding */ = {
@@ -475,6 +486,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC9B38D32C25039F006755AE /* TerminalContentManager.swift in Sources */,
+				DCEF52442C8F4589000AB274 /* GPTAssistantThreadIDManager.swift in Sources */,
 				DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */,
 				DCB25E992C84E83900D5FACF /* SuggestionsStatusBarView.swift in Sources */,
 				DC20D0902C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift in Sources */,

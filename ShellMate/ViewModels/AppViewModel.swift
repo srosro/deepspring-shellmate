@@ -33,7 +33,6 @@ class AppViewModel: ObservableObject {
   private var consecutiveFailedInternetChecks: Int = 0
   private var internetConnectionGracePeriodTask: Task<Void, Never>?
 
-  private var threadIdDict: [String: String] = [:]
   private var currentTerminalStateID: UUID?
   private let additionalSuggestionDelaySeconds: TimeInterval = 3.0
   private let maxSuggestionsPerEvent: Int = 4
@@ -404,7 +403,7 @@ class AppViewModel: ObservableObject {
         print("DEBUG: Assistant initialization completed")
 
         // Clear the entire threadIdDict
-        self.threadIdDict.removeAll()
+        GPTAssistantThreadIDManager.shared.removeAllThreadIds()
         print("DEBUG: threadIdDict cleared")
       }
     }
@@ -455,7 +454,8 @@ class AppViewModel: ObservableObject {
       }
       do {
         print("DEBUG: Calling getOrCreateThreadId for currentTerminalId: \(currentTerminalId)")
-        let threadId = try await strongSelf.getOrCreateThreadId(for: currentTerminalId)
+        let threadId = try await GPTAssistantThreadIDManager.shared.getOrCreateThreadId(
+          for: currentTerminalId)
         await strongSelf.processTerminalContentAnalysisWithGPT(
           identifier: currentTerminalId,
           terminalStateID: terminalStateID,
@@ -504,7 +504,6 @@ class AppViewModel: ObservableObject {
     // Assign the task to the dictionary immediately
     self.ongoingTerminalContentAnalysisTasks[currentTerminalId] = newTask
   }
-
 
   private func generateAdditionalSuggestions(
     identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double,
@@ -587,27 +586,6 @@ class AppViewModel: ObservableObject {
     }
   }
 
-  @MainActor
-  private func getOrCreateThreadId(for identifier: String) async throws -> String {
-    print("DEBUG: getOrCreateThreadId called for identifier: \(identifier)")
-
-    if let threadId = threadIdDict[identifier] {
-      print("DEBUG: Found existing thread ID for identifier \(identifier): \(threadId)")
-      return threadId
-    }
-
-    print("DEBUG: No existing thread ID for identifier \(identifier). Creating a new thread ID.")
-    do {
-      let createdThreadId = try await gptAssistantManager.createThread()
-      threadIdDict[identifier] = createdThreadId
-      print("DEBUG: Created new thread ID for identifier \(identifier): \(createdThreadId)")
-      return createdThreadId
-    } catch {
-      print("DEBUG: Failed to create thread ID for identifier \(identifier) with error: \(error)")
-      throw error
-    }
-  }
-
   private func processTerminalContentAnalysisWithGPT(
     identifier: String, terminalStateID: UUID, threadId: String, messageContent: String,
     changeIdentifiedAt: Double, changedTerminalContentSentToGptAt: Double, source: String
@@ -619,7 +597,7 @@ class AppViewModel: ObservableObject {
     }
     do {
       let response = try await gptAssistantManager.processMessageInThread(
-        threadId: threadId, messageContent: messageContent)
+        terminalID: identifier, messageContent: messageContent)
       if let command = response["command"] as? String,
         let commandExplanation = response["commandExplanation"] as? String,
         let intention = response["intention"] as? String,
@@ -656,14 +634,19 @@ class AppViewModel: ObservableObject {
           self.hasInternetConnection = false
           self.isGeneratingSuggestion[identifier] = false
         }
+      } else {
+        // For all other error cases, ensure isGeneratingSuggestion is set to false
+        DispatchQueue.main.async {
+          self.isGeneratingSuggestion[identifier] = false
+        }
       }
     }
-    
+
     // Always remove the ongoing task for the terminal after processing completes (success or error)
     DispatchQueue.main.async {
       self.ongoingTerminalContentAnalysisTasks[identifier] = nil
     }
-    
+
     Task { @MainActor in
       NotificationCenter.default.post(
         name: .suggestionGenerationStatusChanged, object: nil,

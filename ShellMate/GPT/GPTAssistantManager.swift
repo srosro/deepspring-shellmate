@@ -139,6 +139,7 @@ class GPTAssistantManager {
     configuration.timeoutIntervalForRequest = 15.0  // 15 seconds timeout
     configuration.timeoutIntervalForResource = 15.0  // 15 seconds timeout
     let session = URLSession(configuration: configuration)
+    let startTime = Date()  // Record the start time of polling
 
     func checkStatus() {
       let interval = pollingInterval
@@ -181,15 +182,33 @@ class GPTAssistantManager {
                 ]
               )))
           return
-        } else {
-          // Poll again after a delay if neither success nor failure states are met
+        }
+        // Check if the status is 'cancelling' and if it has exceeded 10 seconds
+        else if status == "cancelling" {
+          let elapsedTime = Date().timeIntervalSince(startTime)
+          if elapsedTime > 10.0 {
+            print("Polling stopped: Run stuck in 'cancelling' state for more than 10 seconds.")
+            completion(
+              .failure(
+                NSError(
+                  domain: "GPTAssistantErrorDomain", code: 1002,
+                  userInfo: [
+                    NSLocalizedDescriptionKey:
+                      "Run stuck in 'cancelling' state for more than 10 seconds",
+                    "failureReason": "cancelling",
+                  ]
+                )))
+            return
+          }
+        }
+        // Poll again after a delay if neither success nor failure states are met
+        else {
           DispatchQueue.global().asyncAfter(deadline: .now() + interval) {
             checkStatus()  // Recursively check after delay
           }
         }
       }.resume()
     }
-
     checkStatus()  // Initial call to start the polling
   }
 
@@ -330,6 +349,19 @@ class GPTAssistantManager {
     print("DANBUG: Run \(runId) cancelled successfully.")
   }
 
+  private func handleRunStuckAtCancellingError(for terminalID: String, runId: String) async throws {
+    print("Handling run stuck at cancelling error for terminal \(terminalID) and run \(runId).")
+
+    // Create a fresh thread and update the threadId in the manager
+    let newThreadId = try await GPTAssistantManager.shared.createThread()
+    GPTAssistantThreadIDManager.shared.setThreadId(newThreadId, for: terminalID)  // Use terminalID here
+
+    print("New thread created: \(newThreadId) for terminal ID: \(terminalID).")
+
+    // Optionally, log the event or handle further actions here
+    MixpanelHelper.shared.trackEvent(name: "threadRunStuckAtCancelling")
+  }
+
   func handleMostRecentRun(threadId: String) async throws {
     // Step 1: Get the most recent run
     guard let mostRecentRun = try await getMostRecentRun(threadId: threadId) else {
@@ -357,26 +389,36 @@ class GPTAssistantManager {
           "DANBUG: Run \(runId) is in the process of being cancelled. Waiting for cancellation to complete..."
         )
 
-        // Step 4: Poll the cancellation status until it's fully cancelled or in a final state
-        try await pollRunStatusAsync(
-          threadId: threadId,
-          runId: runId,
-          successStates: ["cancelled"],
-          failureStates: ["failed", "expired", "incomplete"]
-        )
+        // Step 4: Poll the cancellation status, if it gets stuck, handle the error
+        do {
+          try await pollRunStatusAsync(
+            threadId: threadId,
+            runId: runId,
+            successStates: ["cancelled"],
+            failureStates: ["failed", "expired", "incomplete"]
+          )
+        } catch {
+          print("Run stuck at cancelling, creating a fresh thread...")
+          try await handleRunStuckAtCancellingError(for: threadId, runId: runId)
+        }
       } else {
-        print("DANBUG: Run \(runId) is still active. Attempting to cancel...")
+        print("DANBUG: Thread \(threadId) Run \(runId) is still active. Attempting to cancel...")
 
         // Step 5: Cancel the run and wait for it to be fully cancelled
         try await cancelRun(threadId: threadId, runId: runId)
 
         // Step 6: Poll the cancellation status (ensure it reaches a terminal state)
-        try await pollRunStatusAsync(
-          threadId: threadId,
-          runId: runId,
-          successStates: ["cancelled"],
-          failureStates: ["failed", "expired", "incomplete"]
-        )
+        do {
+          try await pollRunStatusAsync(
+            threadId: threadId,
+            runId: runId,
+            successStates: ["cancelled"],
+            failureStates: ["failed", "expired", "incomplete"]
+          )
+        } catch {
+          print("Run stuck at cancelling after trying to cancel, creating a fresh thread...")
+          try await handleRunStuckAtCancellingError(for: threadId, runId: runId)
+        }
       }
       MixpanelHelper.shared.trackEvent(
         name: "threadRunCancelled", properties: ["originalStatus": status])
@@ -386,9 +428,18 @@ class GPTAssistantManager {
     }
   }
 
-  func processMessageInThread(threadId: String, messageContent: String) async throws -> [String:
+  func processMessageInThread(terminalID: String, messageContent: String) async throws -> [String:
     Any]
   {
+    // Fetch or create the threadId from GPTAssistantThreadIDManager
+    let threadId = try await GPTAssistantThreadIDManager.shared.getOrCreateThreadId(for: terminalID)
+    // Check if threadId is empty or nil (in case the manager returns an empty string)
+    guard !threadId.isEmpty else {
+      throw NSError(
+        domain: "GPTAssistantErrorDomain", code: 1001,
+        userInfo: [NSLocalizedDescriptionKey: "Thread ID is empty. Cannot proceed."])
+    }
+
     // This is necessary to avoid the case where API is slow and execution got stuck
     // To avoid error: "Can't add messages to thread while a run run is active.",
     try await handleMostRecentRun(threadId: threadId)
