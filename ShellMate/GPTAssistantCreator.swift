@@ -59,7 +59,7 @@ class GPTAssistantCreator {
     let instructions = [
       "name": assistantCurrentName,
       "instructions": assistantInstructions,
-      "model": "gpt-4o",  // Specify the GPT-4 model
+      "model": "gpt-4o-mini",  // Specify the GPT-4 model
     ]
     request.httpBody = try? JSONSerialization.data(withJSONObject: instructions)
 
