@@ -52,7 +52,6 @@ class AppViewModel: ObservableObject {
 
   @Published var GPTSuggestionsFreeTierCount: Int {
     didSet {
-      print("[][] did set")
       UserDefaults.standard.set(GPTSuggestionsFreeTierCount, forKey: GPTSuggestionsFreeTierCountKey)
       updateHasGPTSuggestionsFreeTierCountReachedLimit()
     }
@@ -675,15 +674,22 @@ class AppViewModel: ObservableObject {
     }
   }
 
-  private func incrementGPTSuggestionsFreeTierCount(by count: Int) {
-    GPTSuggestionsFreeTierCount += count
+  private func incrementGPTSuggestionsCount(tier: APIKeyValidationState, by count: Int) {
+    if tier == .valid {
+      MixpanelHelper.shared.trackEvent(
+        name: "incrementGPTSuggestionsCount", properties: ["tier": "byo"])
+      MixpanelHelper.shared.incrementPeopleProperty(
+        name: "gptSuggestionsCount_byo", by: Double(count))
+    } else if tier == .usingFreeTier {
+      GPTSuggestionsFreeTierCount += count
 
-    if GPTSuggestionsFreeTierCount >= (GPTSuggestionsFreeTierLimit - 10) {
-      MixpanelHelper.shared.trackEvent(name: "freeTierLimitApproaching")
-    } else if GPTSuggestionsFreeTierCount >= GPTSuggestionsFreeTierLimit {
-      MixpanelHelper.shared.trackEvent(name: "freeTierLimitReached")
+      MixpanelHelper.shared.trackEvent(
+        name: "incrementGPTSuggestionsCount", properties: ["tier": "free"])
+      MixpanelHelper.shared.setPeopleProperties(
+        properties: ["gptSuggestionsCount_free": GPTSuggestionsFreeTierCount])
     }
   }
+
   private func updateHasGPTSuggestionsFreeTierCountReachedLimit() {
     hasGPTSuggestionsFreeTierCountReachedLimit =
       GPTSuggestionsFreeTierCount >= GPTSuggestionsFreeTierLimit
@@ -766,9 +772,7 @@ class AppViewModel: ObservableObject {
       )
 
       self.writeResultsToFile()
-      if self.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
-        self.incrementGPTSuggestionsFreeTierCount(by: 1)
-      }
+      self.incrementGPTSuggestionsCount(tier: self.hasUserValidatedOwnOpenAIAPIKey, by: 1)
     }
   }
 
