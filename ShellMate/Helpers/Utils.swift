@@ -66,10 +66,33 @@ class MixpanelHelper {
   private init() {
     // Initialize Mixpanel with your project token
     Mixpanel.initialize(token: "37cba6e38af4542dd68c2c20d812c9c3")
+
+    // Create unique identifier that lasts across sessions
+    let mixpanelUserId = getOrCreateMixpanelUserId()
+    print("Calling Mixpanel identify with id: \(mixpanelUserId)")
+    Mixpanel.mainInstance().identify(distinctId: mixpanelUserId)
+  }
+
+  func getOrCreateMixpanelUserId() -> String {
+    if let mixpanelUserId = UserDefaults.standard.string(forKey: "MixpanelUserId") {
+      return mixpanelUserId
+    } else {
+      let newMixpanelUserId = UUID().uuidString
+      UserDefaults.standard.set(newMixpanelUserId, forKey: "MixpanelUserId")
+      return newMixpanelUserId
+    }
   }
 
   func trackEvent(name: String, properties: [String: MixpanelType]? = nil) {
     Mixpanel.mainInstance().track(event: name, properties: properties)
+  }
+
+  func setPeopleProperties(properties: [String: MixpanelType]) {
+    Mixpanel.mainInstance().people.set(properties: properties)
+  }
+
+  func incrementPeopleProperty(name: String, by number: Double) {
+    Mixpanel.mainInstance().people.increment(property: name, by: number)
   }
 }
 

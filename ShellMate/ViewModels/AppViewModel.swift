@@ -48,7 +48,7 @@ class AppViewModel: ObservableObject {
   private var apiKeyValidationDebounceTask: DispatchWorkItem?
 
   // Limit for free tier suggestions
-  @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 150
+  @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 100
 
   @Published var GPTSuggestionsFreeTierCount: Int {
     didSet {
@@ -674,9 +674,22 @@ class AppViewModel: ObservableObject {
     }
   }
 
-  private func incrementGPTSuggestionsFreeTierCount(by count: Int) {
-    GPTSuggestionsFreeTierCount += count
+  private func incrementGPTSuggestionsCount(tier: APIKeyValidationState, by count: Int) {
+    if tier == .valid {
+      MixpanelHelper.shared.trackEvent(
+        name: "incrementGPTSuggestionsCount", properties: ["tier": "byo"])
+      MixpanelHelper.shared.incrementPeopleProperty(
+        name: "gptSuggestionsCount_byo", by: Double(count))
+    } else if tier == .usingFreeTier {
+      GPTSuggestionsFreeTierCount += count
+
+      MixpanelHelper.shared.trackEvent(
+        name: "incrementGPTSuggestionsCount", properties: ["tier": "free"])
+      MixpanelHelper.shared.setPeopleProperties(
+        properties: ["gptSuggestionsCount_free": GPTSuggestionsFreeTierCount])
+    }
   }
+
   private func updateHasGPTSuggestionsFreeTierCountReachedLimit() {
     hasGPTSuggestionsFreeTierCountReachedLimit =
       GPTSuggestionsFreeTierCount >= GPTSuggestionsFreeTierLimit
@@ -759,9 +772,7 @@ class AppViewModel: ObservableObject {
       )
 
       self.writeResultsToFile()
-      if self.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
-        self.incrementGPTSuggestionsFreeTierCount(by: 1)
-      }
+      self.incrementGPTSuggestionsCount(tier: self.hasUserValidatedOwnOpenAIAPIKey, by: 1)
     }
   }
 
