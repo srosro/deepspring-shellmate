@@ -459,7 +459,6 @@ class AppViewModel: ObservableObject {
         await strongSelf.processTerminalContentAnalysisWithGPT(
           identifier: currentTerminalId,
           terminalStateID: terminalStateID,
-          threadId: threadId,
           messageContent: text,
           changeIdentifiedAt: changeIdentifiedAt,
           changedTerminalContentSentToGptAt: changedTerminalContentSentToGptAt,
@@ -473,7 +472,6 @@ class AppViewModel: ObservableObject {
             strongSelf.generateAdditionalSuggestions(
               identifier: currentTerminalId,
               terminalStateID: terminalStateID,
-              threadId: threadId,
               changeIdentifiedAt: Date().timeIntervalSince1970,
               source: "automaticFollowUpSuggestion"
             )
@@ -506,7 +504,7 @@ class AppViewModel: ObservableObject {
   }
 
   private func generateAdditionalSuggestions(
-    identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double,
+    identifier: String, terminalStateID: UUID, changeIdentifiedAt: Double,
     source: String
   ) {
     if hasGPTSuggestionsFreeTierCountReachedLimit
@@ -562,7 +560,6 @@ class AppViewModel: ObservableObject {
       await strongSelf.processTerminalContentAnalysisWithGPT(
         identifier: identifier,
         terminalStateID: terminalStateID,
-        threadId: threadId,
         messageContent:
           "please generate another suggestion of command. Don't provide a duplicated suggestion",
         changeIdentifiedAt: changeIdentifiedAt,
@@ -577,7 +574,6 @@ class AppViewModel: ObservableObject {
           strongSelf.generateAdditionalSuggestions(
             identifier: identifier,
             terminalStateID: terminalStateID,
-            threadId: threadId,
             changeIdentifiedAt: Date().timeIntervalSince1970,
             source: "automaticFollowUpSuggestion"
           )
@@ -587,7 +583,7 @@ class AppViewModel: ObservableObject {
   }
 
   private func processTerminalContentAnalysisWithGPT(
-    identifier: String, terminalStateID: UUID, threadId: String, messageContent: String,
+    identifier: String, terminalStateID: UUID, messageContent: String,
     changeIdentifiedAt: Double, changedTerminalContentSentToGptAt: Double, source: String
   ) async {
     Task { @MainActor in
