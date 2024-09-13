@@ -336,98 +336,6 @@ class GPTAssistantManager {
     return mostRecentRun
   }
 
-  func cancelRun(threadId: String, runId: String) async throws {
-    let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/runs/\(runId)/cancel")!
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.allHTTPHeaderFields = headers
-
-    let (data, response) = try await URLSession.shared.dataWithTimeout(for: request)
-
-    // Use the handleResponse function to process the response
-    _ = try await handleResponse(data: data, response: response)
-    print("DANBUG: Run \(runId) cancelled successfully.")
-  }
-
-  private func handleRunStuckAtCancellingError(for terminalID: String, runId: String) async throws {
-    print("Handling run stuck at cancelling error for terminal \(terminalID) and run \(runId).")
-
-    // Create a fresh thread and update the threadId in the manager
-    let newThreadId = try await GPTAssistantManager.shared.createThread()
-    GPTAssistantThreadIDManager.shared.setThreadId(newThreadId, for: terminalID)  // Use terminalID here
-
-    print("New thread created: \(newThreadId) for terminal ID: \(terminalID).")
-
-    // Optionally, log the event or handle further actions here
-    MixpanelHelper.shared.trackEvent(name: "threadRunStuckAtCancelling")
-  }
-
-  func handleMostRecentRun(threadId: String) async throws {
-    // Step 1: Get the most recent run
-    guard let mostRecentRun = try await getMostRecentRun(threadId: threadId) else {
-      print("DANBUG: No recent run found for thread \(threadId).")
-      return  // or throw an error if needed
-    }
-
-    // Step 2: Check if the run has a status
-    guard let status = mostRecentRun["status"] as? String else {
-      print("DANBUG: Unable to retrieve status for the most recent run.")
-      return  // or throw an error if needed
-    }
-
-    print("DANBUG: Most recent run status: \(status)")
-
-    // Step 3: Check if the run is still active, cancelling, or needs to be cancelled
-    let activeStates = ["queued", "in_progress", "requires_action"]
-    let intermediateState = "cancelling"
-
-    if activeStates.contains(status) || status == intermediateState,
-      let runId = mostRecentRun["id"] as? String
-    {
-      if status == intermediateState {
-        print(
-          "DANBUG: Run \(runId) is in the process of being cancelled. Waiting for cancellation to complete..."
-        )
-
-        // Step 4: Poll the cancellation status, if it gets stuck, handle the error
-        do {
-          try await pollRunStatusAsync(
-            threadId: threadId,
-            runId: runId,
-            successStates: ["cancelled"],
-            failureStates: ["failed", "expired", "incomplete"]
-          )
-        } catch {
-          print("Run stuck at cancelling, creating a fresh thread...")
-          try await handleRunStuckAtCancellingError(for: threadId, runId: runId)
-        }
-      } else {
-        print("DANBUG: Thread \(threadId) Run \(runId) is still active. Attempting to cancel...")
-
-        // Step 5: Cancel the run and wait for it to be fully cancelled
-        try await cancelRun(threadId: threadId, runId: runId)
-
-        // Step 6: Poll the cancellation status (ensure it reaches a terminal state)
-        do {
-          try await pollRunStatusAsync(
-            threadId: threadId,
-            runId: runId,
-            successStates: ["cancelled"],
-            failureStates: ["failed", "expired", "incomplete"]
-          )
-        } catch {
-          print("Run stuck at cancelling after trying to cancel, creating a fresh thread...")
-          try await handleRunStuckAtCancellingError(for: threadId, runId: runId)
-        }
-      }
-      MixpanelHelper.shared.trackEvent(
-        name: "threadRunCancelled", properties: ["originalStatus": status])
-      print("DANBUG: Run \(runId) has been successfully cancelled.")
-    } else {
-      print("DANBUG: Most recent run is already in a terminal state: \(status)")
-    }
-  }
-
   func processMessageInThread(terminalID: String, messageContent: String) async throws -> [String:
     Any]
   {
@@ -442,7 +350,26 @@ class GPTAssistantManager {
 
     // This is necessary to avoid the case where API is slow and execution got stuck
     // To avoid error: "Can't add messages to thread while a run run is active.",
-    try await handleMostRecentRun(threadId: threadId)
+    // Check if there is an active run in progress
+    if let mostRecentRun = try await getMostRecentRun(threadId: threadId),
+      let status = mostRecentRun["status"] as? String
+    {
+
+      // Define the active states that would prevent a new run
+      let activeStates = ["queued", "in_progress", "requires_action", "cancelling"]
+
+      if activeStates.contains(status) {
+        // If there's an active run, simply return without proceeding
+        print(
+          "DANBUG: There is already an active run for thread \(threadId) with status \(status). Not proceeding with a new request."
+        )
+        MixpanelHelper.shared.trackEvent(
+          name: "skippedNewRunDueToActiveRun",
+          properties: ["status": status, "threadId": threadId]
+        )
+        return [:]  // Return without processing a new message
+      }
+    }
 
     let messageId = try await createMessage(threadId: threadId, messageContent: messageContent)
     print("Message created successfully with ID: \(messageId)")

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SuggestionsStatusBarView: View {
   @ObservedObject var viewModel: AppViewModel
+  @ObservedObject var suggestionMonitor = SuggestionGenerationMonitor.shared
   @State private var isSamAltmanIconFaceRotating = false
 
   var body: some View {
@@ -28,7 +29,7 @@ struct SuggestionsStatusBarView: View {
         Spacer()
         HStack(spacing: 8) {
           if let currentTerminalID = viewModel.currentTerminalID {
-            if viewModel.isGeneratingSuggestion[currentTerminalID] == true {
+            if suggestionMonitor.isCurrentlyGeneratingSuggestion(for: currentTerminalID) {
               Text("Generating suggestion...")
                 .font(.footnote)
                 .foregroundColor(Color.Text.green)
@@ -60,7 +61,7 @@ struct SuggestionsStatusBarView: View {
       .frame(maxWidth: .infinity, alignment: .center)
 
       if let currentTerminalID = viewModel.currentTerminalID,
-        viewModel.isGeneratingSuggestion[currentTerminalID] == true
+        suggestionMonitor.isCurrentlyGeneratingSuggestion(for: currentTerminalID)
       {
         if viewModel.shouldShowSamAltmansFace {
           Image("samAltmansFace")

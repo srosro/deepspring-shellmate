@@ -18,7 +18,6 @@ class AppViewModel: ObservableObject {
     )] = [:]
   @Published var shouldShowSuggestionsView: [String: Bool] = [:]
   @Published var hasAtLeastOneSuggestion: [String: Bool] = [:]
-  @Published var isGeneratingSuggestion: [String: Bool] = [:]
   @Published var pauseSuggestionGeneration: [String: Bool] = [:]
   @Published var hasUserValidatedOwnOpenAIAPIKey: APIKeyValidationState = .usingFreeTier
   @Published var isAssistantSetupSuccessful: Bool = false
@@ -38,7 +37,6 @@ class AppViewModel: ObservableObject {
   private let maxSuggestionsPerEvent: Int = 4
   private var shouldGenerateFollowUpSuggestionsFlag: Bool = true
   private var gptAssistantManager: GPTAssistantManager = GPTAssistantManager.shared
-  private var ongoingTerminalContentAnalysisTasks: [String: Task<Void, Never>] = [:]
 
   // UserDefaults keys
   private let GPTSuggestionsFreeTierCountKey = "GPTSuggestionsFreeTierCount"
@@ -333,7 +331,8 @@ class AppViewModel: ObservableObject {
       return
     }
     DispatchQueue.main.async {
-      self.isGeneratingSuggestion[identifier] = isGeneratingSuggestion
+      SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+        for: identifier, to: isGeneratingSuggestion)
       self.calculateSamAltmansFaceLikelihood()
     }
   }
@@ -428,12 +427,6 @@ class AppViewModel: ObservableObject {
       return
     }
 
-    // Cancel any ongoing task for this terminal ID
-    if let ongoingTask = ongoingTerminalContentAnalysisTasks[currentTerminalId] {
-      ongoingTask.cancel()
-      print("DANBUG: Ongoing task for terminal ID \(currentTerminalId) was canceled.")
-    }
-
     // Log the event when terminal content analysis is requested
     let changedTerminalContentSentToGptAt = Date().timeIntervalSince1970
     MixpanelHelper.shared.trackEvent(
@@ -447,7 +440,7 @@ class AppViewModel: ObservableObject {
       ])
 
     // Create the new task
-    let newTask = Task.detached { [weak self] in
+    Task.detached { [weak self] in
       guard let strongSelf = self else {
         print("DEBUG: Self is nil.")
         return
@@ -485,7 +478,8 @@ class AppViewModel: ObservableObject {
         {
           DispatchQueue.main.async {
             strongSelf.hasInternetConnection = false
-            strongSelf.isGeneratingSuggestion[currentTerminalId] = false
+            SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+              for: currentTerminalId, to: false)
           }
         } else if error.localizedDescription.contains(
           "The Internet connection appears to be offline")
@@ -493,14 +487,12 @@ class AppViewModel: ObservableObject {
           DispatchQueue.main.async {
             NetworkErrorViewModel.shared.shouldShowNetworkError = true
             strongSelf.hasInternetConnection = false
-            strongSelf.isGeneratingSuggestion[currentTerminalId] = false
+            SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+              for: currentTerminalId, to: false)
           }
         }
       }
     }
-
-    // Assign the task to the dictionary immediately
-    self.ongoingTerminalContentAnalysisTasks[currentTerminalId] = newTask
   }
 
   private func generateAdditionalSuggestions(
@@ -594,6 +586,22 @@ class AppViewModel: ObservableObject {
     do {
       let response = try await gptAssistantManager.processMessageInThread(
         terminalID: identifier, messageContent: messageContent)
+
+      // Check if the response is empty and return early if it is
+      if response.isEmpty {
+        print(
+          "DANBUG: Skipping processing because an active run was detected for terminal \(identifier)."
+        )
+
+        // Mark suggestion generation as false since we are skipping processing
+        Task { @MainActor in
+          NotificationCenter.default.post(
+            name: .suggestionGenerationStatusChanged, object: nil,
+            userInfo: ["identifier": identifier, "isGeneratingSuggestion": false])
+        }
+        return
+      }
+
       if let command = response["command"] as? String,
         let commandExplanation = response["commandExplanation"] as? String,
         let intention = response["intention"] as? String,
@@ -621,26 +629,22 @@ class AppViewModel: ObservableObject {
       {
         DispatchQueue.main.async {
           self.hasInternetConnection = false
-          self.isGeneratingSuggestion[identifier] = false
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
+
         }
       } else if error.localizedDescription.contains("The Internet connection appears to be offline")
       {
         DispatchQueue.main.async {
           NetworkErrorViewModel.shared.shouldShowNetworkError = true
           self.hasInternetConnection = false
-          self.isGeneratingSuggestion[identifier] = false
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
         }
       } else {
         // For all other error cases, ensure isGeneratingSuggestion is set to false
         DispatchQueue.main.async {
-          self.isGeneratingSuggestion[identifier] = false
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
         }
       }
-    }
-
-    // Always remove the ongoing task for the terminal after processing completes (success or error)
-    DispatchQueue.main.async {
-      self.ongoingTerminalContentAnalysisTasks[identifier] = nil
     }
 
     Task { @MainActor in

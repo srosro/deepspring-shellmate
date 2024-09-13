@@ -23,6 +23,7 @@
 		DC38CB2A2C83B1C50073870B /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC38CB292C83B1C50073870B /* EmptyStateView.swift */; };
 		DC3AB2382C37696800B8FE8F /* GPTAssistantCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */; };
 		DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */; };
+		DC4AE5132C924DF200EABCBD /* SuggestionGenerationMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC4AE5122C924DF200EABCBD /* SuggestionGenerationMonitor.swift */; };
 		DC53925E2C38CFEA003CB46D /* KeyPressDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */; };
 		DC5C7B4A2C2DAAB20044E0B3 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */; };
 		DC5C7B5A2C2E0C000044E0B3 /* install.sh in Copy Files: Make sm command available in user terminal */ = {isa = PBXBuildFile; fileRef = DC9B38D02C250342006755AE /* install.sh */; };
@@ -97,6 +98,7 @@
 		DC38CB292C83B1C50073870B /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		DC3AB2372C37696800B8FE8F /* GPTAssistantCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantCreator.swift; sourceTree = "<group>"; };
 		DC3AB2392C3774BE00B8FE8F /* GPTAssistantInstructions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTAssistantInstructions.swift; sourceTree = "<group>"; };
+		DC4AE5122C924DF200EABCBD /* SuggestionGenerationMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionGenerationMonitor.swift; sourceTree = "<group>"; };
 		DC53925D2C38CFEA003CB46D /* KeyPressDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressDelegate.swift; sourceTree = "<group>"; };
 		DC5C7B492C2DAAB20044E0B3 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		DC6A78242C46E8F700FFC785 /* SendFeedbackEmail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeedbackEmail.swift; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 				DC6A78242C46E8F700FFC785 /* SendFeedbackEmail.swift */,
 				DC20D08F2C4C10B900F80AE1 /* StartupTerminalWindowHandler.swift */,
 				DCB37C052C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift */,
+				DC4AE5122C924DF200EABCBD /* SuggestionGenerationMonitor.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -513,6 +516,7 @@
 				DCB37C062C6CF8BD00FCA167 /* SetupLaunchShellMateAtTerminalStartup.swift in Sources */,
 				DCA94B672C2C9921004A2BCE /* PermissionsView.swift in Sources */,
 				DC9B388A2C24FFEA006755AE /* AppViewModel.swift in Sources */,
+				DC4AE5132C924DF200EABCBD /* SuggestionGenerationMonitor.swift in Sources */,
 				DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */,
 				DC26CDE52C7FE20F001FD7DF /* UpdateShellProfileViewModel.swift in Sources */,
 				DCF6D7322C49AE08004728C1 /* OnboardingViewModel.swift in Sources */,

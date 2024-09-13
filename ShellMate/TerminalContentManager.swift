@@ -188,7 +188,7 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
   }
 
   func debounceTerminalTextChange() {
-    let textChangeDebounceTime: TimeInterval = 1.75
+    let textChangeDebounceTime: TimeInterval = 1.5
 
     NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
     textDebounceWorkItem?.cancel()
