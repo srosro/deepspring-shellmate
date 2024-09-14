@@ -19,8 +19,9 @@ class ChatWithMakersViewModel: ObservableObject {
 
   // Private initializer to enforce singleton pattern
   private init() {
-    checkIfShouldShowBanner()
-    startTimer()  // Start the timer when the view model is initialized
+    print("ChatWithMakers banner is currently disabled")
+    //checkIfShouldShowBanner()
+    //startTimer()  // Start the timer when the view model is initialized
   }
 
   deinit {
