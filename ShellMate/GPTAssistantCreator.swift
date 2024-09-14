@@ -104,7 +104,10 @@ class GPTAssistantCreator {
     else {
       throw NSError(
         domain: "", code: 0,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to list assistants or bad response"])
+        userInfo: [
+          NSLocalizedDescriptionKey: "Failed to list assistants or bad response",
+          "HTTPStatusCode": (response as? HTTPURLResponse)?.statusCode ?? 0
+        ])
     }
 
     var assistantList: [(String, String)] = []

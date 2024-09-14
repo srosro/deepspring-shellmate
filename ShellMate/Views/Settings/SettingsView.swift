@@ -137,6 +137,9 @@ struct ApiKeyView: View {
         Text("OpenAI API Key")
           .frame(width: 150, alignment: .trailing)
         TextField("Enter OpenAI API Key", text: $licenseViewModel.apiKey)
+          .onChange(of: licenseViewModel.apiKey) { newValue in
+            licenseViewModel.sanitizeApiKey(newValue)
+          }
           .textFieldStyle(RoundedBorderTextFieldStyle())
           .frame(maxWidth: .infinity)
           .padding(.trailing, 60)
