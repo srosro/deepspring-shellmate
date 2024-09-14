@@ -188,7 +188,12 @@ class LicenseViewModel: ObservableObject {
       DispatchQueue.main.async {
         self.updateValidationState(.invalid)
         self.apiKeyErrorMessage = error.localizedDescription
-        self.userValidatedOwnOpenAIAPIKey(isValid: false)
+
+        if let nsError = error as? NSError,
+          let httpStatusCode = nsError.userInfo["HTTPStatusCode"] as? Int, httpStatusCode == 401
+        {
+          self.userValidatedOwnOpenAIAPIKey(isValid: false)
+        }
       }
       return .failure(error)
     }
@@ -208,5 +213,12 @@ class LicenseViewModel: ObservableObject {
     print("DEBUG: -- method called to update the value of state to : \(state)")
     self.apiKeyValidationState = state
     UserDefaults.standard.set(state.rawValue, forKey: "apiKeyValidationState")
+  }
+
+  func sanitizeApiKey(_ text: String) {
+    let sanitized = text.replacingOccurrences(of: "\\s+", with: "", options: .regularExpression)
+    if sanitized != apiKey {
+      apiKey = sanitized
+    }
   }
 }
