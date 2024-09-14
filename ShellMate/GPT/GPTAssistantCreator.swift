@@ -106,7 +106,7 @@ class GPTAssistantCreator {
         domain: "", code: 0,
         userInfo: [
           NSLocalizedDescriptionKey: "Failed to list assistants or bad response",
-          "HTTPStatusCode": (response as? HTTPURLResponse)?.statusCode ?? 0
+          "HTTPStatusCode": (response as? HTTPURLResponse)?.statusCode ?? 0,
         ])
     }
 

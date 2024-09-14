@@ -189,7 +189,9 @@ class LicenseViewModel: ObservableObject {
         self.updateValidationState(.invalid)
         self.apiKeyErrorMessage = error.localizedDescription
 
-        if let nsError = error as? NSError, let httpStatusCode = nsError.userInfo["HTTPStatusCode"] as? Int, httpStatusCode == 401 {
+        if let nsError = error as? NSError,
+          let httpStatusCode = nsError.userInfo["HTTPStatusCode"] as? Int, httpStatusCode == 401
+        {
           self.userValidatedOwnOpenAIAPIKey(isValid: false)
         }
       }
@@ -216,7 +218,7 @@ class LicenseViewModel: ObservableObject {
   func sanitizeApiKey(_ text: String) {
     let sanitized = text.replacingOccurrences(of: "\\s+", with: "", options: .regularExpression)
     if sanitized != apiKey {
-        apiKey = sanitized
+      apiKey = sanitized
     }
   }
 }
