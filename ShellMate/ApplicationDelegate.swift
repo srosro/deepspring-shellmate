@@ -91,26 +91,21 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
       }
 
       Task {
-        let result = await LicenseViewModel.shared.checkApiKey(LicenseViewModel.shared.apiKey)
-        let isApiKeyValid: Bool
+        LicenseViewModel.shared.scheduleApiKeyCheck(after: 0) { isApiKeyValid in
+          if isApiKeyValid {
+            print("ApplicationDelegate - API key is valid.")
+          } else {
+            // Handle failure or cancellation here
+            print("ApplicationDelegate - API key validation failed or was canceled.")
+          }
 
-        switch result {
-        case .success:
-          isApiKeyValid = true
-          print("ApplicationDelegate - API key is valid.")
-        case .failure(let error):
-          isApiKeyValid = false
-          print(
-            "ApplicationDelegate - API key validation failed with error: \(error.localizedDescription)"
-          )
-        }
-
-        if isAppTrusted && isApiKeyValid {
-          // Both conditions are true, so initialize the app
-          self.initializeApp()
-          print("ApplicationDelegate - \(isApiKeyValid) (valid API) - App initialized.")
-        } else {
-          print("ApplicationDelegate - \(isApiKeyValid) (valid API) - Show permissions view.")
+          if isAppTrusted && isApiKeyValid {
+            // Both conditions are true, so initialize the app
+            self.initializeApp()
+            print("ApplicationDelegate - \(isApiKeyValid) (valid API) - App initialized.")
+          } else {
+            print("ApplicationDelegate - \(isApiKeyValid) (valid API) - Show permissions view.")
+          }
         }
       }
     }

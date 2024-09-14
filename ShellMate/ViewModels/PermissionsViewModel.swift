@@ -74,12 +74,12 @@ class LicenseViewModel: ObservableObject {
           // If it is empty, update UserDefaults with an empty string
           print("DEBUG: sanitized empty key trigger")
           UserDefaults.standard.set("", forKey: "apiKey")
-          self.scheduleApiKeyCheck()
+          self.scheduleApiKeyCheck(after: 2, completion: { _ in })
         } else {
           // Otherwise, update UserDefaults with the sanitized API key
           UserDefaults.standard.set(sanitizedApiKey, forKey: "apiKey")
           // Schedule the API key check
-          self.scheduleApiKeyCheck()
+          self.scheduleApiKeyCheck(after: 2, completion: { _ in })
         }
 
         print("API Key updated: \(sanitizedApiKey)")
@@ -113,34 +113,73 @@ class LicenseViewModel: ObservableObject {
     apiKeyCheckTask?.cancel()
   }
 
-  private func scheduleApiKeyCheck() {
-    print("Scheduling API Key check")
-    apiKeyCheckTask?.cancel()  // Cancel any existing task
+  // Add a property to track the async task for cancellation
+  private var currentApiKeyCheckTask: Task<Void, Never>? = nil
 
+  func scheduleApiKeyCheck(
+    after delay: TimeInterval, maxRetries: Int = 3, completion: @escaping (Bool) -> Void
+  ) {
+    // Cancel any existing task (this will cancel the entire retry process if it's ongoing)
+    apiKeyCheckTask?.cancel()
+    currentApiKeyCheckTask?.cancel()  // Cancel the current async task if it's running
+
+    // Define a new DispatchWorkItem that encapsulates the logic
     let task = DispatchWorkItem { [weak self] in
       guard let self = self else { return }
 
-      Task {
-        let result = await self.checkApiKey(self.apiKey)
-        switch result {
-        case .success:
-          MixpanelHelper.shared.trackEvent(name: "openAIAPIKeyValidationSuccess")
-          print("DEBUG: API key check succeeded in scheduled task.")
-        case .failure(let error):
-          MixpanelHelper.shared.trackEvent(
-            name: "openAIAPIKeyValidationFailure", properties: ["error": error.localizedDescription]
-          )
-          print(
-            "DEBUG: API key check failed in scheduled task with error: \(error.localizedDescription)"
-          )
+      // Create a Task to handle the async call within DispatchWorkItem
+      self.currentApiKeyCheckTask = Task {
+        // Call the asynchronous function to check the API key
+        await self.executeApiKeyCheckWithRetry(maxRetries: maxRetries, completion: completion)
+      }
+    }
+
+    // Assign the new DispatchWorkItem to apiKeyCheckTask so that it can be cancelled later if needed
+    apiKeyCheckTask = task
+
+    // Schedule the task with the initial delay
+    DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
+  }
+
+  private func executeApiKeyCheckWithRetry(maxRetries: Int, completion: @escaping (Bool) -> Void)
+    async
+  {
+    var retriesLeft = maxRetries
+
+    // Loop to retry the API key check
+    while retriesLeft > 0 {
+      // Check if the task has been cancelled
+      if Task.isCancelled {
+        print("API Validation Task was cancelled.")
+        return
+      }
+
+      let result = await checkApiKey(self.apiKey)  // Asynchronously call the API check
+
+      switch result {
+      case .success:
+        MixpanelHelper.shared.trackEvent(name: "openAIAPIKeyValidationSuccess")
+        completion(true)  // Return true for success
+        return  // Exit the function, no need to retry anymore
+
+      case .failure(let error):
+        MixpanelHelper.shared.trackEvent(
+          name: "openAIAPIKeyValidationFailure", properties: ["error": error.localizedDescription]
+        )
+
+        retriesLeft -= 1
+
+        if retriesLeft > 0 {
+          // Sleep for 10 seconds before retrying (non-blocking)
+          try? await Task.sleep(nanoseconds: 10 * 1_000_000_000)
+        } else {
           DispatchQueue.main.async {
             self.userValidatedOwnOpenAIAPIKey(isValid: false)
           }
+          completion(false)  // Return false after exhausting retries
         }
       }
     }
-    apiKeyCheckTask = task
-    DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: task)  // Delay by 2 seconds
   }
 
   func checkApiKey(_ key: String) async -> Result<Void, Error> {
@@ -191,7 +230,7 @@ class LicenseViewModel: ObservableObject {
         self.updateValidationState(.invalid)
         self.apiKeyErrorMessage = error.localizedDescription
 
-        if let nsError = error as? NSError,
+        if let nsError = error as NSError?,
           let httpStatusCode = nsError.userInfo["HTTPStatusCode"] as? Int, httpStatusCode == 401
         {
           self.userValidatedOwnOpenAIAPIKey(isValid: false)
