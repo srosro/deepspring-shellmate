@@ -339,6 +339,9 @@ class GPTAssistantManager {
   func processMessageInThread(terminalID: String, messageContent: String) async throws -> [String:
     Any]
   {
+    Task { @MainActor in
+      SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: terminalID, to: true)
+    }
     // Fetch or create the threadId from GPTAssistantThreadIDManager
     let threadId = try await GPTAssistantThreadIDManager.shared.getOrCreateThreadId(for: terminalID)
     // Check if threadId is empty or nil (in case the manager returns an empty string)
@@ -361,7 +364,7 @@ class GPTAssistantManager {
       if activeStates.contains(status) {
         // If there's an active run, simply return without proceeding
         print(
-          "DANBUG: There is already an active run for thread \(threadId) with status \(status). Not proceeding with a new request."
+          "There is already an active run for thread \(threadId) with status \(status). Not proceeding with a new request."
         )
         MixpanelHelper.shared.trackEvent(
           name: "skippedNewRunDueToActiveRun",

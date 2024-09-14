@@ -12,13 +12,6 @@ extension Notification.Name {
   static let terminalContentChangeStarted = Notification.Name("terminalContentChangeStarted")
   static let terminalContentChangeEnded = Notification.Name("terminalContentChangeEnded")
 
-  /// Notification to indicate the status of suggestion generation.
-  /// userInfo dictionary should contain:
-  /// - "identifier": String
-  /// - "isGeneratingSuggestion": Bool
-  static let suggestionGenerationStatusChanged = Notification.Name(
-    "suggestionGenerationStatusChanged")
-
   /// Notification to request analysis of terminal content.
   /// userInfo dictionary should contain:
   /// - "text": String
