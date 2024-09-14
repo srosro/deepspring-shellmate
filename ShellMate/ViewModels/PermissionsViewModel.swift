@@ -130,15 +130,21 @@ class LicenseViewModel: ObservableObject {
       // Create a Task to handle the async call within DispatchWorkItem
       self.currentApiKeyCheckTask = Task {
         // Call the asynchronous function to check the API key
-        await self.executeApiKeyCheckWithRetry(maxRetries: maxRetries, completion: completion)
+        await self.executeApiKeyCheckWithRetry(
+          maxRetries: maxRetries,
+          completion: { isValid in
+            DispatchQueue.main.async {
+              completion(isValid)  // Ensure the completion is called on the main thread
+            }
+          })
       }
     }
 
     // Assign the new DispatchWorkItem to apiKeyCheckTask so that it can be cancelled later if needed
     apiKeyCheckTask = task
 
-    // Schedule the task with the initial delay
-    DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
+    // Schedule the task on a background thread with the initial delay
+    DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + delay, execute: task)
   }
 
   private func executeApiKeyCheckWithRetry(maxRetries: Int, completion: @escaping (Bool) -> Void)

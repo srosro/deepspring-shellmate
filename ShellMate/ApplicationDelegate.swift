@@ -90,22 +90,20 @@ class ApplicationDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
         print("Application is not trusted for accessibility.")
       }
 
-      Task {
-        LicenseViewModel.shared.scheduleApiKeyCheck(after: 0) { isApiKeyValid in
-          if isApiKeyValid {
-            print("ApplicationDelegate - API key is valid.")
-          } else {
-            // Handle failure or cancellation here
-            print("ApplicationDelegate - API key validation failed or was canceled.")
-          }
+      LicenseViewModel.shared.scheduleApiKeyCheck(after: 0) { isApiKeyValid in
+        if isApiKeyValid {
+          print("ApplicationDelegate - API key is valid.")
+        } else {
+          // Handle failure or cancellation here
+          print("ApplicationDelegate - API key validation failed or was canceled.")
+        }
 
-          if isAppTrusted && isApiKeyValid {
-            // Both conditions are true, so initialize the app
-            self.initializeApp()
-            print("ApplicationDelegate - \(isApiKeyValid) (valid API) - App initialized.")
-          } else {
-            print("ApplicationDelegate - \(isApiKeyValid) (valid API) - Show permissions view.")
-          }
+        if isAppTrusted && isApiKeyValid {
+          // Both conditions are true, so initialize the app
+          self.initializeApp()
+          print("ApplicationDelegate - \(isApiKeyValid) (valid API) - App initialized.")
+        } else {
+          print("ApplicationDelegate - \(isApiKeyValid) (valid API) - Show permissions view.")
         }
       }
     }
