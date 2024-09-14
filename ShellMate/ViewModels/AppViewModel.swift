@@ -18,7 +18,6 @@ class AppViewModel: ObservableObject {
     )] = [:]
   @Published var shouldShowSuggestionsView: [String: Bool] = [:]
   @Published var hasAtLeastOneSuggestion: [String: Bool] = [:]
-  @Published var isGeneratingSuggestion: [String: Bool] = [:]
   @Published var pauseSuggestionGeneration: [String: Bool] = [:]
   @Published var hasUserValidatedOwnOpenAIAPIKey: APIKeyValidationState = .usingFreeTier
   @Published var isAssistantSetupSuccessful: Bool = false
@@ -30,10 +29,14 @@ class AppViewModel: ObservableObject {
       proTipIdx: Int, proTipEntry: [String: String], terminalStateID: UUID, currentTime: Date
     )] = [:]
 
+  private var pendingTerminalAnalysis:
+    (
+      identifier: String, changeIdentifiedAt: Double, source: String,
+      messageContent: String
+    )?
   private var consecutiveFailedInternetChecks: Int = 0
   private var internetConnectionGracePeriodTask: Task<Void, Never>?
 
-  private var threadIdDict: [String: String] = [:]
   private var currentTerminalStateID: UUID?
   private let additionalSuggestionDelaySeconds: TimeInterval = 3.0
   private let maxSuggestionsPerEvent: Int = 4
@@ -250,9 +253,6 @@ class AppViewModel: ObservableObject {
       self, selector: #selector(handleRequestTerminalContentAnalysis(_:)),
       name: .requestTerminalContentAnalysis, object: nil)
     NotificationCenter.default.addObserver(
-      self, selector: #selector(handleSuggestionGenerationStatusChanged(_:)),
-      name: .suggestionGenerationStatusChanged, object: nil)
-    NotificationCenter.default.addObserver(
       self, selector: #selector(handleOnboardingStepUpdate(_:)),
       name: .forwardOnboardingStepToAppViewModel, object: nil)
     areNotificationObserversSetup = true
@@ -309,6 +309,9 @@ class AppViewModel: ObservableObject {
       return
     }
 
+    // Clear the pending terminal analysis as the new analysis takes priority
+    pendingTerminalAnalysis = nil
+
     if hasGPTSuggestionsFreeTierCountReachedLimit
       && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
     {
@@ -322,20 +325,7 @@ class AppViewModel: ObservableObject {
       return
     }
     analyzeTerminalContent(
-      text: text, windowID: windowID, source: source, changeIdentifiedAt: changeIdentifiedAt)
-  }
-
-  @objc private func handleSuggestionGenerationStatusChanged(_ notification: Notification) {
-    guard let userInfo = notification.userInfo,
-      let identifier = userInfo["identifier"] as? String,
-      let isGeneratingSuggestion = userInfo["isGeneratingSuggestion"] as? Bool
-    else {
-      return
-    }
-    DispatchQueue.main.async {
-      self.isGeneratingSuggestion[identifier] = isGeneratingSuggestion
-      self.calculateSamAltmansFaceLikelihood()
-    }
+      text: text, source: source, changeIdentifiedAt: changeIdentifiedAt)
   }
 
   @objc private func handleUserValidatedOwnOpenAIAPIKey(_ notification: Notification) {
@@ -403,14 +393,14 @@ class AppViewModel: ObservableObject {
         print("DEBUG: Assistant initialization completed")
 
         // Clear the entire threadIdDict
-        self.threadIdDict.removeAll()
+        GPTAssistantThreadIDManager.shared.removeAllThreadIds()
         print("DEBUG: threadIdDict cleared")
       }
     }
   }
 
   private func analyzeTerminalContent(
-    text: String, windowID: CGWindowID, source: String, changeIdentifiedAt: Double
+    text: String, source: String, changeIdentifiedAt: Double
   ) {
     guard let currentTerminalId = self.currentTerminalID else {
       print("DEBUG: Current terminal ID is nil.")
@@ -440,6 +430,7 @@ class AppViewModel: ObservableObject {
         "triggerSource": source,
       ])
 
+    // Create the new task
     Task.detached { [weak self] in
       guard let strongSelf = self else {
         print("DEBUG: Self is nil.")
@@ -447,25 +438,39 @@ class AppViewModel: ObservableObject {
       }
       do {
         print("DEBUG: Calling getOrCreateThreadId for currentTerminalId: \(currentTerminalId)")
-        let threadId = try await strongSelf.getOrCreateThreadId(for: currentTerminalId)
-        await strongSelf.processGPTResponse(
+        let _ = try await GPTAssistantThreadIDManager.shared.getOrCreateThreadId(
+          for: currentTerminalId)
+        await strongSelf.processTerminalContentAnalysisWithGPT(
           identifier: currentTerminalId,
           terminalStateID: terminalStateID,
-          threadId: threadId,
           messageContent: text,
           changeIdentifiedAt: changeIdentifiedAt,
           changedTerminalContentSentToGptAt: changedTerminalContentSentToGptAt,
           source: source
         )
 
-        if strongSelf.shouldGenerateFollowUpSuggestionsFlag {
+        if let pending = strongSelf.pendingTerminalAnalysis,
+          pending.identifier == strongSelf.currentTerminalID
+        {
+          print("Processing pending terminal analysis for terminal \(pending.identifier)")
+          // Process the pending terminal analysis instead of generating a new one
+          DispatchQueue.main.asyncAfter(
+            deadline: .now() + strongSelf.additionalSuggestionDelaySeconds
+          ) {
+            strongSelf.analyzeTerminalContent(
+              text: pending.messageContent,
+              source: pending.source,
+              changeIdentifiedAt: pending.changeIdentifiedAt
+            )
+          }
+          strongSelf.pendingTerminalAnalysis = nil  // Clear the pending analysis after processing
+        } else if strongSelf.shouldGenerateFollowUpSuggestionsFlag {
           DispatchQueue.main.asyncAfter(
             deadline: .now() + strongSelf.additionalSuggestionDelaySeconds
           ) {
             strongSelf.generateAdditionalSuggestions(
               identifier: currentTerminalId,
               terminalStateID: terminalStateID,
-              threadId: threadId,
               changeIdentifiedAt: Date().timeIntervalSince1970,
               source: "automaticFollowUpSuggestion"
             )
@@ -479,7 +484,8 @@ class AppViewModel: ObservableObject {
         {
           DispatchQueue.main.async {
             strongSelf.hasInternetConnection = false
-            strongSelf.isGeneratingSuggestion[currentTerminalId] = false
+            SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+              for: currentTerminalId, to: false)
           }
         } else if error.localizedDescription.contains(
           "The Internet connection appears to be offline")
@@ -487,7 +493,8 @@ class AppViewModel: ObservableObject {
           DispatchQueue.main.async {
             NetworkErrorViewModel.shared.shouldShowNetworkError = true
             strongSelf.hasInternetConnection = false
-            strongSelf.isGeneratingSuggestion[currentTerminalId] = false
+            SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+              for: currentTerminalId, to: false)
           }
         }
       }
@@ -495,7 +502,7 @@ class AppViewModel: ObservableObject {
   }
 
   private func generateAdditionalSuggestions(
-    identifier: String, terminalStateID: UUID, threadId: String, changeIdentifiedAt: Double,
+    identifier: String, terminalStateID: UUID, changeIdentifiedAt: Double,
     source: String
   ) {
     if hasGPTSuggestionsFreeTierCountReachedLimit
@@ -548,10 +555,9 @@ class AppViewModel: ObservableObject {
     Task.detached { [weak self] in
       guard let strongSelf = self else { return }
 
-      await strongSelf.processGPTResponse(
+      await strongSelf.processTerminalContentAnalysisWithGPT(
         identifier: identifier,
         terminalStateID: terminalStateID,
-        threadId: threadId,
         messageContent:
           "please generate another suggestion of command. Don't provide a duplicated suggestion",
         changeIdentifiedAt: changeIdentifiedAt,
@@ -559,14 +565,28 @@ class AppViewModel: ObservableObject {
         source: source
       )
 
-      if strongSelf.shouldGenerateFollowUpSuggestionsFlag {
+      if let pending = strongSelf.pendingTerminalAnalysis,
+        pending.identifier == strongSelf.currentTerminalID
+      {
+        print("Processing pending terminal analysis for terminal \(pending.identifier)")
+        // Process the pending terminal analysis instead of generating a new one
+        DispatchQueue.main.asyncAfter(
+          deadline: .now() + strongSelf.additionalSuggestionDelaySeconds
+        ) {
+          strongSelf.analyzeTerminalContent(
+            text: pending.messageContent,
+            source: pending.source,
+            changeIdentifiedAt: pending.changeIdentifiedAt
+          )
+        }
+        strongSelf.pendingTerminalAnalysis = nil  // Clear the pending
+      } else if strongSelf.shouldGenerateFollowUpSuggestionsFlag {
         DispatchQueue.main.asyncAfter(
           deadline: .now() + strongSelf.additionalSuggestionDelaySeconds
         ) {
           strongSelf.generateAdditionalSuggestions(
             identifier: identifier,
             terminalStateID: terminalStateID,
-            threadId: threadId,
             changeIdentifiedAt: Date().timeIntervalSince1970,
             source: "automaticFollowUpSuggestion"
           )
@@ -575,39 +595,28 @@ class AppViewModel: ObservableObject {
     }
   }
 
-  @MainActor
-  private func getOrCreateThreadId(for identifier: String) async throws -> String {
-    print("DEBUG: getOrCreateThreadId called for identifier: \(identifier)")
-
-    if let threadId = threadIdDict[identifier] {
-      print("DEBUG: Found existing thread ID for identifier \(identifier): \(threadId)")
-      return threadId
-    }
-
-    print("DEBUG: No existing thread ID for identifier \(identifier). Creating a new thread ID.")
-    do {
-      let createdThreadId = try await gptAssistantManager.createThread()
-      threadIdDict[identifier] = createdThreadId
-      print("DEBUG: Created new thread ID for identifier \(identifier): \(createdThreadId)")
-      return createdThreadId
-    } catch {
-      print("DEBUG: Failed to create thread ID for identifier \(identifier) with error: \(error)")
-      throw error
-    }
-  }
-
-  private func processGPTResponse(
-    identifier: String, terminalStateID: UUID, threadId: String, messageContent: String,
+  private func processTerminalContentAnalysisWithGPT(
+    identifier: String, terminalStateID: UUID, messageContent: String,
     changeIdentifiedAt: Double, changedTerminalContentSentToGptAt: Double, source: String
   ) async {
-    Task { @MainActor in
-      NotificationCenter.default.post(
-        name: .suggestionGenerationStatusChanged, object: nil,
-        userInfo: ["identifier": identifier, "isGeneratingSuggestion": true])
-    }
     do {
       let response = try await gptAssistantManager.processMessageInThread(
-        threadId: threadId, messageContent: messageContent)
+        terminalID: identifier, messageContent: messageContent)
+
+      // Check if the response is empty and return early if it is
+      if response.isEmpty {
+        // Mark suggestion generation as false since we are skipping processing
+        Task { @MainActor in
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
+        }
+        pendingTerminalAnalysis = (
+          identifier: identifier,
+          changeIdentifiedAt: changeIdentifiedAt, source: source,
+          messageContent: messageContent
+        )
+        return
+      }
+
       if let command = response["command"] as? String,
         let commandExplanation = response["commandExplanation"] as? String,
         let intention = response["intention"] as? String,
@@ -635,22 +644,26 @@ class AppViewModel: ObservableObject {
       {
         DispatchQueue.main.async {
           self.hasInternetConnection = false
-          self.isGeneratingSuggestion[identifier] = false
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
+
         }
       } else if error.localizedDescription.contains("The Internet connection appears to be offline")
       {
         DispatchQueue.main.async {
           NetworkErrorViewModel.shared.shouldShowNetworkError = true
           self.hasInternetConnection = false
-          self.isGeneratingSuggestion[identifier] = false
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
+        }
+      } else {
+        // For all other error cases, ensure isGeneratingSuggestion is set to false
+        DispatchQueue.main.async {
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
         }
       }
     }
 
     Task { @MainActor in
-      NotificationCenter.default.post(
-        name: .suggestionGenerationStatusChanged, object: nil,
-        userInfo: ["identifier": identifier, "isGeneratingSuggestion": false])
+      SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
 
       // Log the event when response is received from GPT
       let responseReceivedFromGptAt = Date().timeIntervalSince1970

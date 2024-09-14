@@ -102,9 +102,16 @@ class GPTAssistantManager {
     return try await handleResponse(data: data, response: response)
   }
 
-  func pollRunStatus(threadId: String, runId: String) async throws {
+  func pollRunStatusAsync(
+    threadId: String,
+    runId: String,
+    successStates: [String] = ["completed"],  // Default success state is "completed"
+    failureStates: [String] = ["failed", "cancelled", "expired", "incomplete"]  // Default failure states
+  ) async throws {
     try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-      pollRunStatus(threadId: threadId, runId: runId) { result in
+      pollRunStatusWithCompletion(
+        threadId: threadId, runId: runId, successStates: successStates, failureStates: failureStates
+      ) { result in
         switch result {
         case .success():
           continuation.resume()
@@ -115,8 +122,12 @@ class GPTAssistantManager {
     }
   }
 
-  private func pollRunStatus(
-    threadId: String, runId: String, completion: @escaping (Result<Void, Error>) -> Void
+  private func pollRunStatusWithCompletion(
+    threadId: String,
+    runId: String,
+    successStates: [String],
+    failureStates: [String],
+    completion: @escaping (Result<Void, Error>) -> Void
   ) {
     let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/runs/\(runId)")!
     var request = URLRequest(url: url)
@@ -128,6 +139,7 @@ class GPTAssistantManager {
     configuration.timeoutIntervalForRequest = 15.0  // 15 seconds timeout
     configuration.timeoutIntervalForResource = 15.0  // 15 seconds timeout
     let session = URLSession(configuration: configuration)
+    let startTime = Date()  // Record the start time of polling
 
     func checkStatus() {
       let interval = pollingInterval
@@ -146,30 +158,57 @@ class GPTAssistantManager {
                 domain: "", code: 0,
                 userInfo: [
                   NSLocalizedDescriptionKey: "PollRunStatus - Failed to parse JSON or bad response"
-                ])))
+                ]
+              )))
           return
         }
         print("Checking run status: \(status)")
-        if status == "completed" {
-          print("Run completed successfully.")
+
+        // Check if the status is one of the success states
+        if successStates.contains(status) {
+          print("Run completed successfully with status: \(status)")
           completion(.success(()))
-        } else if status == "failed" || status == "cancelled" || status == "expired" {
+          return
+        }
+        // Check if the status is one of the failure states
+        else if failureStates.contains(status) {
+          print("Run failed with status: \(status)")
           completion(
             .failure(
               NSError(
                 domain: "", code: 0,
                 userInfo: [
-                  NSLocalizedDescriptionKey:
-                    "PollRunStatus - Run did not complete successfully: \(status)"
-                ])))
-        } else {
+                  NSLocalizedDescriptionKey: "PollRunStatus - Run failed with status: \(status)"
+                ]
+              )))
+          return
+        }
+        // Check if the status is 'cancelling' and if it has exceeded 10 seconds
+        else if status == "cancelling" {
+          let elapsedTime = Date().timeIntervalSince(startTime)
+          if elapsedTime > 10.0 {
+            print("Polling stopped: Run stuck in 'cancelling' state for more than 10 seconds.")
+            completion(
+              .failure(
+                NSError(
+                  domain: "GPTAssistantErrorDomain", code: 1002,
+                  userInfo: [
+                    NSLocalizedDescriptionKey:
+                      "Run stuck in 'cancelling' state for more than 10 seconds",
+                    "failureReason": "cancelling",
+                  ]
+                )))
+            return
+          }
+        }
+        // Poll again after a delay if neither success nor failure states are met
+        else {
           DispatchQueue.global().asyncAfter(deadline: .now() + interval) {
             checkStatus()  // Recursively check after delay
           }
         }
       }.resume()
     }
-
     checkStatus()  // Initial call to start the polling
   }
 
@@ -281,14 +320,65 @@ class GPTAssistantManager {
     }
   }
 
-  func processMessageInThread(threadId: String, messageContent: String) async throws -> [String:
+  func getMostRecentRun(threadId: String) async throws -> [String: Any]? {
+    let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/runs?limit=1&order=desc")!
+    var request = URLRequest(url: url)
+    request.httpMethod = "GET"
+    request.allHTTPHeaderFields = headers
+
+    let (data, _) = try await URLSession.shared.dataWithTimeout(for: request)
+    guard let jsonData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+      let runs = jsonData["data"] as? [[String: Any]],
+      let mostRecentRun = runs.first
+    else {
+      return nil
+    }
+    return mostRecentRun
+  }
+
+  func processMessageInThread(terminalID: String, messageContent: String) async throws -> [String:
     Any]
   {
+    Task { @MainActor in
+      SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: terminalID, to: true)
+    }
+    // Fetch or create the threadId from GPTAssistantThreadIDManager
+    let threadId = try await GPTAssistantThreadIDManager.shared.getOrCreateThreadId(for: terminalID)
+    // Check if threadId is empty or nil (in case the manager returns an empty string)
+    guard !threadId.isEmpty else {
+      throw NSError(
+        domain: "GPTAssistantErrorDomain", code: 1001,
+        userInfo: [NSLocalizedDescriptionKey: "Thread ID is empty. Cannot proceed."])
+    }
+
+    // This is necessary to avoid the case where API is slow and execution got stuck
+    // To avoid error: "Can't add messages to thread while a run run is active.",
+    // Check if there is an active run in progress
+    if let mostRecentRun = try await getMostRecentRun(threadId: threadId),
+      let status = mostRecentRun["status"] as? String
+    {
+
+      // Define the active states that would prevent a new run
+      let activeStates = ["queued", "in_progress", "requires_action", "cancelling"]
+
+      if activeStates.contains(status) {
+        // If there's an active run, simply return without proceeding
+        print(
+          "There is already an active run for thread \(threadId) with status \(status). Not proceeding with a new request."
+        )
+        MixpanelHelper.shared.trackEvent(
+          name: "skippedNewRunDueToActiveRun",
+          properties: ["status": status, "threadId": threadId]
+        )
+        return [:]  // Return without processing a new message
+      }
+    }
+
     let messageId = try await createMessage(threadId: threadId, messageContent: messageContent)
     print("Message created successfully with ID: \(messageId)")
     let runId = try await startRun(threadId: threadId)
     print("Run started successfully with ID: \(runId)")
-    try await pollRunStatus(threadId: threadId, runId: runId)
+    try await pollRunStatusAsync(threadId: threadId, runId: runId)
     let messageData = try await fetchMessageResult(threadId: threadId)
     return messageData
   }
