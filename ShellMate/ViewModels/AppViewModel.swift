@@ -288,7 +288,10 @@ class AppViewModel: ObservableObject {
       return
     }
     let terminalID = String(windowID)
-    self.currentTerminalID = terminalID
+
+    DispatchQueue.main.async {
+      self.currentTerminalID = terminalID
+    }
 
     checkAndInitializeShouldShowSuggestionsView(for: terminalID)
     checkAndInitializeAtLeastOneSuggestionFlag(for: terminalID)
@@ -957,13 +960,17 @@ class AppViewModel: ObservableObject {
 
   func checkAndInitializePauseFlag(for terminalID: String) {
     if pauseSuggestionGeneration[terminalID] == nil {
-      pauseSuggestionGeneration[terminalID] = false
+      DispatchQueue.main.async {
+        self.pauseSuggestionGeneration[terminalID] = false
+      }
     }
   }
 
   func checkAndInitializeAtLeastOneSuggestionFlag(for terminalID: String) {
     if self.hasAtLeastOneSuggestion[terminalID] == nil {
-      self.hasAtLeastOneSuggestion[terminalID] = false
+      DispatchQueue.main.async {
+        self.hasAtLeastOneSuggestion[terminalID] = false
+      }
     }
   }
 
@@ -972,10 +979,14 @@ class AppViewModel: ObservableObject {
     if self.shouldShowSuggestionsView[terminalID] == nil {
       // If the onboarding step is not completed, set to true immediately
       if !OnboardingStateManager.shared.isStepCompleted(step: 1) {
-        self.shouldShowSuggestionsView[terminalID] = true
+        DispatchQueue.main.async {
+          self.shouldShowSuggestionsView[terminalID] = true
+        }
       } else {
         // Otherwise, initialize it as false
-        self.shouldShowSuggestionsView[terminalID] = false
+        DispatchQueue.main.async {
+          self.shouldShowSuggestionsView[terminalID] = false
+        }
       }
     }
   }
