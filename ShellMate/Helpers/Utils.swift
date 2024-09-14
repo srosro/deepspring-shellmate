@@ -10,7 +10,6 @@ import ApplicationServices
 import CoreGraphics
 import Foundation
 import Mixpanel
-import SQLite3
 
 /// Retrieve the API key from UserDefaults
 func getHardcodedOpenAIAPIKey() -> String {

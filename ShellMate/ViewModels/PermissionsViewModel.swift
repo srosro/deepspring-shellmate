@@ -60,6 +60,8 @@ class LicenseViewModel: ObservableObject {
       // Cancel any ongoing validation
       apiKeyCheckTask?.cancel()
 
+      sanitizeApiKey(apiKey)
+
       // Debounce the API key validation
       let debouncedTask = DispatchWorkItem { [weak self] in
         guard let self = self else { return }
@@ -216,9 +218,13 @@ class LicenseViewModel: ObservableObject {
   }
 
   func sanitizeApiKey(_ text: String) {
-    let sanitized = text.replacingOccurrences(of: "\\s+", with: "", options: .regularExpression)
+    let sanitized = text.replacingOccurrences(
+      of: "[\\s\\r\\n]+", with: "", options: .regularExpression)
+    // Only update apiKey if sanitized is different to prevent infinite loop
     if sanitized != apiKey {
-      apiKey = sanitized
+      DispatchQueue.main.async {
+        self.apiKey = sanitized
+      }
     }
   }
 }
