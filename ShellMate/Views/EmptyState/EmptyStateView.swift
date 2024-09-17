@@ -41,6 +41,7 @@ struct CommandView: View {
         .italic()
         .background(Color.Stroke.Cells.secondary)
         .foregroundColor(Color.Text.EmptyState.gray)
+        .textSelection(.enabled)
     }
     .padding(.horizontal, 16)
     .frame(maxWidth: .infinity, alignment: .leading)
