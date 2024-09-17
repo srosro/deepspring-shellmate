@@ -1019,7 +1019,9 @@ class AppViewModel: ObservableObject {
       let suggestionsHistory = results[terminalID]?.suggestionsHistory,
       let lastSuggestion = suggestionsHistory.last?.1.last,
       let isProTipBanner = lastSuggestion["isProTipBanner"],
-      isProTipBanner == "true"
+      isProTipBanner == "true",
+      let proTipIdx = lastSuggestion["proTipIdx"],
+      proTipIdx == "6"
     {
       print("Last suggestion is a proTip. Skipping markAsCompleted.")
       return
