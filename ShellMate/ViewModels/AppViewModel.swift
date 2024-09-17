@@ -51,7 +51,7 @@ class AppViewModel: ObservableObject {
   private var apiKeyValidationDebounceTask: DispatchWorkItem?
 
   // Limit for free tier suggestions
-  @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 100
+  @AppStorage("GPTSuggestionsFreeTierLimit") private(set) var GPTSuggestionsFreeTierLimit: Int = 50
 
   @Published var GPTSuggestionsFreeTierCount: Int {
     didSet {
