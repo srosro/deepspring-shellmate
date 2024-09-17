@@ -39,11 +39,6 @@ struct EmptyStateMessages {
       "command": "sm \"tell me a fortune\"",
     ],
     [
-      "title": "Why did the train check its list twice?",
-      "subtitle": "It didn’t want to derail any plans!",
-      "command": "ls",
-    ],
-    [
       "title": "Behold! The ancient wisdom of the clipboard…",
       "subtitle": "To retrieve, one must invoke the sacred chant:",
       "command":
@@ -60,19 +55,9 @@ struct EmptyStateMessages {
       "command": "sm \"keep my mac from going to sleep for the next hour\"",
     ],
     [
-      "title": "Remember, your Terminal is like a genie.",
-      "subtitle": "Ask the right questions, get the right answers.",
-      "command": "sm \"What are my top 5 most used commands?\"",
-    ],
-    [
       "title": "Lost in the dark?",
       "subtitle": "Let me guide you back to the light.",
       "command": "sm \"Show me my most recent history\"",
-    ],
-    [
-      "title": "Need a little inspiration?",
-      "subtitle": "Start with a blank slate.",
-      "command": "touch ~/Inspiration.txt",
     ],
     [
       "title": "The most powerful command in Unix…",
@@ -83,11 +68,6 @@ struct EmptyStateMessages {
       "title": "Did you know?",
       "subtitle": "Even AIs need a little downtime.",
       "command": "sm \"How do I schedule a cron job to remind me to take breaks?\"",
-    ],
-    [
-      "title": "They say every file has a story…",
-      "subtitle": "What's yours?",
-      "command": "sm \"Tell me the story of this file: ~/MyStory.txt\"",
     ],
   ]
 }

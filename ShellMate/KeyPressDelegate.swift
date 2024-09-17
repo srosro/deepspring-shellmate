@@ -209,7 +209,7 @@ class KeyPressDelegate {
 
   private func checkAndHandleOnboardingStep1(line: String) {
     if !OnboardingStateManager.shared.isStepCompleted(step: 1)
-      && isValidSMQuestion(line: line)
+      && (isValidSMQuestion(line: line) || line.lowercased().contains("sm"))
       && doesCurrentLineContainOnboardingCommand(line: line)
     {
       OnboardingStateManager.shared.markAsCompleted(step: 1)
