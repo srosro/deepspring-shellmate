@@ -39,9 +39,11 @@ class AppViewModel: ObservableObject {
 
   private var currentTerminalStateID: UUID?
   private let additionalSuggestionDelaySeconds: TimeInterval = 3.0
+  private let provideMoreContextBannerDelay: TimeInterval = 7
   private let maxSuggestionsPerEvent: Int = 4
   private var shouldGenerateFollowUpSuggestionsFlag: Bool = true
   private var gptAssistantManager: GPTAssistantManager = GPTAssistantManager.shared
+  private var firstProTipDebounceWorkItem: DispatchWorkItem?
 
   // UserDefaults keys
   private let GPTSuggestionsFreeTierCountKey = "GPTSuggestionsFreeTierCount"
@@ -271,6 +273,7 @@ class AppViewModel: ObservableObject {
       return
     }
     self.currentStateText = "Detecting changes..."
+    self.currentTerminalStateID = UUID()  // Forcing updating stateID here. Otherwise it would only be updated when user finish updating the terminal (and would cause problems for the showProvideMoreContextBanner
   }
 
   @objc private func handleTerminalChangeEnded() {
@@ -627,7 +630,7 @@ class AppViewModel: ObservableObject {
           as? Bool
       {
         if !shouldGenerateFollowUpSuggestions {
-          self.showProvideMoreContextBanner()
+          self.showProvideMoreContextBanner(terminalStateID: terminalStateID)
         } else {
           await appendResult(
             identifier: identifier,
@@ -934,6 +937,13 @@ class AppViewModel: ObservableObject {
 
   @MainActor
   func initializeSampleCommandForOnboardingIfNeeded(for terminalID: String?) {
+    // For some reason, this code was being executed twice simultaneously, causing the first pro tip banner
+    // to be appended twice. To prevent this, we added a debouncing mechanism using DispatchWorkItem,
+    // ensuring that if the function is triggered in quick succession, only the last invocation within
+    // the 0.3-second window will proceed, thus avoiding duplicate banners.
+
+    print("DANBUG: initialize Sample command run!!")
+
     guard let terminalID = terminalID else {
       return
     }
@@ -942,10 +952,20 @@ class AppViewModel: ObservableObject {
       return
     }
 
-    if self.results[terminalID]?.suggestionsHistory.isEmpty ?? true {
-      appendProTip(identifier: terminalID, proTipIdx: 1)
-      MixpanelHelper.shared.trackEvent(name: "onboardingStep1FlowShown")
+    // Cancel any previous work item to debounce
+    firstProTipDebounceWorkItem?.cancel()
+
+    // Create and execute the debounced work item
+    firstProTipDebounceWorkItem = DispatchWorkItem { [weak self] in
+      if let self = self,
+        self.results[terminalID]?.suggestionsHistory.isEmpty ?? true
+      {
+        self.appendProTip(identifier: terminalID, proTipIdx: 1)
+        MixpanelHelper.shared.trackEvent(name: "onboardingStep1FlowShown")
+      }
     }
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: firstProTipDebounceWorkItem!)
   }
 
   func setPauseSuggestionGeneration(for terminalID: String, to pause: Bool) {
@@ -1013,22 +1033,49 @@ class AppViewModel: ObservableObject {
     }
   }
 
-  private func showProvideMoreContextBanner() {
-    // Check if the last suggestion is a proTip
+  private func showProvideMoreContextBanner(terminalStateID: UUID) {
+    let numberOfSuggestionsGroupToCheck = 6  // Number of suggestion groups to check for proTipIdx 6
+    // Check if the last suggestion is a proTip with index 1, and the last 6 suggestions for proTipIdx 6
     if let terminalID = currentTerminalID,
-      let suggestionsHistory = results[terminalID]?.suggestionsHistory,
-      let lastSuggestion = suggestionsHistory.last?.1.last,
-      let isProTipBanner = lastSuggestion["isProTipBanner"],
-      isProTipBanner == "true",
-      let proTipIdx = lastSuggestion["proTipIdx"],
-      proTipIdx == "6"
+      let suggestionsHistory = results[terminalID]?.suggestionsHistory
     {
-      print("Last suggestion is a proTip. Skipping markAsCompleted.")
-      return
+      // Flatten the history to get all suggestions
+      let allSuggestions = suggestionsHistory.flatMap { $0.1 }
+
+      // Check only the last suggestion for proTipIdx 1
+      if let lastSuggestion = allSuggestions.last,
+        let isProTipBanner = lastSuggestion["isProTipBanner"],
+        isProTipBanner == "true",
+        let proTipIdx = lastSuggestion["proTipIdx"],
+        proTipIdx == "1"
+      {
+        print("Found a proTip with index 1 in the last suggestion. Skipping markAsCompleted.")
+        return
+      }
+
+      // Check the last 6 suggestions for proTipIdx 6
+      let lastSuggestions = allSuggestions.suffix(numberOfSuggestionsGroupToCheck)
+      for suggestion in lastSuggestions {
+        if let isProTipBanner = suggestion["isProTipBanner"],
+          isProTipBanner == "true",
+          let proTipIdx = suggestion["proTipIdx"],
+          proTipIdx == "6"
+        {
+          print("Found a proTip with index 6 in the last 6 suggestions. Skipping markAsCompleted.")
+          return
+        }
+      }
     }
 
-    // This is not exactly an onboarding banner, instead a user feedback warning
-    OnboardingStateManager.shared.markAsCompleted(step: 6)
+    // Wait for 7 seconds before proceeding
+    DispatchQueue.main.asyncAfter(deadline: .now() + provideMoreContextBannerDelay) {
+      // Compare if the currentTerminalStateID is still the same as received
+      if self.currentTerminalStateID == terminalStateID {
+        OnboardingStateManager.shared.markAsCompleted(step: 6)
+      } else {
+        print("Terminal state ID has changed, canceling markAsCompleted.")
+      }
+    }
   }
 
   private func getCurrentSuggestionIndices(identifier: String, terminalStateID: UUID) -> (
