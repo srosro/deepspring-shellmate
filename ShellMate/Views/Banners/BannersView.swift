@@ -25,7 +25,7 @@ struct BannersView: View {
     } else if NetworkErrorViewModel.shared.shouldShowNetworkError {
       NetworkErrorView()
     } else {
-      Divider().padding(.top, 5)
+      Divider().padding(.top, 1)
     }
   }
 }
@@ -39,7 +39,7 @@ struct BannersViewForEmptyState: View {
     } else if NetworkErrorViewModel.shared.shouldShowNetworkError {
       NetworkErrorView()
     } else {
-      Divider().padding(.top, 5)
+      Divider().padding(.top, 1)
     }
   }
 }

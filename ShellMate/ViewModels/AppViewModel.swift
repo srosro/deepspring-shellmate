@@ -1034,7 +1034,7 @@ class AppViewModel: ObservableObject {
   }
 
   private func showProvideMoreContextBanner(terminalStateID: UUID) {
-    let numberOfSuggestionsGroupToCheck = 6  // Number of suggestion groups to check for proTipIdx 6
+    let numberOfSuggestionsGroupToCheck = 30  // Number of suggestion groups to check for proTipIdx 6
     // Check if the last suggestion is a proTip with index 1, and the last 6 suggestions for proTipIdx 6
     if let terminalID = currentTerminalID,
       let suggestionsHistory = results[terminalID]?.suggestionsHistory

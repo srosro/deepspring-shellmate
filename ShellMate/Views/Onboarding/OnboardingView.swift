@@ -170,7 +170,7 @@ struct OnboardingStep3View: View {
     OnboardingContainerView(header: "Review and execute") {
 
       Text(
-        "Review before executing inserted suggestions. You should never run commands you don’t know."
+        "Review inserted suggestions before executing. You should never run commands you don't know."
       )
       .font(.body)
       .padding(.bottom, 5)

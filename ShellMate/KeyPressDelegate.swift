@@ -229,7 +229,7 @@ class KeyPressDelegate {
   func doesCurrentLineContainOnboardingCommand(line: String) -> Bool {
     let sanitizedLine = sanitizeText(line)
     let sanitizedCommand = sanitizeText(getOnboardingSmCommand())
-    return sanitizedLine.contains(sanitizedCommand)
+    return sanitizedLine.contains(sanitizedCommand) || sanitizedLine.contains("cal")
   }
 
   @objc private func handleTerminalActiveLineChanged(_ notification: Notification) {

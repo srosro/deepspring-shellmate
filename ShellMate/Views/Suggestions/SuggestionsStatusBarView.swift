@@ -30,7 +30,7 @@ struct SuggestionsStatusBarView: View {
         HStack(spacing: 8) {
           if let currentTerminalID = viewModel.currentTerminalID {
             if suggestionMonitor.isCurrentlyGeneratingSuggestion(for: currentTerminalID) {
-              Text("Processing...")
+              Text("Thinking...")
                 .font(.footnote)
                 .foregroundColor(Color.Text.green)
             } else if viewModel.pauseSuggestionGeneration[currentTerminalID] == true {

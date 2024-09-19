@@ -158,7 +158,8 @@ struct SuggestionsView: View {
           .padding(.horizontal, 10)
         }
         .padding(.horizontal, 0)
-        .padding(.vertical, 15)
+        .padding(.top, 15)
+        .padding(.bottom, 0)
         .onChange(of: viewModel.updateCounter) {
           if let currentTerminalID = viewModel.currentTerminalID,
             let windowData = viewModel.results[currentTerminalID],
