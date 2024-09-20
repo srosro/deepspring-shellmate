@@ -1,6 +1,7 @@
 import AXSwift
 import Combine
 import SwiftUI
+import Sentry
 
 enum APIKeyValidationState {
   case valid
@@ -643,6 +644,7 @@ class AppViewModel: ObservableObject {
         shouldGenerateFollowUpSuggestionsFlag = shouldGenerateFollowUpSuggestions
       }
     } catch {
+      SentrySDK.capture(error: error)
       print("Error processing message in thread: \(error.localizedDescription)")
 
       if error.localizedDescription.contains("The network connection was lost")

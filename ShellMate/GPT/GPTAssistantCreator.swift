@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Sentry
 
 class GPTAssistantCreator {
   let apiKey: String
@@ -75,11 +76,13 @@ class GPTAssistantCreator {
       let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
       let assistantId = jsonObject["id"] as? String
     else {
-      throw NSError(
-        domain: "", code: 0,
+      let error = NSError(
+        domain: "GPTAssistantCreatorErrorDomain", code: 1001,
         userInfo: [
           NSLocalizedDescriptionKey: "Create Assistant - Failed to parse JSON or bad response"
         ])
+      SentrySDK.capture(error: error)
+      throw error
     }
 
     return assistantId
@@ -102,12 +105,14 @@ class GPTAssistantCreator {
       let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
       let assistants = jsonObject["data"] as? [[String: Any]]
     else {
-      throw NSError(
-        domain: "", code: 0,
+      let error = NSError(
+        domain: "GPTAssistantCreatorErrorDomain", code: 1002,
         userInfo: [
           NSLocalizedDescriptionKey: "Failed to list assistants or bad response",
           "HTTPStatusCode": (response as? HTTPURLResponse)?.statusCode ?? 0,
         ])
+      SentrySDK.capture(error: error)
+      throw error
     }
 
     var assistantList: [(String, String)] = []

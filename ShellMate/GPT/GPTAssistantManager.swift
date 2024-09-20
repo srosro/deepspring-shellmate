@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Sentry
 
 class GPTAssistantManager {
   static let shared = GPTAssistantManager()
@@ -41,6 +42,7 @@ class GPTAssistantManager {
       assistantCurrentVersion = try getAppVersionAndBuild()
     } catch {
       print("Error retrieving app version and build: \(error)")
+      SentrySDK.capture(error: error)
       return false
     }
     let assistantInstructions = GPTAssistantInstructions.getInstructions()
@@ -56,6 +58,7 @@ class GPTAssistantManager {
       return true
     } catch {
       print("Error occurred while setting up GPT Assistant: \(error.localizedDescription)")
+      SentrySDK.capture(error: error)
       return false
     }
   }
@@ -86,9 +89,11 @@ class GPTAssistantManager {
   func startRun(threadId: String) async throws -> String {
     // Check if assistantId is not empty
     guard !assistantId.isEmpty else {
-      throw NSError(
-        domain: "", code: 0,
+      let error = NSError(
+        domain: "GPTAssistantManagerErrorDomain", code: 1001,
         userInfo: [NSLocalizedDescriptionKey: "startRun - Assistant ID is empty"])
+      SentrySDK.capture(error: error)
+      throw error
     }
 
     let url = URL(string: "https://api.openai.com/v1/threads/\(threadId)/runs")!
@@ -145,6 +150,8 @@ class GPTAssistantManager {
       let interval = pollingInterval
       session.dataTask(with: request) { data, response, error in
         if let error = error {
+          print("Error in polling run status: \(error.localizedDescription)")
+          SentrySDK.capture(error: error)
           completion(.failure(error))
           return
         }
@@ -152,14 +159,14 @@ class GPTAssistantManager {
           let jsonData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
           let status = jsonData["status"] as? String
         else {
-          completion(
-            .failure(
-              NSError(
-                domain: "", code: 0,
-                userInfo: [
-                  NSLocalizedDescriptionKey: "PollRunStatus - Failed to parse JSON or bad response"
-                ]
-              )))
+          print("Failed to parse JSON or bad response")
+          let error = NSError(
+            domain: "GPTAssistantManagerErrorDomain", code: 1002,
+            userInfo: [
+              NSLocalizedDescriptionKey: "PollRunStatus - Failed to parse JSON or bad response"
+            ])
+          SentrySDK.capture(error: error)
+          completion(.failure(error))
           return
         }
         print("Checking run status: \(status)")
@@ -173,14 +180,13 @@ class GPTAssistantManager {
         // Check if the status is one of the failure states
         else if failureStates.contains(status) {
           print("Run failed with status: \(status)")
-          completion(
-            .failure(
-              NSError(
-                domain: "", code: 0,
-                userInfo: [
-                  NSLocalizedDescriptionKey: "PollRunStatus - Run failed with status: \(status)"
-                ]
-              )))
+          let error = NSError(
+            domain: "GPTAssistantManagerErrorDomain", code: 1003,
+            userInfo: [
+              NSLocalizedDescriptionKey: "PollRunStatus - Run failed with status: \(status)"
+            ])
+          SentrySDK.capture(error: error)
+          completion(.failure(error))
           return
         }
         // Check if the status is 'cancelling' and if it has exceeded 10 seconds
@@ -188,16 +194,15 @@ class GPTAssistantManager {
           let elapsedTime = Date().timeIntervalSince(startTime)
           if elapsedTime > 10.0 {
             print("Polling stopped: Run stuck in 'cancelling' state for more than 10 seconds.")
-            completion(
-              .failure(
-                NSError(
-                  domain: "GPTAssistantErrorDomain", code: 1002,
-                  userInfo: [
-                    NSLocalizedDescriptionKey:
-                      "Run stuck in 'cancelling' state for more than 10 seconds",
-                    "failureReason": "cancelling",
-                  ]
-                )))
+            let error = NSError(
+              domain: "GPTAssistantManagerErrorDomain", code: 1004,
+              userInfo: [
+                NSLocalizedDescriptionKey:
+                  "Run stuck in 'cancelling' state for more than 10 seconds",
+                "failureReason": "cancelling",
+              ])
+            SentrySDK.capture(error: error)
+            completion(.failure(error))
             return
           }
         }
@@ -220,9 +225,12 @@ class GPTAssistantManager {
 
     let (data, _) = try await URLSession.shared.dataWithTimeout(for: request)
     guard let jsonData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-      throw NSError(
-        domain: "", code: 0,
+      print("Failed to receive or parse data")
+      let error = NSError(
+        domain: "GPTAssistantManagerErrorDomain", code: 1005,
         userInfo: [NSLocalizedDescriptionKey: "Failed to receive or parse data"])
+      SentrySDK.capture(error: error)
+      throw error
     }
 
     // Print the entire raw JSON response for debugging
@@ -239,16 +247,22 @@ class GPTAssistantManager {
         print("Parsed GPT response: \(valueDict)")
         return valueDict
       } else {
-        throw NSError(
-          domain: "", code: 0,
+        print("JSON string in 'value' could not be parsed")
+        let error = NSError(
+          domain: "GPTAssistantManagerErrorDomain", code: 1006,
           userInfo: [NSLocalizedDescriptionKey: "JSON string in 'value' could not be parsed"])
+        SentrySDK.capture(error: error)
+        throw error
       }
     } else {
-      throw NSError(
-        domain: "", code: 0,
+      print("Failed to parse message content correctly or no content found")
+      let error = NSError(
+        domain: "GPTAssistantManagerErrorDomain", code: 1007,
         userInfo: [
           NSLocalizedDescriptionKey: "Failed to parse message content correctly or no content found"
         ])
+      SentrySDK.capture(error: error)
+      throw error
     }
   }
 
@@ -264,6 +278,7 @@ class GPTAssistantManager {
         return json
       } catch {
         print("Failed to convert String to Dictionary: \(error)")
+        SentrySDK.capture(error: error)
       }
     }
     return nil
@@ -276,6 +291,10 @@ class GPTAssistantManager {
       print("Headers: \(httpResponse.allHeaderFields)")
     } else {
       print("Unexpected response type: \(response)")
+      let error = NSError(
+        domain: "GPTAssistantManagerErrorDomain", code: 1008,
+        userInfo: [NSLocalizedDescriptionKey: "Unexpected response type"])
+      SentrySDK.capture(error: error)
     }
 
     // Log the raw data received
@@ -284,35 +303,51 @@ class GPTAssistantManager {
     print("Response Data: \(responseDataString)")
 
     // Attempt to parse the JSON
-    guard let httpResponse = response as? HTTPURLResponse,
-      httpResponse.statusCode == 200
-    else {
-      throw NSError(
-        domain: "", code: 0,
+    guard let httpResponse = response as? HTTPURLResponse else {
+      print("Invalid HTTP response")
+      let error = NSError(
+        domain: "GPTAssistantManagerErrorDomain", code: 1009,
+        userInfo: [NSLocalizedDescriptionKey: "HandleResponse - Invalid HTTP response"])
+      SentrySDK.capture(error: error)
+      throw error
+    }
+    
+    guard httpResponse.statusCode == 200 else {
+      print("Non-200 HTTP response")
+      let error = NSError(
+        domain: "GPTAssistantManagerErrorDomain", code: 1010,
         userInfo: [NSLocalizedDescriptionKey: "HandleResponse - Non-200 HTTP response"])
+      SentrySDK.capture(error: error)
+      throw error
     }
 
     do {
       guard let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-        throw NSError(
-          domain: "", code: 0,
+        print("Failed to parse JSON")
+        let error = NSError(
+          domain: "GPTAssistantManagerErrorDomain", code: 1011,
           userInfo: [NSLocalizedDescriptionKey: "HandleResponse - Failed to parse JSON"])
+        SentrySDK.capture(error: error)
+        throw error
       }
 
       // Log the parsed JSON object
       print("Parsed JSON: \(jsonObject)")
-
       guard let id = jsonObject["id"] as? String else {
-        throw NSError(
-          domain: "", code: 0,
+        print("'id' key not found in JSON")
+        let error = NSError(
+          domain: "GPTAssistantManagerErrorDomain", code: 1012,
           userInfo: [NSLocalizedDescriptionKey: "HandleResponse - 'id' key not found in JSON"])
+        SentrySDK.capture(error: error)
+        throw error
       }
 
       return id
     } catch {
       print("JSON Parsing Error: \(error.localizedDescription)")
+      SentrySDK.capture(error: error)
       throw NSError(
-        domain: "", code: 0,
+        domain: "GPTAssistantManagerErrorDomain", code: 1013,
         userInfo: [
           NSLocalizedDescriptionKey:
             "HandleResponse - JSON Parsing Error: \(error.localizedDescription)"
@@ -336,9 +371,7 @@ class GPTAssistantManager {
     return mostRecentRun
   }
 
-  func processMessageInThread(terminalID: String, messageContent: String) async throws -> [String:
-    Any]
-  {
+  func processMessageInThread(terminalID: String, messageContent: String) async throws -> [String: Any] {
     Task { @MainActor in
       SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: terminalID, to: true)
     }
@@ -346,9 +379,12 @@ class GPTAssistantManager {
     let threadId = try await GPTAssistantThreadIDManager.shared.getOrCreateThreadId(for: terminalID)
     // Check if threadId is empty or nil (in case the manager returns an empty string)
     guard !threadId.isEmpty else {
-      throw NSError(
-        domain: "GPTAssistantErrorDomain", code: 1001,
+      print("Thread ID is empty. Cannot proceed.")
+      let error = NSError(
+        domain: "GPTAssistantManagerErrorDomain", code: 1014,
         userInfo: [NSLocalizedDescriptionKey: "Thread ID is empty. Cannot proceed."])
+      SentrySDK.capture(error: error)
+      throw error
     }
 
     // This is necessary to avoid the case where API is slow and execution got stuck
