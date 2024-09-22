@@ -89,6 +89,12 @@ class AppViewModel: ObservableObject {
     }
   }
 
+  @AppStorage("totalSuggestionsGenerated") private var totalSuggestionsGenerated: Int = 0 {
+    didSet {
+      calculateSamAltmansFaceLikelihood()
+    }
+  }
+
   private func startInternetConnectionGracePeriod() {
     // Cancel any existing grace period task
     internetConnectionGracePeriodTask?.cancel()
@@ -112,6 +118,7 @@ class AppViewModel: ObservableObject {
           self.resetInternetConnectionCheckState()
         }
       } catch {
+        SentrySDK.capture(error: error)
         print("Error during grace period task: \(error.localizedDescription)")
       }
     }
@@ -141,15 +148,15 @@ class AppViewModel: ObservableObject {
   }
 
   // Method to calculate the likelihood
-  func calculateSamAltmansFaceLikelihood() {
-    let n = Double(GPTSuggestionsFreeTierCount)
+  private func calculateSamAltmansFaceLikelihood() {
+    let n = Double(totalSuggestionsGenerated)
     let adjustedLikelihood = min(100, (1.0 / (1.5 + n / 10)) * 100)
     let randomValue = Double.random(in: 0...100)
     shouldShowSamAltmansFace = randomValue <= adjustedLikelihood
 
     // DEBUG statement
     print(
-      "DEBUG: GPTSuggestionsFreeTierCount: \(GPTSuggestionsFreeTierCount), Adjusted Likelihood: \(adjustedLikelihood), Random Value: \(randomValue), Should Show Sam Altman's Face: \(shouldShowSamAltmansFace)"
+      "DEBUG: totalSuggestionsGenerated: \(totalSuggestionsGenerated), Adjusted Likelihood: \(String(format: "%.2f", adjustedLikelihood)), Random Value: \(String(format: "%.2f", randomValue)), Should Show Sam Altman's Face: \(shouldShowSamAltmansFace)"
     )
   }
 
@@ -484,6 +491,7 @@ class AppViewModel: ObservableObject {
           }
         }
       } catch {
+        SentrySDK.capture(error: error)
         print("DEBUG: Error getting or creating thread ID: \(error.localizedDescription)")
 
         if error.localizedDescription.contains("The network connection was lost")
@@ -696,6 +704,9 @@ class AppViewModel: ObservableObject {
   }
 
   private func incrementGPTSuggestionsCount(tier: APIKeyValidationState, by count: Int) {
+    // Increment the total suggestions count
+    totalSuggestionsGenerated += count
+
     if tier == .valid {
       MixpanelHelper.shared.trackEvent(
         name: "incrementGPTSuggestionsCount", properties: ["tier": "byo"])
