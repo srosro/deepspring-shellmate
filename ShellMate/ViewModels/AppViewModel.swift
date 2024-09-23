@@ -1047,13 +1047,19 @@ class AppViewModel: ObservableObject {
   }
 
   private func showProvideMoreContextBanner(terminalStateID: UUID) {
-    let numberOfSuggestionsGroupToCheck = 30  // Number of suggestion groups to check for proTipIdx 6
+    let numberOfSuggestionsGroupToCheck = 50  // Number of suggestion groups to check for proTipIdx 6
     // Check if the last suggestion is a proTip with index 1, and the last 6 suggestions for proTipIdx 6
     if let terminalID = currentTerminalID,
       let suggestionsHistory = results[terminalID]?.suggestionsHistory
     {
       // Flatten the history to get all suggestions
       let allSuggestions = suggestionsHistory.flatMap { $0.1 }
+
+      // Check if there are enough suggestions
+      guard allSuggestions.count >= numberOfSuggestionsGroupToCheck else {
+        print("Not enough suggestions to check. Skipping markAsCompleted.")
+        return
+      }
 
       // Check only the last suggestion for proTipIdx 1
       if let lastSuggestion = allSuggestions.last,
