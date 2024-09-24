@@ -48,6 +48,11 @@ class KeyPressDelegate {
         print("KeyPressDelegate - Enter key detected.")
         debounceEnterKey()
       }
+
+      // Handle AFK logic for any key press
+      if let terminalID = AFKSessionService.shared.currentTerminalID {
+        AFKSessionService.shared.handleKeyPress(for: terminalID)
+      }
     }
   }
 

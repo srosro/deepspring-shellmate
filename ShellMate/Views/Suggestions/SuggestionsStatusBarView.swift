@@ -10,13 +10,14 @@ import SwiftUI
 struct SuggestionsStatusBarView: View {
   @ObservedObject var viewModel: AppViewModel
   @ObservedObject var suggestionMonitor = SuggestionGenerationMonitor.shared
+  @ObservedObject var pauseManager = PauseSuggestionManager.shared
   @State private var isSamAltmanIconFaceRotating = false
 
   var body: some View {
     ZStack(alignment: .center) {
       HStack {
         if let currentTerminalID = viewModel.currentTerminalID,
-          viewModel.pauseSuggestionGeneration[currentTerminalID] != true
+          !pauseManager.isSuggestionGenerationPaused(for: currentTerminalID)
         {
           Text(viewModel.currentStateText)
             .font(.footnote)
@@ -33,7 +34,7 @@ struct SuggestionsStatusBarView: View {
               Text("Thinking...")
                 .font(.footnote)
                 .foregroundColor(Color.Text.green)
-            } else if viewModel.pauseSuggestionGeneration[currentTerminalID] == true {
+            } else if pauseManager.isSuggestionGenerationPaused(for: currentTerminalID) {
               Text("ShellMate paused")
                 .font(.footnote)
                 .foregroundColor(Color.Text.gray)
@@ -41,12 +42,11 @@ struct SuggestionsStatusBarView: View {
 
             Button(action: {
               // Toggle the pause state
-              viewModel.setPauseSuggestionGeneration(
-                for: currentTerminalID,
-                to: !viewModel.pauseSuggestionGeneration[currentTerminalID, default: false])
+              let isPaused = pauseManager.isSuggestionGenerationPaused(for: currentTerminalID)
+              viewModel.setPauseSuggestionGeneration(for: currentTerminalID, to: !isPaused)
             }) {
               Image(
-                systemName: viewModel.pauseSuggestionGeneration[currentTerminalID] == true
+                systemName: pauseManager.isSuggestionGenerationPaused(for: currentTerminalID)
                   ? "play.circle.fill" : "pause.circle.fill"
               )
               .font(.system(size: 16))  // Adjust the size as needed

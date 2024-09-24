@@ -141,8 +141,8 @@ class GPTAssistantManager {
 
     // Create a URLSession with a custom timeout configuration
     let configuration = URLSessionConfiguration.default
-    configuration.timeoutIntervalForRequest = 15.0  // 15 seconds timeout
-    configuration.timeoutIntervalForResource = 15.0  // 15 seconds timeout
+    configuration.timeoutIntervalForRequest = 30
+    configuration.timeoutIntervalForResource = 30
     let session = URLSession(configuration: configuration)
     let startTime = Date()  // Record the start time of polling
 
@@ -372,9 +372,6 @@ class GPTAssistantManager {
   }
 
   func processMessageInThread(terminalID: String, messageContent: String) async throws -> [String: Any] {
-    Task { @MainActor in
-      SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: terminalID, to: true)
-    }
     // Fetch or create the threadId from GPTAssistantThreadIDManager
     let threadId = try await GPTAssistantThreadIDManager.shared.getOrCreateThreadId(for: terminalID)
     // Check if threadId is empty or nil (in case the manager returns an empty string)
@@ -409,7 +406,12 @@ class GPTAssistantManager {
         return [:]  // Return without processing a new message
       }
     }
-
+      
+    // Set isGeneratingSuggestion to true just before creating the message
+    await MainActor.run {
+      SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: terminalID, to: true)
+    }
+    
     let messageId = try await createMessage(threadId: threadId, messageContent: messageContent)
     print("Message created successfully with ID: \(messageId)")
     let runId = try await startRun(threadId: threadId)

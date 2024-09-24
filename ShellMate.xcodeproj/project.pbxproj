@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		49D68AD52C35B830000AB5AF /* sm in Copy Files: Make sm command available in user terminal */ = {isa = PBXBuildFile; fileRef = DC9B38C72C2502FA006755AE /* sm */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		527465492CA2E32B00C9760E /* AFKSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527465482CA2E32B00C9760E /* AFKSessionService.swift */; };
+		5274654B2CA33D5600C9760E /* ShellMateWindowVisibilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5274654A2CA33D5600C9760E /* ShellMateWindowVisibilityService.swift */; };
 		DC00C0342C2F51210019BEB1 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = DC00C0332C2F51210019BEB1 /* Sparkle */; };
 		DC00C03A2C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */; };
 		DC00C03C2C2F62100019BEB1 /* CheckForUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */; };
@@ -84,6 +86,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		527465482CA2E32B00C9760E /* AFKSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AFKSessionService.swift; sourceTree = "<group>"; };
+		5274654A2CA33D5600C9760E /* ShellMateWindowVisibilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellMateWindowVisibilityService.swift; sourceTree = "<group>"; };
 		DC00C0382C2F5F2D0019BEB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DC00C0392C2F61E40019BEB1 /* CheckForUpdatesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesViewModel.swift; sourceTree = "<group>"; };
 		DC00C03B2C2F62100019BEB1 /* CheckForUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckForUpdatesView.swift; sourceTree = "<group>"; };
@@ -158,6 +162,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		527465472CA2E31100C9760E /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				527465482CA2E32B00C9760E /* AFKSessionService.swift */,
+				5274654A2CA33D5600C9760E /* ShellMateWindowVisibilityService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		DC00C0322C2F51210019BEB1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -269,6 +282,7 @@
 		DC9B38882C24FFEA006755AE /* ShellMate */ = {
 			isa = PBXGroup;
 			children = (
+				527465472CA2E31100C9760E /* Services */,
 				DCEF52422C8F4558000AB274 /* GPT */,
 				DC8FF0912C2CC2C300E5F0A7 /* ViewModels */,
 				DC00C0382C2F5F2D0019BEB1 /* Info.plist */,
@@ -497,8 +511,10 @@
 				DC0D53F82C3C9728003FEBB1 /* SettingsView.swift in Sources */,
 				DC8C11962C8B9D0C00A24308 /* NetworkErrorViewModel.swift in Sources */,
 				DC8C11942C8B9AB400A24308 /* NetworkErrorView.swift in Sources */,
+				5274654B2CA33D5600C9760E /* ShellMateWindowVisibilityService.swift in Sources */,
 				DC3AB23A2C3774BE00B8FE8F /* GPTAssistantInstructions.swift in Sources */,
 				DCA668D92C3E0CFE0057629C /* ShellMateWindowTrackingDelegate.swift in Sources */,
+				527465492CA2E32B00C9760E /* AFKSessionService.swift in Sources */,
 				DCB25E962C84E51900D5FACF /* EmptyStateMessages.swift in Sources */,
 				DCB1F8E82C7A829D0016CB96 /* ChatWithMakersViewModel.swift in Sources */,
 				DC0D53FA2C3C9CA0003FEBB1 /* SettingsViewModel.swift in Sources */,

@@ -2,6 +2,7 @@ import AXSwift
 import Combine
 import SwiftUI
 import Sentry
+import Cocoa
 
 enum APIKeyValidationState {
   case valid
@@ -19,7 +20,6 @@ class AppViewModel: ObservableObject {
     )] = [:]
   @Published var shouldShowSuggestionsView: [String: Bool] = [:]
   @Published var hasAtLeastOneSuggestion: [String: Bool] = [:]
-  @Published var pauseSuggestionGeneration: [String: Bool] = [:]
   @Published var hasUserValidatedOwnOpenAIAPIKey: APIKeyValidationState = .usingFreeTier
   @Published var isAssistantSetupSuccessful: Bool = false
   @Published var areNotificationObserversSetup: Bool = false
@@ -269,15 +269,43 @@ class AppViewModel: ObservableObject {
     startCheckingTerminalID()  // Necessary as sometimes the AppViewModel will only setup the observer for handleTerminalWindowIdDidChange after the first setup was run, so the currentTerminalID would be empty, causing errors
   }
 
-  @objc private func handleTerminalChangeStarted() {
-    if hasGPTSuggestionsFreeTierCountReachedLimit
-      && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
-    {
-      return
-    } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
-      return
+  private func shouldGenerateSuggestions(for terminalID: String) -> Bool {
+    // Check if ShellMate is visible
+    guard ShellMateWindowVisibilityService.shared.isShellMateVisible() else {
+      print("ShellMate is not visible. Skipping suggestion generation.")
+      return false
     }
-    guard let terminalID = currentTerminalID, pauseSuggestionGeneration[terminalID] != true else {
+
+    // Check for free tier limits
+    if hasGPTSuggestionsFreeTierCountReachedLimit && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
+      print("Free tier limit reached. Skipping suggestion generation.")
+      return false
+    }
+
+    // Check for invalid API key
+    if hasUserValidatedOwnOpenAIAPIKey == .invalid {
+      print("Invalid API key. Skipping suggestion generation.")
+      return false
+    }
+
+    // Check if suggestion generation is paused
+    if PauseSuggestionManager.shared.isSuggestionGenerationPaused(for: terminalID) {
+      print("Suggestion generation is paused for terminal ID: \(terminalID)")
+      return false
+    }
+
+    // Check for internet connection
+    if !hasInternetConnection {
+      print("No internet connection. Skipping suggestion generation.")
+      return false
+    }
+
+    return true
+  }
+
+  @objc private func handleTerminalChangeStarted() {
+    guard let terminalID = currentTerminalID,
+          shouldGenerateSuggestions(for: terminalID) else {
       return
     }
     self.currentStateText = "Detecting changes..."
@@ -285,7 +313,7 @@ class AppViewModel: ObservableObject {
   }
 
   @objc private func handleTerminalChangeEnded() {
-    guard let terminalID = currentTerminalID, pauseSuggestionGeneration[terminalID] != true else {
+    guard let terminalID = currentTerminalID, !PauseSuggestionManager.shared.isSuggestionGenerationPaused(for: terminalID) else {
       return
     }
     self.currentStateText = "No changes on Terminal"
@@ -302,11 +330,12 @@ class AppViewModel: ObservableObject {
 
     DispatchQueue.main.async {
       self.currentTerminalID = terminalID
+      AFKSessionService.shared.currentTerminalID = terminalID // Update AFKSessionService
     }
 
     checkAndInitializeShouldShowSuggestionsView(for: terminalID)
     checkAndInitializeAtLeastOneSuggestionFlag(for: terminalID)
-    checkAndInitializePauseFlag(for: terminalID)
+    PauseSuggestionManager.shared.checkAndInitializePauseFlag(for: terminalID)
     EmptyStateViewModel.shared.initializeEmptyStateMessage(for: terminalID)
     // Pass the terminal ID to UpdateShellProfileViewModel
     UpdateShellProfileViewModel.shared.updateCurrentTerminalID(terminalID)
@@ -326,20 +355,11 @@ class AppViewModel: ObservableObject {
     // Clear the pending terminal analysis as the new analysis takes priority
     pendingTerminalAnalysis = nil
 
-    if hasGPTSuggestionsFreeTierCountReachedLimit
-      && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
-    {
-      return
-    } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
+    guard shouldGenerateSuggestions(for: String(windowID)) else {
       return
     }
 
-    if !hasInternetConnection {
-      print("No internet connection.")
-      return
-    }
-    analyzeTerminalContent(
-      text: text, source: source, changeIdentifiedAt: changeIdentifiedAt)
+    analyzeTerminalContent(text: text, source: source, changeIdentifiedAt: changeIdentifiedAt)
   }
 
   @objc private func handleUserValidatedOwnOpenAIAPIKey(_ notification: Notification) {
@@ -416,13 +436,8 @@ class AppViewModel: ObservableObject {
   private func analyzeTerminalContent(
     text: String, source: String, changeIdentifiedAt: Double
   ) {
-    guard let currentTerminalId = self.currentTerminalID else {
-      print("DEBUG: Current terminal ID is nil.")
-      return
-    }
-
-    guard pauseSuggestionGeneration[currentTerminalId] != true else {
-      print("Content analysis is paused for terminal ID: \(currentTerminalId)")
+    guard let currentTerminalId = self.currentTerminalID,
+          shouldGenerateSuggestions(for: currentTerminalId) else {
       return
     }
 
@@ -520,19 +535,7 @@ class AppViewModel: ObservableObject {
     identifier: String, terminalStateID: UUID, changeIdentifiedAt: Double,
     source: String
   ) {
-    if hasGPTSuggestionsFreeTierCountReachedLimit
-      && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
-    {
-      return
-    } else if hasUserValidatedOwnOpenAIAPIKey == .invalid {
-      return
-    }
-    guard pauseSuggestionGeneration[identifier] != true else {
-      print("Additional suggestion generation is paused for terminal ID: \(identifier)")
-      return
-    }
-
-    if !hasInternetConnection {
+    guard shouldGenerateSuggestions(for: identifier) else {
       return
     }
 
@@ -955,8 +958,6 @@ class AppViewModel: ObservableObject {
     // ensuring that if the function is triggered in quick succession, only the last invocation within
     // the 0.3-second window will proceed, thus avoiding duplicate banners.
 
-    print("DANBUG: initialize Sample command run!!")
-
     guard let terminalID = terminalID else {
       return
     }
@@ -982,21 +983,20 @@ class AppViewModel: ObservableObject {
   }
 
   func setPauseSuggestionGeneration(for terminalID: String, to pause: Bool) {
-    pauseSuggestionGeneration[terminalID] = pause
+    PauseSuggestionManager.shared.setPauseSuggestionGeneration(for: terminalID, to: pause)
 
     if pause {
       currentStateText = "ShellMate paused"
     } else {
       currentStateText = "No changes on Terminal"
     }
+
+    // Reset afkPausedTerminals in AFKSessionService
+    AFKSessionService.shared.resetAFKPausedTerminal(for: terminalID)
   }
 
   func checkAndInitializePauseFlag(for terminalID: String) {
-    if pauseSuggestionGeneration[terminalID] == nil {
-      DispatchQueue.main.async {
-        self.pauseSuggestionGeneration[terminalID] = false
-      }
-    }
+    PauseSuggestionManager.shared.checkAndInitializePauseFlag(for: terminalID)
   }
 
   func checkAndInitializeAtLeastOneSuggestionFlag(for terminalID: String) {
