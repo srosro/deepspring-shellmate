@@ -200,31 +200,56 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
     DispatchQueue.main.asyncAfter(deadline: .now() + textChangeDebounceTime, execute: workItem)
   }
 
-  func processHighlightedText() {
+  func processHighlightedText() throws {
     // Define the source as a constant
     let source = "highlighted"
 
-    if let sanitizedText = getSanitizedHighlightedText() {
+    let sanitizedText = try getSanitizedHighlightedText()
+    let alphanumericText = sanitizedText.replacingOccurrences(
+      of: "\\W+", with: "", options: .regularExpression)
+
+    if alphanumericText != self.previousHighlightedText {
+      self.previousHighlightedText = alphanumericText
+      self.printHighlightedText(sanitizedText, windowID: self.currentTerminalWindowID)
+
+      // Log the event when highlighted text change is identified
+      MixpanelHelper.shared.trackEvent(name: "terminalHighlightChangeIdentified")
+      self.sendContentAnalysisNotification(
+        text: sanitizedText, windowID: self.currentTerminalWindowID, source: source)
+    } else {
+      // Log when no meaningful change is detected
+      NSLog("No meaningful change detected in highlighted text.")
+    }
+  }
+
+  private func getSanitizedHighlightedText() throws -> String {
+    guard let element = terminalTextAreaElement else {
+      throw HighlightError.noTerminalTextAreaElement
+    }
+
+    var selectionValue: AnyObject?
+    let selectionResult = AXUIElementCopyAttributeValue(
+      element, kAXSelectedTextAttribute as CFString, &selectionValue)
+
+    if selectionResult == .success, let highlightedText = selectionValue as? String {
+      let sanitizedText = highlightedText.replacingOccurrences(
+        of: "\n+", with: "\n", options: .regularExpression)
       let alphanumericText = sanitizedText.replacingOccurrences(
         of: "\\W+", with: "", options: .regularExpression)
-
-      // Log the previous and current highlighted text
-      NSLog("Previous highlighted text: \(previousHighlightedText ?? "nil")")
-      NSLog("Current highlighted text: \(sanitizedText)")
-
-      if alphanumericText != previousHighlightedText {
-        previousHighlightedText = alphanumericText
-        printHighlightedText(sanitizedText, windowID: currentTerminalWindowID)
-
-        // Log the event when highlighted text change is identified
-        MixpanelHelper.shared.trackEvent(name: "terminalHighlightChangeIdentified")
-        sendContentAnalysisNotification(
-          text: sanitizedText, windowID: currentTerminalWindowID, source: source)
-      } else {
-        // Log when no meaningful change is detected
-        NSLog("No meaningful change detected in highlighted text.")
+      if alphanumericText.isEmpty {
+        throw HighlightError.emptyHighlightedText
       }
+      return sanitizedText
+    } else {
+      NSLog("No highlighted text or error retrieving it: \(selectionResult)")
+      throw HighlightError.retrievalError(selectionResult)
     }
+  }
+
+  enum HighlightError: Error {
+    case noTerminalTextAreaElement
+    case emptyHighlightedText
+    case retrievalError(AXError)
   }
 
   func printTerminalText(_ text: String, windowID: CGWindowID?) {
@@ -314,7 +339,22 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
 
       // Ensure processHighlightedText is executed on the main thread
       DispatchQueue.main.async {
-        self.processHighlightedText()
+        do {
+          try self.processHighlightedText()
+        } catch {
+          // Log the error to Sentry
+          let sentryError = NSError(
+            domain: "TerminalContentManager.HighlightProcessing",
+            code: 1001,
+            userInfo: [
+              NSLocalizedDescriptionKey: "Error processing highlighted text",
+              NSUnderlyingErrorKey: error
+            ]
+          )
+          SentrySDK.capture(error: sentryError)
+          
+          NSLog("Error processing highlighted text: \(error.localizedDescription)")
+        }
         NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
       }
     }
@@ -323,26 +363,12 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
   }
 
-  private func getSanitizedHighlightedText() -> String? {
-    guard let element = terminalTextAreaElement else { return nil }
-
-    var selectionValue: AnyObject?
-    let selectionResult = AXUIElementCopyAttributeValue(
-      element, kAXSelectedTextAttribute as CFString, &selectionValue)
-
-    if selectionResult == .success, let highlightedText = selectionValue as? String {
-      let sanitizedText = highlightedText.replacingOccurrences(
-        of: "\n+", with: "\n", options: .regularExpression)
-      let alphanumericText = sanitizedText.replacingOccurrences(
-        of: "\\W+", with: "", options: .regularExpression)
-      return alphanumericText.isEmpty ? nil : sanitizedText
-    } else {
-      NSLog("No highlighted text or error retrieving it: \(selectionResult)")
-      return nil
-    }
-  }
-
   private func hasValidHighlightText() -> Bool {
-    return getSanitizedHighlightedText() != nil
+    do {
+      let sanitizedText = try getSanitizedHighlightedText()
+      return !sanitizedText.isEmpty
+    } catch {
+      return false
+    }
   }
 }
