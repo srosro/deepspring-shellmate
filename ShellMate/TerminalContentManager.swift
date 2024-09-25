@@ -348,11 +348,11 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
             code: 1001,
             userInfo: [
               NSLocalizedDescriptionKey: "Error processing highlighted text",
-              NSUnderlyingErrorKey: error
+              NSUnderlyingErrorKey: error,
             ]
           )
           SentrySDK.capture(error: sentryError)
-          
+
           NSLog("Error processing highlighted text: \(error.localizedDescription)")
         }
         NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)

@@ -311,7 +311,7 @@ class GPTAssistantManager {
       SentrySDK.capture(error: error)
       throw error
     }
-    
+
     guard httpResponse.statusCode == 200 else {
       print("Non-200 HTTP response")
       let error = NSError(
@@ -371,7 +371,9 @@ class GPTAssistantManager {
     return mostRecentRun
   }
 
-  func processMessageInThread(terminalID: String, messageContent: String) async throws -> [String: Any] {
+  func processMessageInThread(terminalID: String, messageContent: String) async throws -> [String:
+    Any]
+  {
     // Fetch or create the threadId from GPTAssistantThreadIDManager
     let threadId = try await GPTAssistantThreadIDManager.shared.getOrCreateThreadId(for: terminalID)
     // Check if threadId is empty or nil (in case the manager returns an empty string)
@@ -406,12 +408,12 @@ class GPTAssistantManager {
         return [:]  // Return without processing a new message
       }
     }
-      
+
     // Set isGeneratingSuggestion to true just before creating the message
     await MainActor.run {
       SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: terminalID, to: true)
     }
-    
+
     let messageId = try await createMessage(threadId: threadId, messageContent: messageContent)
     print("Message created successfully with ID: \(messageId)")
     let runId = try await startRun(threadId: threadId)

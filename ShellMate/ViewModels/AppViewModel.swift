@@ -1,8 +1,8 @@
 import AXSwift
-import Combine
-import SwiftUI
-import Sentry
 import Cocoa
+import Combine
+import Sentry
+import SwiftUI
 
 enum APIKeyValidationState {
   case valid
@@ -277,7 +277,9 @@ class AppViewModel: ObservableObject {
     }
 
     // Check for free tier limits
-    if hasGPTSuggestionsFreeTierCountReachedLimit && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier {
+    if hasGPTSuggestionsFreeTierCountReachedLimit
+      && hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
+    {
       print("Free tier limit reached. Skipping suggestion generation.")
       return false
     }
@@ -305,7 +307,8 @@ class AppViewModel: ObservableObject {
 
   @objc private func handleTerminalChangeStarted() {
     guard let terminalID = currentTerminalID,
-          shouldGenerateSuggestions(for: terminalID) else {
+      shouldGenerateSuggestions(for: terminalID)
+    else {
       return
     }
     self.currentStateText = "Detecting changes..."
@@ -313,7 +316,9 @@ class AppViewModel: ObservableObject {
   }
 
   @objc private func handleTerminalChangeEnded() {
-    guard let terminalID = currentTerminalID, !PauseSuggestionManager.shared.isSuggestionGenerationPaused(for: terminalID) else {
+    guard let terminalID = currentTerminalID,
+      !PauseSuggestionManager.shared.isSuggestionGenerationPaused(for: terminalID)
+    else {
       return
     }
     self.currentStateText = "No changes on Terminal"
@@ -330,7 +335,7 @@ class AppViewModel: ObservableObject {
 
     DispatchQueue.main.async {
       self.currentTerminalID = terminalID
-      AFKSessionService.shared.currentTerminalID = terminalID // Update AFKSessionService
+      AFKSessionService.shared.currentTerminalID = terminalID  // Update AFKSessionService
     }
 
     checkAndInitializeShouldShowSuggestionsView(for: terminalID)
@@ -437,7 +442,8 @@ class AppViewModel: ObservableObject {
     text: String, source: String, changeIdentifiedAt: Double
   ) {
     guard let currentTerminalId = self.currentTerminalID,
-          shouldGenerateSuggestions(for: currentTerminalId) else {
+      shouldGenerateSuggestions(for: currentTerminalId)
+    else {
       return
     }
 

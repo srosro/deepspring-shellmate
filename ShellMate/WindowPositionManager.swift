@@ -184,7 +184,7 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
       return nil
     }
 
-    guard let _ = getWindowTitle(for: focusedWindow) else {
+    guard getWindowTitle(for: focusedWindow) != nil else {
       // This check is necessary to avoid attaching ShellMate to non-terminal windows
       // (e.g., the prompt where the user confirms if they want to close the terminal)
       print("Unable to retrieve window title")

@@ -14,7 +14,8 @@ class AFKSessionService {
     didSet {
       if let terminalID = currentTerminalID {
         if afkPausedTerminals[terminalID] != true,
-           !PauseSuggestionManager.shared.isSuggestionGenerationPaused(for: terminalID) {
+          !PauseSuggestionManager.shared.isSuggestionGenerationPaused(for: terminalID)
+        {
           scheduleAFKTask(for: terminalID)
         }
       }
@@ -23,7 +24,7 @@ class AFKSessionService {
 
   private var afkPauseTask: DispatchWorkItem?
   private var afkPausedTerminals: [String: Bool] = [:]
-  private let afkTimeInterval: TimeInterval = 4 * 60 // 4 minutes in seconds
+  private let afkTimeInterval: TimeInterval = 4 * 60  // 4 minutes in seconds
 
   private init() {
     // Private initialization to ensure just one instance is created.

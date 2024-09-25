@@ -78,7 +78,7 @@ class KeyPressDelegate {
       let range = NSRange(location: 0, length: line.utf16.count)
 
       // Check if there's a match
-      if let _ = regex.firstMatch(in: line, options: [], range: range) {
+      if regex.firstMatch(in: line, options: [], range: range) != nil {
         return true
       }
     } catch {
@@ -105,7 +105,7 @@ class KeyPressDelegate {
       if let intArg = Int(numberString) {
         // Convert integer argument to float with ".1" suffix
         return "\(intArg).1"
-      } else if let _ = Float(numberString) {
+      } else if Float(numberString) != nil {
         // If it's already a float, return it as is
         return numberString
       }
