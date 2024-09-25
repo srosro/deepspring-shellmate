@@ -521,7 +521,7 @@ class AppViewModel: ObservableObject {
           DispatchQueue.main.async {
             strongSelf.hasInternetConnection = false
             SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
-              for: currentTerminalId, to: false)
+              for: currentTerminalId, stateID: terminalStateID, to: false)
           }
         } else if error.localizedDescription.contains(
           "The Internet connection appears to be offline")
@@ -530,7 +530,7 @@ class AppViewModel: ObservableObject {
             NetworkErrorViewModel.shared.shouldShowNetworkError = true
             strongSelf.hasInternetConnection = false
             SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
-              for: currentTerminalId, to: false)
+              for: currentTerminalId, stateID: terminalStateID, to: false)
           }
         }
       }
@@ -625,13 +625,14 @@ class AppViewModel: ObservableObject {
   ) async {
     do {
       let response = try await gptAssistantManager.processMessageInThread(
-        terminalID: identifier, messageContent: messageContent)
+        terminalID: identifier, messageContent: messageContent, terminalStateID: terminalStateID)
 
       // Check if the response is empty and return early if it is
       if response.isEmpty {
         // Mark suggestion generation as false since we are skipping processing
         Task { @MainActor in
-          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+            for: identifier, stateID: terminalStateID, to: false)
         }
         pendingTerminalAnalysis = (
           identifier: identifier,
@@ -669,26 +670,29 @@ class AppViewModel: ObservableObject {
       {
         DispatchQueue.main.async {
           self.hasInternetConnection = false
-          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
-
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+            for: identifier, stateID: terminalStateID, to: false)
         }
       } else if error.localizedDescription.contains("The Internet connection appears to be offline")
       {
         DispatchQueue.main.async {
           NetworkErrorViewModel.shared.shouldShowNetworkError = true
           self.hasInternetConnection = false
-          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+            for: identifier, stateID: terminalStateID, to: false)
         }
       } else {
         // For all other error cases, ensure isGeneratingSuggestion is set to false
         DispatchQueue.main.async {
-          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
+          SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+            for: identifier, stateID: terminalStateID, to: false)
         }
       }
     }
 
     Task { @MainActor in
-      SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: identifier, to: false)
+      SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+        for: identifier, stateID: terminalStateID, to: false)
 
       // Log the event when response is received from GPT
       let responseReceivedFromGptAt = Date().timeIntervalSince1970

@@ -10,18 +10,26 @@ import Foundation
 class SuggestionGenerationMonitor: ObservableObject {
   static let shared = SuggestionGenerationMonitor()
 
-  @Published private(set) var isGeneratingSuggestion: [String: Bool] = [:]
+  @Published private(set) var isGeneratingSuggestion: [String: [UUID: Bool]] = [:]
 
   private init() {}
 
-  func setIsGeneratingSuggestion(for terminalID: String, to isGenerating: Bool) {
+  func setIsGeneratingSuggestion(for terminalID: String, stateID: UUID, to isGenerating: Bool) {
     DispatchQueue.main.async {
-      self.isGeneratingSuggestion[terminalID] = isGenerating
+      if self.isGeneratingSuggestion[terminalID] == nil {
+        self.isGeneratingSuggestion[terminalID] = [:]
+      }
+
+      if isGenerating {
+        self.isGeneratingSuggestion[terminalID]?[stateID] = true
+      } else {
+        self.isGeneratingSuggestion[terminalID]?.removeValue(forKey: stateID)
+      }
     }
   }
 
   func isCurrentlyGeneratingSuggestion(for terminalID: String) -> Bool {
-    return isGeneratingSuggestion[terminalID] ?? false
+    return isGeneratingSuggestion[terminalID]?.values.contains(true) ?? false
   }
 
   func resetAll() {

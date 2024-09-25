@@ -371,7 +371,8 @@ class GPTAssistantManager {
     return mostRecentRun
   }
 
-  func processMessageInThread(terminalID: String, messageContent: String) async throws -> [String:
+  func processMessageInThread(terminalID: String, messageContent: String, terminalStateID: UUID)
+    async throws -> [String:
     Any]
   {
     // Fetch or create the threadId from GPTAssistantThreadIDManager
@@ -411,7 +412,8 @@ class GPTAssistantManager {
 
     // Set isGeneratingSuggestion to true just before creating the message
     await MainActor.run {
-      SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(for: terminalID, to: true)
+      SuggestionGenerationMonitor.shared.setIsGeneratingSuggestion(
+        for: terminalID, stateID: terminalStateID, to: true)
     }
 
     let messageId = try await createMessage(threadId: threadId, messageContent: messageContent)
