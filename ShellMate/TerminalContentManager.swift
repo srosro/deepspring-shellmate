@@ -201,24 +201,42 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
   }
 
   func processHighlightedText() throws {
-    // Define the source as a constant
-    let source = "highlighted"
+    do {
+      // Define the source as a constant
+      let source = "highlighted"
 
-    let sanitizedText = try getSanitizedHighlightedText()
-    let alphanumericText = sanitizedText.replacingOccurrences(
-      of: "\\W+", with: "", options: .regularExpression)
+      let sanitizedText = try getSanitizedHighlightedText()
+      let alphanumericText = sanitizedText.replacingOccurrences(
+        of: "\\W+", with: "", options: .regularExpression)
 
-    if alphanumericText != self.previousHighlightedText {
-      self.previousHighlightedText = alphanumericText
-      self.printHighlightedText(sanitizedText, windowID: self.currentTerminalWindowID)
+      if alphanumericText != self.previousHighlightedText {
+        self.previousHighlightedText = alphanumericText
 
-      // Log the event when highlighted text change is identified
-      MixpanelHelper.shared.trackEvent(name: "terminalHighlightChangeIdentified")
-      self.sendContentAnalysisNotification(
-        text: sanitizedText, windowID: self.currentTerminalWindowID, source: source)
-    } else {
-      // Log when no meaningful change is detected
-      NSLog("No meaningful change detected in highlighted text.")
+        // Log the event when highlighted text change is identified
+        MixpanelHelper.shared.trackEvent(name: "terminalHighlightChangeIdentified")
+        self.sendContentAnalysisNotification(
+          text: sanitizedText, windowID: self.currentTerminalWindowID, source: source)
+      } else {
+        // Log when no meaningful change is detected
+        NSLog("No meaningful change detected in highlighted text.")
+      }
+    } catch {
+      // Log the error
+      NSLog("Error in processHighlightedText: \(error.localizedDescription)")
+
+      // Log the error to Sentry
+      let sentryError = NSError(
+        domain: "TerminalContentManager.HighlightProcessing",
+        code: 1001,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Error processing highlighted text",
+          NSUnderlyingErrorKey: error,
+        ]
+      )
+      SentrySDK.capture(error: sentryError)
+
+      // Rethrow the error
+      throw error
     }
   }
 
@@ -254,10 +272,6 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
 
   func printTerminalText(_ text: String, windowID: CGWindowID?) {
     print("Terminal text from window \(String(describing: windowID)):\n\"\(text)\"")
-  }
-
-  func printHighlightedText(_ text: String, windowID: CGWindowID?) {
-    print("Highlighted text from window \(String(describing: windowID)):\n\"\(text)\"")
   }
 
   func intentionalError() throws {
@@ -342,17 +356,7 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
         do {
           try self.processHighlightedText()
         } catch {
-          // Log the error to Sentry
-          let sentryError = NSError(
-            domain: "TerminalContentManager.HighlightProcessing",
-            code: 1001,
-            userInfo: [
-              NSLocalizedDescriptionKey: "Error processing highlighted text",
-              NSUnderlyingErrorKey: error,
-            ]
-          )
-          SentrySDK.capture(error: sentryError)
-
+          SentrySDK.capture(error: error)
           NSLog("Error processing highlighted text: \(error.localizedDescription)")
         }
         NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
