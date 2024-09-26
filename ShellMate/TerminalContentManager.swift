@@ -13,6 +13,21 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
   var highlightDebounceWorkItem: DispatchWorkItem?
   var activeLineDebounceWorkItem: DispatchWorkItem?
   var currentTerminalWindowID: CGWindowID?  // Store the current terminal window ID
+  var preHighlightDebounceWorkItem: DispatchWorkItem?
+  var preTextDebounceWorkItem: DispatchWorkItem?
+  var debounceHighlightCancelCount = 0  // Counter for canceled debounceHighlightChange
+  var debounceTextCancelCount = 0  // Counter for canceled debounceTextChange
+
+  // Variables for debounce periods
+  var preDebounceHighlightPeriod: TimeInterval = 0.1
+  var mainDebounceHighlightPeriod: TimeInterval = 0.5
+  var preDebounceTextPeriod: TimeInterval = 0.07
+  var mainDebounceTextPeriod: TimeInterval = 1.5
+  var activeLineDebouncePeriod: TimeInterval = 0.05
+
+  // Variables for observer re-add periods
+  var reAddTextObserverPeriod: TimeInterval = 2.0
+  var reAddHighlightObserverPeriod: TimeInterval = 2.0
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     // Add observer for terminal window change notifications
@@ -31,6 +46,10 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
     let windowElement = userInfo["terminalWindow"] as! AXUIElement
 
     print("Received notification for terminal window change. Window ID: \(windowID)")
+
+    // Remove old observers before adding new ones
+    removeTerminalTextObserver()
+    removeHighlightObserver()
 
     // Update the terminal text area element based on the new window information
     if let textAreaElement = findTextAreaElement(in: windowElement) {
@@ -184,20 +203,69 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
       }
     }
     activeLineDebounceWorkItem = workItem
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: workItem)
+    DispatchQueue.main.asyncAfter(deadline: .now() + activeLineDebouncePeriod, execute: workItem)
   }
 
   func debounceTerminalTextChange() {
-    let textChangeDebounceTime: TimeInterval = 1.5
+    // Cancel any previous pre-debounce work item immediately
+    preTextDebounceWorkItem?.cancel()
 
+    // Increment the cancel counter
+    debounceTextCancelCount += 1
+
+    // Check if the cancel counter has reached the threshold
+    if debounceTextCancelCount >= 10 {
+      // Remove the text observer
+      removeTerminalTextObserver()
+
+      // Reset the cancel counter
+      debounceTextCancelCount = 0
+
+      // Store the current terminal window ID
+      let currentWindowID = currentTerminalWindowID
+
+      // Re-add the text observer after a delay
+      DispatchQueue.main.asyncAfter(deadline: .now() + reAddTextObserverPeriod) { [weak self] in
+        guard let self = self, let element = self.terminalTextAreaElement else { return }
+        // Check if the terminal window ID is still the same
+        if self.currentTerminalWindowID == currentWindowID {
+          self.startTerminalTextObserver(for: element)
+        }
+      }
+    } else {
+      // Create a new pre-debounce DispatchWorkItem
+      let preDebounceWorkItem = DispatchWorkItem { [weak self] in
+        self?.executeMainTextDebounce()
+        // Reset the cancel counter when the debouncer item gets executed
+        self?.debounceTextCancelCount = 0
+      }
+
+      // Assign the new work item to the preTextDebounceWorkItem variable
+      preTextDebounceWorkItem = preDebounceWorkItem
+
+      // Schedule the execution of the pre-debounce work item after a short delay
+      DispatchQueue.main.asyncAfter(
+        deadline: .now() + preDebounceTextPeriod, execute: preDebounceWorkItem)
+    }
+  }
+
+  private func executeMainTextDebounce() {
     NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
     textDebounceWorkItem?.cancel()
+
+    // Create the main debounce work item
     let workItem = DispatchWorkItem { [weak self] in
       self?.processTerminalText()
       NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
     }
+
+    // Assign the new work item to the textDebounceWorkItem variable
     textDebounceWorkItem = workItem
-    DispatchQueue.main.asyncAfter(deadline: .now() + textChangeDebounceTime, execute: workItem)
+
+    // Schedule the execution of the main work item after the main debounce delay
+    DispatchQueue.main.asyncAfter(deadline: .now() + mainDebounceTextPeriod, execute: workItem)
+
+    print("New main text debounce work item created")
   }
 
   func processHighlightedText() throws {
@@ -330,41 +398,86 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
   }
 
   func debounceHighlightChange() {
-    // This check is necessary because clicking on the terminal without highlighting anything will trigger a selected text changed event.
-    guard self.hasValidHighlightText() else {
-      NSLog("Invalid highlight text")
+    // Cancel any previous pre-debounce work item immediately
+    preHighlightDebounceWorkItem?.cancel()
+
+    // Increment the cancel counter
+    debounceHighlightCancelCount += 1
+
+    // Check if the cancel counter has reached the threshold
+    if debounceHighlightCancelCount >= 10 {
+      // Remove the highlight observer
+      removeHighlightObserver()
+
+      // Reset the cancel counter
+      debounceHighlightCancelCount = 0
+
+      // Store the current terminal window ID
+      let currentWindowID = currentTerminalWindowID
+
+      // Re-add the highlight observer after a delay
+      DispatchQueue.main.asyncAfter(deadline: .now() + reAddHighlightObserverPeriod) {
+        [weak self] in
+        guard let self = self, let element = self.terminalTextAreaElement else { return }
+        // Check if the terminal window ID is still the same
+        if self.currentTerminalWindowID == currentWindowID {
+          self.startHighlightObserver(for: element)
+        }
+      }
+    } else {
+      // Create a new pre-debounce DispatchWorkItem
+      let preDebounceWorkItem = DispatchWorkItem { [weak self] in
+        self?.executeMainHighlightDebounce()
+        // Reset the cancel counter after processing the debounce work item
+        self?.debounceHighlightCancelCount = 0
+      }
+
+      // Assign the new work item to the preHighlightDebounceWorkItem variable
+      preHighlightDebounceWorkItem = preDebounceWorkItem
+
+      // Schedule the execution of the pre-debounce work item after a short delay
+      DispatchQueue.main.asyncAfter(
+        deadline: .now() + preDebounceHighlightPeriod, execute: preDebounceWorkItem)
+    }
+  }
+
+  private func executeMainHighlightDebounce() {
+    // Cancel any previous main debounce work item
+    highlightDebounceWorkItem?.cancel()
+
+    guard hasValidHighlightText() else {
+      NSLog("Invalid highlight text during main debounce execution")
       return
     }
 
     NotificationCenter.default.post(name: .terminalContentChangeStarted, object: nil)
 
-    highlightDebounceWorkItem?.cancel()
-
+    // Create the main debounce work item
     let workItem = DispatchWorkItem { [weak self] in
-      guard let self = self else {
-        NSLog("Self is nil in DispatchWorkItem")
-        return
-      }
-
-      guard self.hasValidHighlightText() else {
-        NSLog("Invalid highlight text during debounced work item execution")
-        return
-      }
-
-      // Ensure processHighlightedText is executed on the main thread
       DispatchQueue.main.async {
+        guard let self = self else {
+          NSLog("Self is nil during main debounce work item execution")
+          return
+        }
+
         do {
           try self.processHighlightedText()
         } catch {
           SentrySDK.capture(error: error)
           NSLog("Error processing highlighted text: \(error.localizedDescription)")
         }
+
         NotificationCenter.default.post(name: .terminalContentChangeEnded, object: nil)
       }
     }
 
+    // Assign the new work item to the highlightDebounceWorkItem variable
     highlightDebounceWorkItem = workItem
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
+
+    // Schedule the execution of the main work item after the main debounce delay
+    DispatchQueue.main.asyncAfter(deadline: .now() + mainDebounceHighlightPeriod, execute: workItem)
+
+    print("New main highlight debounce work item created")
   }
 
   private func hasValidHighlightText() -> Bool {
@@ -373,6 +486,22 @@ class TerminalContentManager: NSObject, NSApplicationDelegate {
       return !sanitizedText.isEmpty
     } catch {
       return false
+    }
+  }
+
+  func removeTerminalTextObserver() {
+    if let observer = terminalTextObserver {
+      observer.stop()
+      terminalTextObserver = nil
+      print("Terminal text observer removed.")
+    }
+  }
+
+  func removeHighlightObserver() {
+    if let observer = highlightTextObserver {
+      observer.stop()
+      highlightTextObserver = nil
+      print("Highlight text observer removed.")
     }
   }
 }

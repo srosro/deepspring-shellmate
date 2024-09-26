@@ -7,9 +7,11 @@
 
 import ApplicationServices
 import Cocoa
+import CoreGraphics
 
 class WindowPositionManager: NSObject, NSApplicationDelegate {
   var terminalObserver: AXObserver?
+  var windowObserver: AXObserver?  // Add this property to store the window-specific observer
   var isTerminalFocused: Bool = false  // Add a variable to store the focused state
   var focusedTerminalWindowID: CGWindowID? = nil
   var previousFocusedWindowID: CGWindowID? = nil
@@ -94,6 +96,9 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
   func setupTerminalObserver() {
     print("Setting up observer for Terminal.")
 
+    // Remove any existing observer before setting up a new one
+    removeTerminalObserver()
+
     guard
       let terminalApp = NSWorkspace.shared.runningApplications.first(where: {
         $0.bundleIdentifier == "com.apple.Terminal"
@@ -103,44 +108,109 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
       return
     }
 
-    var observer: AXObserver?
+    var appObserver: AXObserver?
     let pid = terminalApp.processIdentifier
-    let callback: AXObserverCallback = { (observer, element, notification, refcon) in
+    let appCallback: AXObserverCallback = { (observer, element, notification, refcon) in
       print("Observer callback triggered for Terminal: \(notification).")
       let delegate = Unmanaged<WindowPositionManager>.fromOpaque(refcon!).takeUnretainedValue()
-      delegate.updateAppWindowPositionAndSize(notification: notification as CFString)  // Pass the notification
+
+      if (notification as CFString) as String == kAXResizedNotification {
+        // Handle resize event separately
+        delegate.handleResizeEvent(element: element, notification: notification as CFString)
+      } else {
+        delegate.updateAppWindowPositionAndSize(notification: notification as CFString)
+      }
     }
 
-    let result = AXObserverCreate(pid_t(pid), callback, &observer)
+    let appResult = AXObserverCreate(pid_t(pid), appCallback, &appObserver)
 
-    if result != .success {
-      print("Failed to create AXObserver for Terminal. Error: \(result.rawValue)")
+    if appResult != .success {
+      print("Failed to create AXObserver for Terminal. Error: \(appResult.rawValue)")
       return
     }
 
-    self.terminalObserver = observer
+    self.terminalObserver = appObserver
 
-    guard let observer = observer else {
+    guard let appObserver = appObserver else {
       print("Failed to create AXObserver.")
       return
     }
 
     let terminalElement = AXUIElementCreateApplication(pid_t(pid))
-    let runLoopSource = AXObserverGetRunLoopSource(observer)
+    let runLoopSource = AXObserverGetRunLoopSource(appObserver)
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .defaultMode)
     print("Observer added to run loop for Terminal.")
 
     let refcon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
-    addNotifications(to: observer, element: terminalElement, refcon: refcon)
+    addNotifications(to: appObserver, element: terminalElement, refcon: refcon)
+
+    // Set up a window-specific observer for resize events
+    setupWindowResizeObserver(for: terminalApp)
+
     updateAppWindowPositionAndSize(notification: kAXFocusedWindowChangedNotification as CFString)
   }
 
+  func setupWindowResizeObserver(for terminalApp: NSRunningApplication) {
+    guard let focusedWindow = getFocusedWindow(for: terminalApp) else {
+      print("Failed to determine focused window for the Terminal application.")
+      return
+    }
+
+    // Remove any existing window-specific observer before setting up a new one
+    removeWindowObserver()
+
+    var windowObserver: AXObserver?
+    let pid = terminalApp.processIdentifier
+    let windowCallback: AXObserverCallback = { (observer, element, notification, refcon) in
+      print("Window-specific observer callback triggered for Terminal: \(notification).")
+      let delegate = Unmanaged<WindowPositionManager>.fromOpaque(refcon!).takeUnretainedValue()
+      delegate.handleResizeEvent(element: element, notification: notification as CFString)
+    }
+
+    let windowResult = AXObserverCreate(pid_t(pid), windowCallback, &windowObserver)
+
+    if windowResult != .success {
+      print("Failed to create AXObserver for Terminal window. Error: \(windowResult.rawValue)")
+      return
+    }
+
+    self.windowObserver = windowObserver  // Store the window-specific observer
+
+    guard let windowObserver = windowObserver else {
+      print("Failed to create AXObserver.")
+      return
+    }
+
+    let runLoopSource = AXObserverGetRunLoopSource(windowObserver)
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .defaultMode)
+    print("Window-specific observer added to run loop for Terminal window.")
+
+    let refcon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
+    let result = AXObserverAddNotification(
+      windowObserver, focusedWindow, kAXResizedNotification as CFString, refcon)
+    if result != .success {
+      print("Failed to add kAXResizedNotification to window observer. Error: \(result.rawValue)")
+    }
+  }
+
   func removeTerminalObserver() {
-    guard let observer = terminalObserver else { return }
-    let runLoopSource = AXObserverGetRunLoopSource(observer)
-    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runLoopSource, .defaultMode)
-    terminalObserver = nil
-    print("Observer removed for Terminal.")
+    if let observer = terminalObserver {
+      let runLoopSource = AXObserverGetRunLoopSource(observer)
+      CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runLoopSource, .defaultMode)
+      terminalObserver = nil
+      print("Observer removed for Terminal.")
+    }
+
+    removeWindowObserver()
+  }
+
+  func removeWindowObserver() {
+    if let observer = windowObserver {
+      let runLoopSource = AXObserverGetRunLoopSource(observer)
+      CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runLoopSource, .defaultMode)
+      windowObserver = nil
+      print("Window-specific observer removed for Terminal window.")
+    }
   }
 
   func addNotifications(
@@ -155,7 +225,6 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
       kAXWindowMiniaturizedNotification as CFString,
       kAXWindowDeminiaturizedNotification as CFString,
       kAXUIElementDestroyedNotification as CFString,  // Close event substitute
-      kAXResizedNotification as CFString,
       kAXFocusedUIElementChangedNotification as CFString,  // To detect tab changes from the same terminal.
     ]
 
@@ -289,6 +358,9 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
               "terminalWindowID": currentWindowID,
               "terminalWindow": focusedWindow,
             ])
+
+          // Set up a new window-specific observer for the new focused window
+          self.setupWindowResizeObserver(for: terminalApp)
         }
 
         if shouldBringToFront {
@@ -424,6 +496,10 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
     }
 
     return nil
+  }
+
+  func handleResizeEvent(element: AXUIElement, notification: CFString) {
+    updateAppWindowPositionAndSize(notification: notification)
   }
 }
 
