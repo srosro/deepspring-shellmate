@@ -100,7 +100,13 @@ class GPTAssistantManager {
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.allHTTPHeaderFields = headers
-    let payload = ["assistant_id": assistantId]
+    let payload: [String: Any] = [
+      "assistant_id": assistantId,
+      "truncation_strategy": [
+        "type": "last_messages",
+        "last_messages": 5
+      ]
+    ]
     request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
 
     let (data, response) = try await URLSession.shared.dataWithTimeout(for: request)
@@ -174,6 +180,15 @@ class GPTAssistantManager {
         // Check if the status is one of the success states
         if successStates.contains(status) {
           print("Run completed successfully with status: \(status)")
+          
+          // Extract and log usage information if available
+          if let usage = jsonData["usage"] as? [String: Any] {
+            print("Token Usage:")
+            print("Prompt tokens: \(usage["prompt_tokens"] ?? "N/A")")
+            print("Completion tokens: \(usage["completion_tokens"] ?? "N/A")")
+            print("Total tokens: \(usage["total_tokens"] ?? "N/A")")
+          }
+          
           completion(.success(()))
           return
         }
