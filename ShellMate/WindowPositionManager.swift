@@ -412,11 +412,22 @@ class WindowPositionManager: NSObject, NSApplicationDelegate {
         print("Failed to find the application window.")
         return
       }
+      
+      // Find the Terminal application
+      guard let terminalApp = NSWorkspace.shared.runningApplications.first(where: {
+        $0.bundleIdentifier == "com.apple.Terminal"
+      }) else {
+        print("Terminal application not found.")
+        return
+      }
 
       window.level = .floating
       window.orderFrontRegardless()  // Bring the window to the front without stealing focus
+      
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
         window.level = .normal
+        // Activate Terminal to ensure it maintains focus
+        terminalApp.activate(options: .activateIgnoringOtherApps)
       }
     }
   }
