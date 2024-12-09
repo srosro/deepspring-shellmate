@@ -124,6 +124,7 @@ struct SuggestionsView: View {
   @ObservedObject private var stateManager = OnboardingStateManager.shared
   @State private var isRotating = false
   @State private var scrollToKey: String? = nil
+  @State private var lastKnownTerminalID: String? = nil
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -161,21 +162,10 @@ struct SuggestionsView: View {
         .padding(.top, 15)
         .padding(.bottom, 0)
         .onChange(of: viewModel.updateCounter) {
-          if let currentTerminalID = viewModel.currentTerminalID,
-            let windowData = viewModel.results[currentTerminalID],
-            let lastBatch = windowData.suggestionsHistory.last?.1,
-            let lastSuggestionIndex = lastBatch.indices.last
-          {
-
-            // Check if the last batch is a pro tip and scroll to it
-            if lastBatch.first?["isProTipBanner"] == "true" {
-              scrollView.scrollTo("protip-\(windowData.suggestionsHistory.count - 1)", anchor: .top)
-            } else {
-              scrollToBottom(
-                scrollView: scrollView,
-                key: "suggestion-\(windowData.suggestionsHistory.count - 1)-\(lastSuggestionIndex)")
-            }
-          }
+          scrollToLastSuggestion(in: scrollView)
+        }
+        .onChange(of: viewModel.currentTerminalID) { _ in
+          scrollToLastSuggestion(in: scrollView)
         }
         .onChange(of: scrollToKey) {
           if let key = scrollToKey {
@@ -202,9 +192,30 @@ struct SuggestionsView: View {
     }
   }
 
-  private func scrollToBottom(scrollView: ScrollViewProxy, key: String) {
-    withAnimation {
-      scrollView.scrollTo(key, anchor: .top)
+  private func scrollToLastSuggestion(in scrollView: ScrollViewProxy) {
+    if let currentTerminalID = viewModel.currentTerminalID,
+       let windowData = viewModel.results[currentTerminalID],
+       !windowData.suggestionsHistory.isEmpty,
+       let lastBatchTuple = windowData.suggestionsHistory.last,
+       !lastBatchTuple.1.isEmpty
+    {
+      let lastBatchIndex = windowData.suggestionsHistory.count - 1
+      let lastBatch = lastBatchTuple.1
+      let lastSuggestionIndex = lastBatch.count - 1
+      
+      // Check if the last batch is a pro tip and scroll to it
+      if lastBatch.first?["isProTipBanner"] == "true" {
+        withAnimation {
+          scrollView.scrollTo("protip-\(lastBatchIndex)", anchor: .top)
+        }
+      } else {
+        withAnimation {
+          scrollView.scrollTo(
+            "suggestion-\(lastBatchIndex)-\(lastSuggestionIndex)",
+            anchor: .top
+          )
+        }
+      }
     }
   }
 
