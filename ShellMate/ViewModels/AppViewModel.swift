@@ -42,7 +42,7 @@ class AppViewModel: ObservableObject {
   private let additionalSuggestionDelaySeconds: TimeInterval = 3.0
   private let provideMoreContextBannerDelay: TimeInterval = 7
   private let maxSuggestionsPerEvent: Int = 4
-  private var shouldGenerateFollowUpSuggestionsFlag: Bool = true
+  private var shouldGenerateFollowUpSuggestionsFlag: Bool = false
   private var gptAssistantManager: GPTAssistantManager = GPTAssistantManager.shared
   private var firstProTipDebounceWorkItem: DispatchWorkItem?
 
@@ -583,7 +583,7 @@ class AppViewModel: ObservableObject {
         identifier: identifier,
         terminalStateID: terminalStateID,
         messageContent:
-          "please generate another suggestion of command. Don't provide a duplicated suggestion. Focus on addressing the most recent user question",
+          "please generate another suggestion of command. Don't provide a duplicated suggestion",
         changeIdentifiedAt: changeIdentifiedAt,
         changedTerminalContentSentToGptAt: changedTerminalContentSentToGptAt,
         source: source
@@ -642,24 +642,29 @@ class AppViewModel: ObservableObject {
         return
       }
 
-      if let command = response["command"] as? String,
-        let commandExplanation = response["commandExplanation"] as? String,
-        let intention = response["intention"] as? String,
-        let shouldGenerateFollowUpSuggestions = response["shouldGenerateFollowUpSuggestions"]
-          as? Bool
+      if let suggestions = response["suggestions"] as? [[String: Any]],
+        let notEnoughInformation = response["notEnoughInformation"] as? Bool
       {
-        if !shouldGenerateFollowUpSuggestions {
+        if notEnoughInformation {
           self.showProvideMoreContextBanner(terminalStateID: terminalStateID)
         } else {
-          await appendResult(
-            identifier: identifier,
-            terminalStateID: terminalStateID,
-            response: intention,
-            command: command,
-            explanation: commandExplanation
-          )
+          // Process each suggestion in the array
+          for suggestion in suggestions {
+            if let command = suggestion["command"] as? String,
+              let commandExplanation = suggestion["commandExplanation"] as? String,
+              let intention = suggestion["intention"] as? String
+            {
+              await appendResult(
+                identifier: identifier,
+                terminalStateID: terminalStateID,
+                response: intention,
+                command: command,
+                explanation: commandExplanation
+              )
+            }
+          }
         }
-        shouldGenerateFollowUpSuggestionsFlag = shouldGenerateFollowUpSuggestions
+        //shouldGenerateFollowUpSuggestionsFlag = shouldGenerateFollowUpSuggestions
       }
     } catch {
       SentrySDK.capture(error: error)

@@ -174,6 +174,9 @@ struct SuggestionsView: View {
             }
           }
         }
+        .onAppear {
+          scrollToLastSuggestion(in: scrollView)
+        }
 
         if viewModel.hasGPTSuggestionsFreeTierCountReachedLimit
           && viewModel.hasUserValidatedOwnOpenAIAPIKey == .usingFreeTier
