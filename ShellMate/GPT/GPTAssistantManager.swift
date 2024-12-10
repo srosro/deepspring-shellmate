@@ -104,7 +104,7 @@ class GPTAssistantManager {
       "assistant_id": assistantId,
       "truncation_strategy": [
         "type": "last_messages",
-        "last_messages": 5
+        "last_messages": 10
       ]
     ]
     request.httpBody = try? JSONSerialization.data(withJSONObject: payload)

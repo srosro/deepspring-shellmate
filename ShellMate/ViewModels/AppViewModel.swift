@@ -583,7 +583,7 @@ class AppViewModel: ObservableObject {
         identifier: identifier,
         terminalStateID: terminalStateID,
         messageContent:
-          "please generate another suggestion of command. Don't provide a duplicated suggestion",
+          "please generate another suggestion of command. Don't provide a duplicated suggestion. Focus on addressing the most recent user question",
         changeIdentifiedAt: changeIdentifiedAt,
         changedTerminalContentSentToGptAt: changedTerminalContentSentToGptAt,
         source: source
