@@ -9,7 +9,7 @@ Shellmate is a Mac Terminal companion that gives you dynamic error correction an
 
 **Highlight text:** Highlight text to call ShellMate's "attention" to a particular issue. 
 
-**Never switch focus:** You’ll never need to leave your Terminal. Use the `sm` shortcut to ask questions and insert AI-generated suggestions straight into your active console. 
+**Never switch focus:** You’ll never need to leave your Terminal. Use the `sm` shortcut to ask questions and insert AI-generated suggestions straight into your active console.
 Example: `sm “find a file?”`
 
 
@@ -75,6 +75,31 @@ SENTRY_AUTH_TOKEN=<your_token_here>
 ```
 
 Replace `<your_token_here>` with the actual token value from Sentry.
+
+
+## Setting Up Developer Certificate
+
+### Creating a Certificate Signing Request (CSR)
+1. Open Keychain Access on your Mac (Applications > Utilities > Keychain Access)
+2. From the menu bar, choose Keychain Access > Certificate Assistant > Request a Certificate From a Certificate Authority
+3. In the Certificate Assistant dialog:
+   - Enter your Apple Developer email address in the "User Email Address" field
+   - Enter your name in the "Common Name" field
+   - Leave the "CA Email Address" field empty
+   - Select "Saved to disk" option
+   - Click "Continue"
+4. Choose a location to save the .certSigningRequest file
+5. Send this file to your Apple Developer team admin to sign the certificate
+
+### For Team Admins: Signing the Developer ID Certificate
+1. Go to [Apple Developer Portal](https://developer.apple.com/account/resources/certificates/list)
+2. Click the "+" button to add a new certificate
+3. Under "Software", select "Developer ID Application" (this is required for distributing outside the App Store)
+4. Click "Continue"
+5. Upload the .certSigningRequest file received from the developer
+6. Click "Continue" to generate the certificate
+7. Download the generated .cer file and send it back to the developer
+8. The developer should double-click the .cer file to install it in their Keychain
 
 
 ## Contributing
