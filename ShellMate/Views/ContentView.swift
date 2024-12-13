@@ -7,6 +7,22 @@
 
 import SwiftUI
 
+class MyViewView: NSView {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        return true
+    }
+}
+
+struct AcceptingFirstMouse: NSViewRepresentable {
+    func makeNSView(context: Context) -> MyViewView {
+        return MyViewView()
+    }
+    
+    func updateNSView(_ nsView: MyViewView, context: Context) {
+        nsView.setNeedsDisplay(nsView.bounds)
+    }
+}
+
 struct TroubleshootShellMateView: View {
   @State private var apiKey: String = ""
 
@@ -318,6 +334,8 @@ struct SuggestionView: View {
     VStack(alignment: .leading, spacing: 0) {
       if let command = resultDict["suggestedCommand"] {
         Button(action: {
+          // Note: This Button action doesn't work when window is not focused
+          // The actual click handling is done by onTapGesture below
           copyToClipboard(command: command)
           provideFeedback()
         }) {
@@ -329,17 +347,28 @@ struct SuggestionView: View {
 
             SmButtonIdxView(batchIndex: batchIndex, index: index, buttonText: $buttonText)
           }
-          .padding(10)
-          .background(isHovered ? Color.BG.Cells.secondaryFocused : Color.BG.Cells.secondary)
-          .foregroundColor(Color.Text.primary)
-          .cornerRadius(8)
-          .overlay(
-            RoundedRectangle(cornerRadius: 8)
-              .stroke(borderColor, lineWidth: borderWidth)
-          )
-          .padding(1)  // Ensure padding is uniform around the button to avoid thicker bottom border
         }
         .buttonStyle(PlainButtonStyle())
+        .overlay(AcceptingFirstMouse())  // This allows the view to receive clicks when window is not focused
+        .onTapGesture {  // This is the actual handler that makes the button work even when window is not focused
+          copyToClipboard(command: command)
+          provideFeedback()
+        }
+        .padding(10)
+        .background(isHovered ? Color.BG.Cells.secondaryFocused : Color.BG.Cells.secondary)
+        .foregroundColor(Color.Text.primary)
+        .cornerRadius(8)
+        .overlay(
+          RoundedRectangle(cornerRadius: 8)
+            .stroke(borderColor, lineWidth: borderWidth)
+        )
+        .padding(1)
+        .buttonStyle(PlainButtonStyle())
+        .overlay(AcceptingFirstMouse())  // This enables clicking without window focus
+        .onTapGesture {  // Adding tap gesture as backup
+          copyToClipboard(command: command)
+          provideFeedback()
+        }
         .onHover { hovering in
           isHovered = hovering
         }

@@ -41,7 +41,8 @@ struct SuggestionsStatusBarView: View {
             }
 
             Button(action: {
-              // Toggle the pause state
+              // Note: This Button action doesn't work when window is not focused
+              // The actual click handling is done by onTapGesture below
               let isPaused = pauseManager.isSuggestionGenerationPaused(for: currentTerminalID)
               viewModel.setPauseSuggestionGeneration(for: currentTerminalID, to: !isPaused)
             }) {
@@ -53,6 +54,11 @@ struct SuggestionsStatusBarView: View {
               .foregroundColor(Color.Text.secondary)
             }
             .buttonStyle(PlayPauseButtonStyle())
+            .overlay(AcceptingFirstMouse())  // This allows the view to receive clicks when window is not focused
+            .onTapGesture {  // This is the actual handler that makes the button work even when window is not focused
+              let isPaused = pauseManager.isSuggestionGenerationPaused(for: currentTerminalID)
+              viewModel.setPauseSuggestionGeneration(for: currentTerminalID, to: !isPaused)
+            }
           }
         }
         .padding(.trailing, 16)
